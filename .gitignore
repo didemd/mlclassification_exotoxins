@@ -10,6 +10,7 @@ __pycache__/
 
 # Ignore plots
 plots/
+data_copy/
 
 # Ignore everything inside Stats and Figures folders
 Stats/*

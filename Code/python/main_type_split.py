@@ -1,0 +1,442 @@
+import logging
+import os
+import numpy as np
+import pandas as pd
+
+from config.config import PLOT_SAVE_DIR  # or other paths as needed
+from data_processing.data_loader import load_embeddings, load_labels, merge_embeddings_labels
+from data_processing.data_preprocessing_type import preprocess_data
+from models.training import (
+    train_random_forest,
+    train_logistic_regression,
+    train_svm,
+    train_k_neighbors
+)
+from models.hierarchical import (
+    train_hierarchical_classifier_rf,
+    train_hierarchical_classifier_svm
+)
+
+from blast.blast_predictor import (
+    load_blast_hits,
+    load_blast_labels,
+    run_blast_predictor,
+    extract_features_and_labels,
+    preprocess_features,
+    train_model,
+    evaluate_model
+)
+
+from sklearn.model_selection import train_test_split
+import os
+from evaluation.metrics import (
+    calculate_evaluation_metrics,
+    generate_table,
+    save_metrics_to_csv,
+    save_table_to_file
+)
+
+from visualization.plots import(
+    plot_2x2_learning_curves,
+    plot_2x2_roc_curves,
+    plot_2x2_precision_recall_curves,
+    plot_comparative_bar_graph,
+    compute_learning_curve_data,
+    compute_confusion_matrix,
+    plot_2x2_confusion_matrices,
+    generate_class_metrics_table,
+    
+    )
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import matthews_corrcoef
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.pipeline import Pipeline
+from sklearn.decomposition import PCA
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def main_type():
+    """
+    Main pipeline for 'Type' prediction, including hierarchical classifiers, 
+    BLAST integration, confusion matrices, MCC comparisons, etc.
+    """
+
+    # ----------------------------------------------------------------------
+    # 1. Define label order (assuming we do NOT include 'Unknown')
+    # ----------------------------------------------------------------------
+    all_labels = ['Type_I', 'Type_II', 'Type_III', 'Type_IV', 'Unknown']
+
+    # ----------------------------------------------------------------------
+    # 2. Paths
+    # ----------------------------------------------------------------------
+    training_embeddings_path = './data/per_residue_embeddings_training.h5'
+    test_embeddings_path     = './data/per_residue_embeddings_test.h5'
+    training_labels_path     = './data/ToxinTypes_labelTarget_3.csv'
+    test_labels_path         = './data/ToxinTypes_labelTarget_3.csv'
+    blast_results_path       = './data/blast_results.tsv'
+    model_save_dir           = './plots'
+
+    # ----------------------------------------------------------------------
+    # 3. Load and merge training data
+    # ------------------------------------------------------
+    logging.info("Loading Training Embeddings...")
+    training_embeddings_df = load_embeddings(training_embeddings_path)
+    if training_embeddings_df is None:
+        logging.error("Failed to load training embeddings.")
+        return
+
+    logging.info("Loading Training Labels...")
+    training_labels_df = load_labels(training_labels_path)
+    if training_labels_df is None:
+        logging.error("Failed to load training labels.")
+        return
+
+    logging.info("Merging Training Embeddings and Labels...")
+    merged_train_df = merge_embeddings_labels(training_embeddings_df, training_labels_df)
+    if merged_train_df is None or merged_train_df.empty:
+        logging.error("Failed to merge or no data after merging.")
+        return
+
+    # ----------------------------------------------------------------------
+    # 2. Split Data into Training and Test Sets
+    # ----------------------------------------------------------------------
+    logging.info("Splitting data into training and test sets with an 80-20 ratio...")
+    train_df_main, test_df_main = train_test_split(
+        merged_train_df,
+        test_size=0.2,
+        random_state=42,
+        stratify=merged_train_df['type']
+    )
+
+    logging.info(f"Training set size: {train_df_main.shape[0]} samples")
+    logging.info(f"Test set size: {test_df_main.shape[0]} samples")
+
+    # ----------------------------------------------------------------------
+    # 3. Preprocess Main Training and Test Data
+    # ----------------------------------------------------------------------
+    logging.info("Preprocessing Training Data...")
+    try:
+        X_train_main, y_train_main, label_encoder_main = preprocess_data(train_df_main)
+    except ValueError as ve:
+        logging.error(f"Preprocessing training data failed: {ve}")
+        return
+
+    logging.info("Preprocessing Test Data...")
+    try:
+        X_test_main, y_test_main, _ = preprocess_data(test_df_main)
+    except ValueError as ve:
+        logging.error(f"Preprocessing test data failed: {ve}")
+        return
+
+    # Check class distribution
+    unique_classes, counts = np.unique(y_train_main, return_counts=True)
+    logging.info("Training Class Distribution Before Training:")
+    for cls, cnt in zip(label_encoder_main.inverse_transform(unique_classes), counts):
+        logging.info(f"{cls}: {cnt}")
+    if len(unique_classes) < 2:
+        logging.error("Training data contains only one class. Training aborted.")
+        return
+
+    # ----------------------------------------------------------------------
+    # 6. (Optional) Filter out "Unknown" if hierarchical code doesn't handle it
+    # ----------------------------------------------------------------------
+    train_mask = train_df_main['type'].isin(all_labels)
+    test_mask  = test_df_main['type'].isin(all_labels)
+
+    train_df_main = train_df_main[train_mask].copy()
+    test_df_main  = test_df_main[test_mask].copy()
+
+    # Because we have new subsets, we must re-encode y-train, y-test
+    label_encoder_main.fit(all_labels)
+    y_train_main = label_encoder_main.transform(train_df_main['type'])
+    y_test_main  = label_encoder_main.transform(test_df_main['type'])
+
+    # Recreate feature arrays from the newly filtered data
+    feature_columns_main = [f'feature_{i}' for i in range(X_train_main.shape[1])]
+    X_train_main = train_df_main[feature_columns_main].values
+    X_test_main  = test_df_main[feature_columns_main].values
+
+    # ----------------------------------------------------------------------
+    # 7. Train hierarchical classifiers
+    # ----------------------------------------------------------------------
+    logging.info("Training Hierarchical RF Classifier...")
+    model_rf_hier = train_hierarchical_classifier_rf(train_df_main)
+
+    logging.info("Training Hierarchical SVM Classifier...")
+    model_svm_hier = train_hierarchical_classifier_svm(train_df_main)
+
+    # ----------------------------------------------------------------------
+    # 8. Train "flat" classifiers
+    # ----------------------------------------------------------------------
+    n_components = 50
+    logging.info("Training Random Forest...")
+    rf_model, rf_grid_search, _ = train_random_forest(X_train_main, y_train_main, n_components)
+
+    logging.info("Training Logistic Regression...")
+    lr_model, lr_grid_search, _ = train_logistic_regression(X_train_main, y_train_main, n_components)
+
+    logging.info("Training SVM...")
+    svm_model, svm_grid_search, _ = train_svm(X_train_main, y_train_main, n_components)
+
+    logging.info("Training KNN...")
+    knn_model, knn_grid_search, _ = train_k_neighbors(X_train_main, y_train_main, n_components)
+
+    # ----------------------------------------------------------------------
+    # 9. Predictions
+    # ----------------------------------------------------------------------
+    logging.info("Evaluating Hierarchical RF on Test Set...")
+    y_pred_rf_hier_str = model_rf_hier.predict(X_test_main)
+    y_pred_rf_hier_encoded = label_encoder_main.transform(y_pred_rf_hier_str)
+
+    logging.info("Evaluating Hierarchical SVM on Test Set...")
+    y_pred_svm_hier_str = model_svm_hier.predict(X_test_main)
+    y_pred_svm_hier_encoded = label_encoder_main.transform(y_pred_svm_hier_str)
+
+    logging.info("Evaluating Flat Random Forest...")
+    y_pred_rf = rf_model.predict(X_test_main)
+
+    logging.info("Evaluating Flat Logistic Regression...")
+    y_pred_lr = lr_model.predict(X_test_main)
+
+    logging.info("Evaluating Flat SVM...")
+    y_pred_svm = svm_model.predict(X_test_main)
+
+    logging.info("Evaluating Flat KNN...")
+    y_pred_knn = knn_model.predict(X_test_main)
+
+    # ----------------------------------------------------------------------
+    # 10. Evaluate all classifiers
+    # ----------------------------------------------------------------------
+    hier_rf_metrics = calculate_evaluation_metrics(
+        y_test_main, y_pred_rf_hier_encoded, label_encoder=label_encoder_main
+    )
+    table_hier_rf = generate_table(hier_rf_metrics)
+    print("\nHierarchical RF Metrics:\n", table_hier_rf)
+    save_metrics_to_csv(hier_rf_metrics, "Hierarchical_RF_metrics.csv")
+    save_table_to_file(table_hier_rf, "Hierarchical_RF_metrics_table.txt")
+
+    hier_rf_class_metrics = generate_class_metrics_table(y_test_main, y_pred_rf_hier_encoded, all_labels)
+    print("\n Hier RF (Flat) Per-Class Metrics Table:\n", hier_rf_class_metrics)
+    hier_rf_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "Hier_RF_flat_per_class_metrics.csv"), index=False)
+
+    hier_svm_metrics = calculate_evaluation_metrics(
+        y_test_main, y_pred_svm_hier_encoded, label_encoder=label_encoder_main
+    )
+    table_hier_svm = generate_table(hier_svm_metrics)
+    print("\nHierarchical SVM Metrics:\n", table_hier_svm)
+    save_metrics_to_csv(hier_svm_metrics, "Hierarchical_SVM_metrics.csv")
+    save_table_to_file(table_hier_svm, "Hierarchical_SVM_metrics_table.txt")
+
+    hier_svm_class_metrics = generate_class_metrics_table(y_test_main, y_pred_svm_hier_encoded, all_labels)
+    print("\n Hier SVM (Flat) Per-Class Metrics Table:\n", hier_svm_class_metrics)
+    hier_svm_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "Hier_SVM_flat_per_class_metrics.csv"), index=False)
+
+    rf_metrics = calculate_evaluation_metrics(y_test_main, y_pred_rf, label_encoder=label_encoder_main)
+    table_rf = generate_table(rf_metrics)
+    print("\nRandom Forest (flat) Metrics:\n", table_rf)
+    save_metrics_to_csv(rf_metrics, "RandomForest_flat_metrics.csv")
+    save_table_to_file(table_rf, "RandomForest_flat_metrics_table.txt")
+
+    rf_class_metrics = generate_class_metrics_table(y_test_main, y_pred_rf, all_labels)
+    print("\nRandom Forest (Flat) Per-Class Metrics Table:\n", rf_class_metrics)
+    rf_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "RandomForest_flat_per_class_metrics.csv"), index=False)
+
+
+    lr_metrics = calculate_evaluation_metrics(y_test_main, y_pred_lr, label_encoder=label_encoder_main)
+    table_lr = generate_table(lr_metrics)
+    print("\nLogistic Regression (flat) Metrics:\n", table_lr)
+    save_metrics_to_csv(lr_metrics, "LogisticRegression_flat_metrics.csv")
+    save_table_to_file(table_lr, "LogisticRegression_flat_metrics_table.txt")
+
+    lr_class_metrics = generate_class_metrics_table(y_test_main, y_pred_lr, all_labels)
+    print("\nLogistic Regression (Flat) Per-Class Metrics Table:\n", lr_class_metrics)
+    lr_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "LogisticRegression_flat_per_class_metrics.csv"), index=False)
+
+
+    svm_metrics = calculate_evaluation_metrics(y_test_main, y_pred_svm, label_encoder=label_encoder_main)
+    table_svm = generate_table(svm_metrics)
+    print("\nSVM (flat) Metrics:\n", table_svm)
+    save_metrics_to_csv(svm_metrics, "SVM_flat_metrics.csv")
+    save_table_to_file(table_svm, "SVM_flat_metrics_table.txt")
+
+    svm_class_metrics = generate_class_metrics_table(y_test_main, y_pred_svm, all_labels)
+    print("\n SVM (Flat) Per-Class Metrics Table:\n", svm_class_metrics)
+    svm_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "SVM_flat_per_class_metrics.csv"), index=False)
+
+    knn_metrics = calculate_evaluation_metrics(y_test_main, y_pred_knn, label_encoder=label_encoder_main)
+    table_knn = generate_table(knn_metrics)
+    print("\nKNN (flat) Metrics:\n", table_knn)
+    save_metrics_to_csv(knn_metrics, "KNN_flat_metrics.csv")
+    save_table_to_file(table_knn, "KNN_flat_metrics_table.txt")
+
+    knn_class_metrics = generate_class_metrics_table(y_test_main, y_pred_knn, all_labels)
+    print("\n SVM (Flat) Per-Class Metrics Table:\n", knn_class_metrics)
+    knn_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "KNN_flat_per_class_metrics.csv"), index=False)
+
+    # ----------------------------------------------------------------------
+    # 11. BLAST Integration & Evaluation
+    # ----------------------------------------------------------------------
+    blast_hits = load_blast_hits(blast_results_path)
+    if blast_hits.empty:
+        logging.warning("No BLAST hits loaded. Skipping BLAST evaluation.")
+    else:
+        type_map, target_map = load_blast_labels(training_labels_path)
+        predicted_hits = run_blast_predictor(blast_hits, type_map, target_map)
+
+        # Print columns to debug
+        print("\nColumns in predicted_hits:", predicted_hits.columns.tolist())
+        print(predicted_hits.head())
+
+        # If "exotoxin_type" is missing, but "predicted_exotoxin_type" is present, rename it:
+        if ("exotoxin_type" not in predicted_hits.columns 
+                and "predicted_exotoxin_type" in predicted_hits.columns):
+            predicted_hits.rename(
+                columns={"predicted_exotoxin_type": "exotoxin_type"}, 
+                inplace=True
+            )
+            print("Renamed 'predicted_exotoxin_type' -> 'exotoxin_type' for BLAST predictions.")
+
+        # Now we can proceed if we have 'exotoxin_type'
+        if not predicted_hits.empty and 'exotoxin_type' in predicted_hits.columns:
+            X_blast, y_blast = extract_features_and_labels(
+                predicted_hits, 
+                label_type='exotoxin_type'  # The function expects this name
+            )
+            X_blast_scaled = preprocess_features(X_blast)
+
+            X_train_blast, X_test_blast, y_train_blast, y_test_blast = train_test_split(
+                X_blast_scaled, 
+                y_blast, 
+                test_size=0.2, 
+                random_state=42, 
+                stratify=y_blast
+            )
+            blast_label_encoder = LabelEncoder()
+            blast_label_encoder.fit(y_train_blast)
+
+            model_path_blast = os.path.join(model_save_dir, 'random_forest_blast.pkl')
+            model_blast = train_model(X_train_blast, y_train_blast, model_path=model_path_blast)
+            evaluate_model(model_blast, X_test_blast, y_test_blast)
+
+            # Evaluate BLAST metrics
+            y_pred_blast = model_blast.predict(X_test_blast)
+            blast_metrics = calculate_evaluation_metrics(
+                y_test_blast, 
+                y_pred_blast, 
+                label_encoder=blast_label_encoder
+            )
+            table_blast = generate_table(blast_metrics)
+            print("\nBLAST Metrics:\n", table_blast)
+            save_metrics_to_csv(blast_metrics, "BLAST_Exotoxin_metrics.csv")
+            save_table_to_file(table_blast, "BLAST_Exotoxin_metrics_table.txt")
+        else:
+            logging.error("BLAST data is missing a valid 'exotoxin_type' column. Cannot extract features.")
+
+    # ----------------------------------------------------------------------
+    # 12. Combine MCC & SE in a DataFrame, then plot
+    # ----------------------------------------------------------------------
+    logging.info("Aggregating MCC and SE for all predictors...")
+
+    all_predictors = ["RF", "LR", "SVM", "KNN", 
+                      "Hier_RF", "Hier_SVM", "BLAST"]
+
+    metrics_dict = {
+        "RF": rf_metrics,
+        "LR": lr_metrics,
+        "SVM": svm_metrics,
+        "KNN": knn_metrics,
+        "Hier_RF": hier_rf_metrics,
+        "Hier_SVM": hier_svm_metrics,
+        "BLAST": blast_metrics
+    }
+
+    data = {"Predictor": [], "MCC": [], "MCC_SE": []}
+    for name in all_predictors:
+        mcc_val, mcc_se = metrics_dict.get(name, {}).get('MCC', (0.0, 0.0))
+        data["Predictor"].append(name)
+        data["MCC"].append(mcc_val)
+        data["MCC_SE"].append(mcc_se)
+
+    combined_mcc_df = pd.DataFrame(data)
+    logging.info(f"Combined MCC DataFrame:\n{combined_mcc_df}")
+
+    bar_colors = [
+        "#0072B2", "#E69F00", "#009E73",
+        "#CC79A7", "#F0E442", "#56B4E9", "#A6761D"
+    ]
+
+    plot_comparative_bar_graph(
+        combined_mcc_df,
+        bar_colors=bar_colors,
+        save_path=os.path.join(PLOT_SAVE_DIR, "comparison_graph_with_error_bars.png")
+    )
+
+    # ----------------------------------------------------------------------
+    # 13. Learning Curves
+    # ----------------------------------------------------------------------
+    logging.info("Computing learning curves...")
+    # 14. ROC and Precision-Recall curves (Multiclass)
+    # ----------------------------------------------------------------------
+    logging.info("Computing ROC and Precision-Recall curves...")
+
+    models_for_curves = [rf_model, lr_model, svm_model, knn_model]
+    model_names_for_curves = ["RandomForest", "LogisticRegression", "SVM", "KNN"]
+
+    all_model_data = [
+    compute_learning_curve_data(rf_model, X_train_main, y_train_main),
+    compute_learning_curve_data(lr_model, X_train_main, y_train_main),
+    compute_learning_curve_data(svm_model, X_train_main, y_train_main),
+    compute_learning_curve_data(knn_model, X_train_main, y_train_main)
+]
+    # Compute confusion matrices for the first four models (as an example)
+    cm_rf_flat = compute_confusion_matrix(y_test_main, y_pred_rf, all_labels)
+    cm_lr_flat = compute_confusion_matrix(y_test_main, y_pred_lr, all_labels)
+    cm_svm_flat = compute_confusion_matrix(y_test_main, y_pred_svm, all_labels)
+    cm_knn_flat = compute_confusion_matrix(y_test_main, y_pred_knn, all_labels)
+
+    confusion_matrices = [cm_rf_flat, cm_lr_flat, cm_svm_flat, cm_knn_flat]
+    fig_lc, axes_lc = plot_2x2_learning_curves(
+            all_model_data,
+            model_names_for_curves,
+            save_path=os.path.join(PLOT_SAVE_DIR, "2x2_learning_curves.png")
+        )
+
+        # 3) 2x2 Precision-Recall curves
+    fig_pr, axes_pr = plot_2x2_precision_recall_curves(
+        [rf_model, lr_model, svm_model, knn_model],
+        model_names_for_curves,
+        X_test_main,
+        y_test_main,
+        label_encoder=label_encoder_main, 
+        save_path=os.path.join(PLOT_SAVE_DIR, "2x2_precision_recall_curves.png")
+    )
+
+    # 2) 2x2 ROC curves
+    fig_roc, axes_roc = plot_2x2_roc_curves(
+        [rf_model, lr_model, svm_model, knn_model],
+        model_names_for_curves,
+        X_test_main,
+        y_test_main,
+        label_encoder=label_encoder_main,  
+        save_path=os.path.join(PLOT_SAVE_DIR, "2x2_roc_curves.png")
+    )
+
+    model_names = ["RandomForest", "LogisticRegression", "SVM", "KNN"]
+    # Plotting Confusion Matrices
+    fig_cm, axes_cm = plot_2x2_confusion_matrices(
+        confusion_matrices=confusion_matrices,
+        model_names=model_names,
+        all_labels=all_labels,
+        normalize=False,  # Set to True if you want normalized confusion matrices
+        save_path=os.path.join(PLOT_SAVE_DIR, "2x2_confusion_matrices.png")
+    )
+
+logging.info("Done with main_type pipeline!")
+
+if __name__ == "__main__":
+    main_type()
