@@ -1,0 +1,16 @@
+# Core Libraries
+numpy
+pandas
+matplotlib
+seaborn
+h5py
+scikit-learn
+pytest
+joblib
+plotly
+biopython
+pacmap
+tabulate
+
+# Additional Tools
+jsonschema  # For handling JSON processing, if needed
