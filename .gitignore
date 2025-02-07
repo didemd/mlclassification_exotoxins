@@ -11,6 +11,7 @@ __pycache__/
 # Ignore plots
 plots/
 data_copy/
+venv/
 
 # Ignore everything inside Stats and Figures folders
 Stats/*
