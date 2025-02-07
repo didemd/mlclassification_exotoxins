@@ -16,3 +16,4 @@ venv/
 # Ignore everything inside Stats and Figures folders
 Stats/*
 Figures/*
+Predictors/*
