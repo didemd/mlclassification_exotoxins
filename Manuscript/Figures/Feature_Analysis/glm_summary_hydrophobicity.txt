@@ -1,0 +1,22 @@
+GLM Summary for Hydrophobicity
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:         Hydrophobicity   No. Observations:                  873
+Model:                            GLM   Df Residuals:                      867
+Model Family:                Gaussian   Df Model:                            5
+Link Function:               Identity   Scale:                         0.10842
+Method:                          IRLS   Log-Likelihood:                -265.94
+Date:                Thu, 30 Jan 2025   Deviance:                       94.002
+Time:                        12:44:33   Pearson chi2:                     94.0
+No. Iterations:                     3   Pseudo R-squ. (CS):            0.03201
+Covariance Type:            nonrobust                                         
+===========================================================================================
+                              coef    std err          z      P>|z|      [0.025      0.975]
+-------------------------------------------------------------------------------------------
+Intercept                  -0.3998      0.073     -5.446      0.000      -0.544      -0.256
+C(type)[T.Type_II]          0.2075      0.076      2.720      0.007       0.058       0.357
+C(type)[T.Type_III]         0.0414      0.070      0.589      0.556      -0.096       0.179
+C(type)[T.Type_IV]         -0.0408      0.098     -0.415      0.678      -0.233       0.152
+C(type)[T.Unknown]          0.0991      0.083      1.189      0.234      -0.064       0.262
+C(target)[T.Vertebrate]     0.0003      0.026      0.011      0.991      -0.051       0.051
+===========================================================================================

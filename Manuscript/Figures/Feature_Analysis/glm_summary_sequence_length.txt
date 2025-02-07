@@ -1,0 +1,22 @@
+GLM Summary for Sequence Length
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:        Sequence_Length   No. Observations:                  873
+Model:                            GLM   Df Residuals:                      867
+Model Family:                Gaussian   Df Model:                            5
+Link Function:               Identity   Scale:                      1.6661e+05
+Method:                          IRLS   Log-Likelihood:                -6483.9
+Date:                Thu, 30 Jan 2025   Deviance:                   1.4445e+08
+Time:                        12:44:33   Pearson chi2:                 1.44e+08
+No. Iterations:                     3   Pseudo R-squ. (CS):            0.03939
+Covariance Type:            nonrobust                                         
+===========================================================================================
+                              coef    std err          z      P>|z|      [0.025      0.975]
+-------------------------------------------------------------------------------------------
+Intercept                 233.6480     91.005      2.567      0.010      55.282     412.014
+C(type)[T.Type_II]         92.5175     94.587      0.978      0.328     -92.869     277.904
+C(type)[T.Type_III]       209.9339     87.112      2.410      0.016      39.198     380.670
+C(type)[T.Type_IV]        466.1304    121.725      3.829      0.000     227.554     704.707
+C(type)[T.Unknown]        374.2091    103.257      3.624      0.000     171.829     576.589
+C(target)[T.Vertebrate]     6.2216     32.219      0.193      0.847     -56.926      69.369
+===========================================================================================
