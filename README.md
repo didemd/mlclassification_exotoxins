@@ -26,7 +26,7 @@ You will be prompted to select a script to execute (Right now main_type.py and m
 
 The script automatically:
 
-    Creates and activates a virtual environment
-    Installs dependencies from requirements.txt
-    Runs the selected script(s) from Code/python/
-    Deactivates the virtual environment when done
+    - Creates and activates a virtual environment
+    - Installs dependencies from requirements.txt
+    - Runs the selected script(s) from Code/python/
+    - Deactivates the virtual environment when done
