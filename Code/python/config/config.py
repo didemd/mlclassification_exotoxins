@@ -38,8 +38,8 @@ TRAINING_EMBEDDINGS_PATH_FOLDS = os.getenv('TRAINING_EMBEDDINGS_PATH_FOLDS', "./
 
 
 BLAST_RESULTS_PATH = os.getenv('BLAST_RESULTS_PATH', "./Data/derived/blast_results.tsv")
-MODEL_SAVE_DIR = os.getenv('MODEL_SAVE_DIR', "Predictor")
-PREDICTOR_PATH = os.getenv('PREDICTOR_PATH', "Predictor")
+MODEL_SAVE_DIR = os.getenv('MODEL_SAVE_DIR', "Predictors")
+PREDICTOR_PATH = os.getenv('PREDICTOR_PATH', "Predictors")
 
 # Define directory for saving statistics and metrics
 STATS_DIR = os.getenv('STATS_DIR', "Stats")
