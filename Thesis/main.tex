@@ -1,0 +1,51 @@
+\documentclass[12pt]{report} % Use 'report' for theses; you can also use 'book' or 'article'
+
+% Packages (adjust as needed)
+\usepackage[utf8]{inputenc}   % For UTF-8 encoding
+\usepackage[T1]{fontenc}      % For proper font encoding
+\usepackage{graphicx}         % For including images
+\usepackage{hyperref}         % For clickable links
+\usepackage{natbib}           % For bibliography management 
+\usepackage{subcaption}
+
+\begin{document}
+% Document title, author, and date
+\title{Machine Learning Classification: Differentiating Bacterial Exotoxins based on Exotoxin Types and Targets}
+\author{Didem Dost}
+\date{\today}
+	
+	\maketitle
+	
+	\chapter*{Acknowledgements}
+	\input{chapters/acknowledgements.tex}
+	
+	\chapter*{Abstract}
+	\input{chapters/abstract.tex}
+	
+	\tableofcontents
+	
+	\chapter{Introduction}
+	\input{chapters/introduction.tex}
+	
+	\chapter{Background}
+	\input{chapters/background.tex}
+	
+	\chapter{Methods}
+	\input{chapters/methods.tex}
+	
+	\chapter{Results}
+	\input{chapters/results.tex}
+	
+	\chapter{Conclusion}
+	\input{chapters/conclusion.tex}
+	
+	\chapter{Discussion}
+	\input{chapters/discussion.tex}
+	
+	\chapter*{Appendix}
+	\input{chapters/appendix.tex}
+	
+	\bibliographystyle{plainnat}
+	\bibliography{bibliography/references}
+
+\end{document}

@@ -1,0 +1,446 @@
+
+The results present two predictors, ExoType and ExoTarget, that can differentiate between bacterial exotoxin types and targets based different inputs such as protein sequences and protein folds.
+This section introduces the data processing, steps of machine learning pipeline and model evaluation based on metrics.
+
+\subsection{Data Exploration and Preprocessing}
+Here, we describe the classification results obtained from our machine learning experiments.
+
+\subsubsection{Dataset Overview}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/upset_plot_of_raw_data.png}
+	\caption{UpSet plot illustrating the distribution of exotoxin types and their host targets. 
+		The plot consists of two main sections: a bar chart at the top and a matrix plot below. 
+		The bar chart, located in the upper part of the figure, represents the intersection size of different categories in black bars. The tallest bar, reaching approximately 1,694, corresponds to the most frequent category intersection. The lower part of the figure presents a matrix of black-filled circles and gray background dots. Each row corresponds to a bacterial exotoxin type or host target category, including Type I, Type II, Type III, Type IV, Unknown, Vertebrate, and Invertebrate. The horizontal black bars on the left indicate the total number of sequences in each category, with Type III exotoxins being the most prevalent (2,149 sequences), followed by Vertebrate-targeting exotoxins (1,863 sequences), and Invertebrate-targeting exotoxins (629 sequences). The black-filled circles within the matrix indicate which categories are included in a particular intersection. For example, a row with black-filled circles in both the Type III and Vertebrate rows means that this subset includes exotoxins belonging to both Type III and Vertebrate-targeting categories.}
+	\label{fig:dataset_distribution}
+\end{figure}
+
+Figure \ref{fig:dataset_distribution} summarizes the distribution of exotoxin types within the dataset used for the machine learning classification task. 
+During type classification, Type III control toxins are being standardized to Type III as Type II PFT bacteria have been standardized as Type II.
+
+The dataset is heavily skewed towards Type III exotoxins that includes 2149 data points, highlighting over-representation among dataset. 
+This class imbalance may affect the performance of machine learning models, might require methods like oversampling or class weighting to minimize or prevent bias.
+On the other hand, other types, which has  patterns that have not been identified, consist of 104 samples.
+
+On the other hand, Figure~\ref{fig:dataset_distribution} introduces the distribution of exotoxin types within the dataset used for predictive modeling.
+During target classification, it is visible that bacterial exotoxins in the dataset are three times more abundant in terms of targeting vertebrates rather than invertebrates. The sample size of vertebrates is 1863 whereas non-vertebrate class has 629 samples.
+
+\subsection{Redundancy Reduction}
+
+To ensure the robustness and generalizability of the machine learning models, redundancy reduction was performed on the exotoxin dataset.
+Firstly, using MMseq2 with a 100\% similarity threshold, the number of sequences was reduced from, 2497 to 2492.
+The goal was to eliminate duplicates among the dataset.
+Secondly, using MMseq2 with a 30\% similarity threshold, the number of sequences was reduced from, 2492 to 1068.
+This process minimizes similarity among sequences, allowing the study to focus on the unique characteristics and functional diversity of bacterial exotoxin types.
+As it is visible, Table~\ref{tab:merged_dataset_distribution}, after eliminating the similar sequences, the over-representation of Type III is maintained even more which lowers bias among prediction.
+Therefore, generation of these non-redundant data allows further analysis of exotoxin properties such as sequence length and hydrophobicity.
+
+
+This figure highlights a significant class imbalance, particularly the over-representation of Type III exotoxins, which makes up more than 80\% of the dataset before redundancy reduction and remains the dominant class afterward. The large proportion of vertebrate-targeting exotoxins suggests that the model may inherently learn to favor vertebrate-related patterns. These imbalances can lead to bias in machine learning models, particularly affecting classification performance for underrepresented classes (Type I, IV, and invertebrates). To address this, techniques like oversampling, weighted loss functions, or different evaluation metrics (like MCC) should be considered to prevent skewed performance.
+\pagebreak
+
+\begin{table}[hbtp]
+	\centering
+	\caption{Summary of the dataset distribution based on exotoxin types and their biological targets before and after redundancy reduction.}
+	\label{tab:merged_dataset_distribution}
+	
+	\begin{subtable}[t]{0.45\textwidth}
+		\centering
+		\caption{}
+		\label{tab:exotoxin_types_merged}
+		\begin{tabular}{@{}lll@{}}
+			\toprule
+			\textbf{Exotoxin Type} & \textbf{Original} & \textbf{Reduced} \\ \midrule
+			Type I & 42 & 29 \\
+			Type II & 169 & 145 \\
+			Type III & 2149 & 852 \\
+			Type IV & 28 & 25 \\
+			Other Types & 104 & 93 \\
+			\bottomrule
+		\end{tabular}
+	\end{subtable}
+	\hfill
+	\begin{subtable}[t]{0.45\textwidth}
+		\centering
+		\caption{}
+		\label{tab:exotoxin_targets_merged}
+		\begin{tabular}{@{}lll@{}}
+			\toprule
+			\textbf{Exotoxin Target} & \textbf{Original} & \textbf{Reduced} \\ \midrule
+			Vertebrates & 1863 & 614 \\
+			Invertebrates & 629 & 234 \\
+			\bottomrule
+		\end{tabular}
+	\end{subtable}
+\end{table}
+
+\subsection{Feature Analysis of Exotoxins}
+\subsubsection{Sequence Length Analysis}
+
+Following redundancy reduction, a descriptive analysis was conducted to examine key features of exotoxin sequences. 
+The distribution of sequence lengths and hydrophobicity across toxin types were plotted in a boxplot. 
+The analysis revealed that Type III, Type IV, and Unknown toxins have significantly longer sequences, with coefficients of 209.93 (p = 0.016), 466.13 (p = 0.000), and 374.21 (p = 0.000), respectively. These coefficients indicate the average increase in sequence length for each toxin type compared to the reference category. 
+In contrast, Type II toxins and vertebrate-targeting toxins showed no significant effect (p > 0.05), suggesting their sequence lengths remain relatively stable. 
+As a result, it could be said that there is a variation in sequence length that introduces a bias that may affect predictive models, particularly if sequence length influences classification performance.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[H]{\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{images/sequence_length_by_type.png} 
+		\caption{\textbf{Sequence length distribution for different bacterial exotoxin types.}(measured in amino acids).
+			The x-axis represents the exotoxin types and each toxin type is represented by a distinct color: Type I (yellow), Type II (red), Type III (purple), Type IV (green), and Unknown (blue). 
+			The y-axis shows sequence length in amino acids, ranging from 0 to approximately 3000 except one outlier.}
+		\label{fig:sequence_length_by_type}
+	\end{subfigure}
+	\vspace{1em}
+	\begin{subfigure}[H]{\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{images/sequence_length_by_target.png}
+		\caption{\textbf{Sequence length distribution for different bacterial exotoxin targets.}(measured in amino acids).
+			The x-axis represents the exotoxin targets, and each toxin type is represented by a distinct color: Vertebrates (green) and Non-vertebrates (yellow).
+			The y-axis shows sequence length in amino acids, ranging from 0 to approximately 2500 except five outliers.}
+		\label{fig:sequence_length_by_target}
+	\end{subfigure}
+	\caption{Descriptive Analysis of Bacterial Exotoxin Feature: Sequence Length}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/residuals_sequence_length_deviance.png}
+	\caption{Deviance residuals vs. fitted values for the GLM on sequence length. Large residuals indicate that the model does not fully capture the variance in sequence length, suggesting that additional factors influence sequence length beyond toxin type.}
+	\label{fig:res_seq_length}
+\end{figure}
+
+The residuals plot shows large deviations, meaning that the model struggles to explain the variance in sequence length. This suggests that sequence length alone does not fully account for the differences between toxin types. The presence of extreme residuals implies that other molecular or structural properties might be required to improve prediction accuracy. The low pseudo R-squared value (0.039) further supports this observation
+
+\subsubsection{Hydrophobicity Feature Analysis}
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{images/hydrophobicity_by_type.png} % Replace with your figure file
+		\caption{\textbf{Hydrophobicity distribution for different bacterial exotoxin types.}(measured in amino acids).
+			The x-axis represents the exotoxin types and each toxin type is represented by a distinct color: Type I (yellow), Type II (red), Type III (purple), Type IV (green), and Unknown (blue). The y-axis shows the average hydrophobicity values, ranging from approximately -1.5 to 1.0. Each box plot displays the median hydrophobicity, interquartile range (IQR), and whiskers extending up to 1.5 times the IQR. Individual outliers are marked as points outside the whiskers. The hydrophobicity values vary slightly across toxin types, with Type II showing a wider spread compared to others, while Type I and Type IV are more compact.}
+		\label{fig:hydrophobicity_toxin_type}
+	\end{subfigure}
+	\vspace{1em}
+	\begin{subfigure}[H]{\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{images/hydrophobicity_by_target.png} % Replace with your figure file
+		\caption{\textbf{Hydrophobicity distribution for different bacterial exotoxin targets.}(measured in amino acids).
+			The x-axis represents the exotoxin targets, and each toxin target is represented by a distinct color: Vertebrates (green) and Non-vertebrates (yellow).
+			The y-axis shows the average hydrophobicity values, ranging from approximately -1.5 to 1.0. Each box plot summarizes the data, showing the median hydrophobicity, interquartile range (IQR), and whiskers extending up to 1.5 times the IQR, with outliers plotted as individual points. Both vertebrate and non-vertebrate targets have similar distributions, but vertebrate targets exhibit a slightly wider variation in hydrophobicity compared to non-vertebrate targets.}
+		\label{fig:hydrophobicity_by_target}
+	\end{subfigure}
+	\caption{Descriptive Analysis of Bacterial Exotoxin Feature: Hydrophobicity}
+\end{figure}
+
+Our analysis investigated whether hydrophobicity introduce biases. Using Generalized Linear Models (GLMs), we found that Type II toxins have significantly higher hydrophobicity, with a coefficient of 0.2075 (p = 0.007), meaning their hydrophobicity is 0.2075 units higher on average compared to the reference category. In contrast, Type III, Type IV, Unknown toxins, and vertebrate-targeting toxins showed no significant effect on hydrophobicity (p > 0.05), suggesting similar hydrophobicity levels across these groups. Since only Type II toxins exhibit a significant increase, this could introduce a bias in predictive models that use hydrophobicity as a feature.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/residuals_hydrophobicity_deviance.png}
+	\caption{Deviance residuals vs. fitted values for the GLM on hydrophobicity. The scattered residuals suggest that toxin type alone does not strongly predict hydrophobicity, indicating the need for additional explanatory variables.}
+	\label{fig:res_seq_hydro}
+\end{figure}
+
+This residuals plot demonstrates that hydrophobicity does not show a strong pattern across toxin types. The low pseudo R-squared value (0.032) confirms that toxin type alone does not sufficiently explain hydrophobicity variation​. The scattered points and presence of high residuals indicate unexplained variance, meaning that additional biochemical properties (e.g., charge, structural motifs) may be influencing hydrophobicity.
+\subsubsection{Information on Protein Folds Generated by AlphaFold 2}
+
+AlphaFold predicts 3D structures of proteins based on amino acid sequences using deep learning. Predicted pLDDT was gathered from the scores from the B-factor column of each residue.
+
+Include which specific folds are considered low-confidence and high-confidence by giving specific IDs and respective analysis...
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/LDDT.png}
+	\caption{LDDT Score Distribution Across Targets. The black line represents the mean LDDT score for each target, while the gray error bars indicate the standard deviation. Red points denote the median LDDT score for each target. A gradual increase in LDDT scores is observed, with higher variation in lower-confidence predictions. This visualization highlights the distribution of model confidence across different protein structures. Low-confidence predictions correspond to LDDT< 50, high confidence regions correspond to LDDT > 70}
+	\label{fig:lddt_scores}
+\end{figure}
+
+\subsubsection{Dimensionality Reduction Techniques}
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[H]{\textwidth}
+		\centering
+		\includegraphics[width=0.7\textwidth]{images/pca_projection_type.png} 
+		\caption{\textbf{Principal Component Analysis (PCA) projection of bacterial exotoxin types}
+			The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, both ranging from approximately -1.0 to 1.0. Each exotoxin type is color-coded: Type I (blue), Type II (green), Type III (red), Type IV (purple), and Unknown (gray). Clusters suggest some overlap but distinct separations for specific types.}
+		\label{fig:pca_toxin_type}
+	\end{subfigure}
+	\vspace{1em}
+	\begin{subfigure}[H]{\textwidth}
+		\centering
+		\includegraphics[width=0.7\textwidth]{images/pca_projection_type_scrambled.png} 
+		\caption{\textbf{Scrambled PCA projection of bacterial exotoxin types.} The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, with a wider range of values (-1.5 to 1.0). The same color coding applies: Type I (blue), Type II (green), Type III (red), Type IV (purple), and Unknown (gray). The scrambling reduces separation among the clusters, indicating the effect of shuffling input data.}
+		\label{fig:scrambled_pca_toxin_type}
+	\end{subfigure}
+	\caption{Principal Component Analysis Based On Exotoxin Types For Dimensionality Reduction}
+	\label{fig:dimensionality_reduction_toxin_type}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=0.7\textwidth]{images/pca_projection_target.png} 
+		\caption{\textbf{Principal Component Analysis (PCA) projection of bacterial exotoxin targets.}The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, both ranging from approximately -1.0 to 1.0. Targets are color-coded: Vertebrates (orange) and Non-vertebrates (blue). Vertebrate clusters are more compact, while non-vertebrate clusters show broader variability.}
+		\label{fig:pca_projection_non_scrambled_target}
+	\end{subfigure}
+	\vspace{1em}
+	\begin{subfigure}[b]{\textwidth}
+		\centering
+		\includegraphics[width=0.7\textwidth]{images/pca_projection_target_scrambled.png}
+		\caption{\textbf{Scrambled PCA projection of bacterial exotoxin targets.}The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, with a wider range of values (-1.5 to 1.0). Targets are color-coded as Vertebrates (orange) and Non-vertebrates (blue). The scrambling reduces cluster compactness, demonstrating the loss of structure in the data.}
+		\label{fig:pca_projection_scrambled_target}
+	\end{subfigure}
+	\caption{Principal Component Analysis Based On Exotoxin Targets For Dimensionality Reduction}
+	\label{fig:dimensionality_reduction_toxin_type}
+\end{figure}
+
+Principal Component Analysis (PCA) was applied to both the standard and scrambled datasets to assess the separation of vertebrate and non-vertebrate sequences. In the target PCA, vertebrates (purple) and non-vertebrates (green) show some clustering, suggesting biologically meaningful features, though with overlap. 
+
+Along the PCA plot for exotoxin types, Type II and Type IV showed distinct clustering, whereas Type III is scattered randomly with small clustering among its groups, often between 0 and 0.75 on the Principal Component 1 axis. However, there is clear overlapping among data points of different types between -0.75 and 0 on the Principal Component 1 axis which indicates there might be difficulties in classifying them accurately.
+
+In contrast, the scrambled PCA lacks any visible structure, confirming that the patterns in the target PCA are meaningful rather than random artifacts. This validates that the learned features effectively capture relevant biological information.
+
+%INCLUDE VALUES OF VARIANCE FROM THE OUTPUTS OF SCRIPT FOR BOTH.
+
+\pagebreak 
+
+\subsection{ExoType Predictor}
+\subsection{Model Training}
+
+\subsubsection{Learning Curves for Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/sequence_learning_curve1.jpg}
+	\includegraphics[width=0.7\textwidth]{images/sequence_learning_curve2.jpg}
+	\caption{Learning Curves for Protein Sequence-Based Embeddings}
+	\label{fig:sequence_learning_curves}
+\end{figure}
+
+\subsubsection{Learning Curves for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/fold_learning_curve.jpg}
+	\caption{Learning Curve for Protein Fold-Based Embeddings}
+	\label{fig:fold_learning_curve}
+\end{figure}
+
+\subsection{Performance Evaluation}
+
+\subsubsection{MCC Bar Plots for Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/mcc_sequence1.jpg}
+		\caption{MCC Plot 1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/mcc_sequence2.jpg}
+		\caption{MCC Plot 2}
+	\end{subfigure}
+	\caption{MCC Bar Plots for Protein Sequence-Based Embeddings}
+	\label{fig:mcc_sequence}
+\end{figure}
+
+\subsubsection{MCC Bar Plots for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/mcc_fold.jpg}
+	\caption{MCC Bar Plot for Protein Fold-Based Embeddings}
+	\label{fig:mcc_fold}
+\end{figure}
+
+\subsubsection{ROC Curves for Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/roc_sequence1.jpg}
+		\caption{ROC Curve 1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/roc_sequence2.jpg}
+		\caption{ROC Curve 2}
+	\end{subfigure}
+	\caption{ROC Curves for Protein Sequence-Based Embeddings}
+	\label{fig:roc_sequence}
+\end{figure}
+
+\subsubsection{ROC Curves for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/roc_fold.jpg}
+	\caption{ROC Curve for Protein Fold-Based Embeddings}
+	\label{fig:roc_fold}
+\end{figure}
+
+\subsubsection{Precision-Recall Curves for Protein Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/pr_sequence1.jpg}
+	\includegraphics[width=0.7\textwidth]{images/pr_sequence2.jpg}
+	\caption{Precision-Recall Curves for Protein Sequence-Based Embeddings}
+	\label{fig:pr_sequence}
+\end{figure}
+
+\subsubsection{Precision-Recall Curves for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/pr_fold.jpg}
+	\caption{Precision-Recall Curve for Protein Fold-Based Embeddings}
+	\label{fig:pr_fold}
+\end{figure}
+
+\subsubsection{Confusion Matrices for Protein Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/conf_matrix_sequence1.jpg}
+		\caption{Confusion Matrix 1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/conf_matrix_sequence2.jpg}
+		\caption{Confusion Matrix 2}
+	\end{subfigure}
+	\caption{Confusion Matrices for Protein Sequence-Based Embeddings}
+	\label{fig:conf_matrix_sequence}
+\end{figure}
+
+\subsubsection{Confusion Matrices for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/conf_matrix_fold.jpg}
+	\caption{Confusion Matrix for Protein Fold-Based Embeddings}
+	\label{fig:conf_matrix_fold}
+\end{figure}
+
+\subsection{ExoTarget Predictor}
+\subsection{Model Training}
+
+\subsubsection{Learning Curves for Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/sequence_learning_curve1.jpg}
+	\includegraphics[width=0.7\textwidth]{images/sequence_learning_curve2.jpg}
+	\caption{Learning Curves for Protein Sequence-Based Embeddings}
+	\label{fig:sequence_learning_curves}
+\end{figure}
+
+\subsubsection{Learning Curves for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/fold_learning_curve.jpg}
+	\caption{Learning Curve for Protein Fold-Based Embeddings}
+	\label{fig:fold_learning_curve}
+\end{figure}
+
+\subsection{Performance Evaluation}
+
+\subsubsection{MCC Bar Plots for Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/mcc_sequence1.jpg}
+		\caption{MCC Plot 1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/mcc_sequence2.jpg}
+		\caption{MCC Plot 2}
+	\end{subfigure}
+	\caption{MCC Bar Plots for Protein Sequence-Based Embeddings}
+	\label{fig:mcc_sequence}
+\end{figure}
+
+\subsubsection{MCC Bar Plots for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/mcc_fold.jpg}
+	\caption{MCC Bar Plot for Protein Fold-Based Embeddings}
+	\label{fig:mcc_fold}
+\end{figure}
+
+\subsubsection{ROC Curves for Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/roc_sequence1.jpg}
+		\caption{ROC Curve 1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/roc_sequence2.jpg}
+		\caption{ROC Curve 2}
+	\end{subfigure}
+	\caption{ROC Curves for Protein Sequence-Based Embeddings}
+	\label{fig:roc_sequence}
+\end{figure}
+
+\subsubsection{ROC Curves for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/roc_fold.jpg}
+	\caption{ROC Curve for Protein Fold-Based Embeddings}
+	\label{fig:roc_fold}
+\end{figure}
+
+\subsubsection{Precision-Recall Curves for Protein Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/pr_sequence1.jpg}
+	\includegraphics[width=0.7\textwidth]{images/pr_sequence2.jpg}
+	\caption{Precision-Recall Curves for Protein Sequence-Based Embeddings}
+	\label{fig:pr_sequence}
+\end{figure}
+
+\subsubsection{Precision-Recall Curves for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/pr_fold.jpg}
+	\caption{Precision-Recall Curve for Protein Fold-Based Embeddings}
+	\label{fig:pr_fold}
+\end{figure}
+
+\subsubsection{Confusion Matrices for Protein Protein Sequence-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/conf_matrix_sequence1.jpg}
+		\caption{Confusion Matrix 1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/conf_matrix_sequence2.jpg}
+		\caption{Confusion Matrix 2}
+	\end{subfigure}
+	\caption{Confusion Matrices for Protein Sequence-Based Embeddings}
+	\label{fig:conf_matrix_sequence}
+\end{figure}
+
+\subsubsection{Confusion Matrices for Protein Protein Fold-Based Embeddings}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/conf_matrix_fold.jpg}
+	\caption{Confusion Matrix for Protein Fold-Based Embeddings}
+	\label{fig:conf_matrix_fold}
+\end{figure}
+
+

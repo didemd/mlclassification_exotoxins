@@ -1,0 +1,59 @@
+
+
+\section{Bacterial Exotoxins}
+
+Bacterial toxins are molecules produced by bacteria that can harm the host by growing in the inner or outer environment of the host. 
+The bacteria can produce extracellular enzymes to harm the tissue of the host or alter its response system \cite{henkel_toxins_2009}. 
+As an example, diphtheria toxin can operate by preventing protein synthesis, S. aureus can overstimulate immune responses, and cholera toxin can activate second messenger pathways in order to invade the host \cite{actor_basic_bacteriology_2012}. 
+(This could be mixed with the introduction for *Advances in the Study of Bacterial Toxins: Their Roles and Mechanisms in Pathogenesis*.)
+
+Bacterial toxin forms are classified as bacterial endotoxins and exotoxins, which can be produced by gram-positive or gram-negative bacteria. Bacterial endotoxins are lipopolysaccharides that are released when the host is dead and the cell wall disintegrates.
+On the other hand, bacterial exotoxins are proteins that are produced in bacteria and released extracellularly \cite{sheehan2022bacterial}. Therefore, there are several different modes of action by which exotoxins exert their effects on their host.
+
+The classification of bacterial exotoxins primarily includes three types, while a fourth type has been discussed but remains to be fully recognized in the scientific literature (citationXXX). These include:
+	\begin{itemize}
+		\item Type I (superantigens)
+		\item Type II (membrane disrupting toxins)
+		\item Type III (A-B toxins)
+		\item Type IV (extracellular matrix degrading toxins)
+	\end{itemize}
+	Overall toxin biosynthesis can be influenced by a variety of environmental and genetic factors\cite{ohtani2016toxin}. XXX
+	
+	Therefore, understanding bacterial toxins more thoroughly would be effective in balancing their pathogenic effects with therapeutic applications.
+	
+	\section{Motivation}
+	The advancement of high-throughput technologies has revolutionized research of bacterial toxins by reducing the cost of bacterial genomes. 
+	With more genomes being sequences at a high rate, the need for tools for annotation of these bacterial sequences have emerged.\cite{loman2012high}\cite{richardson2013automatic} 
+	While trying to annotate a vast amount of sequences, wet-lab methods have been inadequate due to being time-consuming, costly and error-prone.
+	Therefore, a computational approach, machine learning can be utilized to minimize these limitations.
+	Machine learning uses a variety of algorithms to learn from data by recognizing distinct patterns in it \cite{batta2020machine}. The data can be either unlabeled which is used for unsupervised learning or labeled which makes it suitable for supervised learning\cite{MLAlgorithms2021}.
+	A method used for supervised learning is classification which divides the data in two classes. 
+	One of the supervised techniques is traditional classification methods, which can be either binary and multiclass.
+	The classification of bacterial exotoxins has garnered significant attention in recent years, particularly with the advent of machine learning (ML) techniques that promise enhanced accuracy and efficiency \cite{alnuaimi2021machinelearning}.
+	
+	Several studies have leveraged machine learning (ML) for toxin classification, utilizing diverse models and methodologies\cite{saha2007btxpred}\cite{beltran2021multitoxpred}\cite{beltran2021multitoxpred}.
+	
+	However, a review that emphasizes the transition from traditional phenotypic methods to automated, data-driven approaches. While the review primarily focused on general bacterial classification, it highlighted critical challenges to exotoxin classification, such as small dataset sizes, image quality issues, and the need for advanced feature extraction techniques.
+	
+	Over the years, there still remains a significant gap in understanding if accurately distinguishing bacterial exotoxin among all types is possible. The classification methods primarily rely on binary classifications such as toxin versus non-toxin or exotoxin versus endotoxin, has been quite essential for understanding bacterial virulence factors \cite{saha2007btxpred}\cite{beltran2021multitoxpred}\cite{automated2021bacterial}. However, these methods often lack in providing insights into the diverse types of exotoxins based on three mechanisms of action.
+	
+	Furthermore, the research community has not yet developed any predictor that distinguishes bacterial exotoxins based on the organism it targets and invades.
+	Motivated by these gaps in the existing literature, this thesis aims to overcome this gap by building novel predictors: ExoType and ExoTarget.
+	ExoType predictors aim to distinguish among five types of exotoxins based on two types of inputs: protein sequences and protein folds.
+	On the other hand, ExoTarget predictors, designed to classify among different targets of exotoxins based on two types of inputs: protein sequences and protein folds.
+	
+	\section{Objectives}
+	This study encompasses three objectives. 
+	The first is to predict the classification of bacterial exotoxin types by building ExoType, if possible. It basically reviews five types of bacterial exotoxins that were selected based on their mechanism of action: membrane-transducing (Type I), pore-forming (Type II), intracellular toxins (Type III), ECM-degrading (Type IV), and other types.
+	The second is to predict the classification of bacterial exotoxin targets by building ExoTarget, if possible. This encompasses differentiating between targets of bacterial exotoxins, categorizing them into vertebrate and non-vertebrate targets. 
+	The final one is to inspecting the best performing machine learning model for the classification of bacterial toxins based on types and targets. This objective investigates whether training models on bacterial exotoxin types and targets can achieve a competitive predictive performance. 
+	This research includes protein sequences and protein folds as raw input data which creates a basis for building the most suitable predictor for it.
+	
+	\section{Structure of Thesis}
+	This section, chapter 1 explains the introductory terms along with the motivation of the thesis project and how the thesis is structured overall.
+	Chapter 2 provides background information, which includes a comprehensive review of bacterial exotoxins, machine learning classification systems and foundational machine learning techniques relevant to this study.
+	Also, this section mentions contributions to computational applications of bacterial exotoxins and how this study fills a gap in this field. 
+	Chapter 3 details the methodologies employed including data collection processes, feature extraction techniques, machine learning algorithms, and experimental design, as illustrated in Figure 1.
+	Chapter 4 presents the results gathered from the feature analysis of protein sequences, protein embeddings, machine learning models including comparative performance metrics and visualizations.
+	Chapter 5 discusses and analyzes the findings, comparing them with existing literature, discusses their implications within the  context of machine learning applications in bacterial exotoxin research.
+	Chapter 6 summarizes the study and highlighting key findings, addressing limitations, and proposing potential future work based on results obtained.
