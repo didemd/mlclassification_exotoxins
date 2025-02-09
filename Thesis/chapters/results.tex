@@ -6,7 +6,7 @@ This section introduces the data processing, steps of machine learning pipeline 
 Here, we describe the classification results obtained from our machine learning experiments.
 
 \subsubsection{Dataset Overview}
-\begin{figure}[H]
+\begin{figure}
 	\centering
 	\includegraphics[width=0.8\textwidth]{images/upset_plot_of_raw_data.png}
 	\caption{UpSet plot illustrating the distribution of exotoxin types and their host targets. 
@@ -85,7 +85,7 @@ As a result, it could be said that there is a variation in sequence length that 
 
 \begin{figure}[H]
 	\centering
-	\begin{subfigure}[H]{\textwidth}
+	\begin{subfigure}{\textwidth}
 		\centering
 		\includegraphics[width=0.9\textwidth]{images/sequence_length_by_type.png} 
 		\caption{\textbf{Sequence length distribution for different bacterial exotoxin types.}(measured in amino acids).
@@ -94,7 +94,7 @@ As a result, it could be said that there is a variation in sequence length that 
 		\label{fig:sequence_length_by_type}
 	\end{subfigure}
 	\vspace{1em}
-	\begin{subfigure}[H]{\textwidth}
+	\begin{subfigure}{\textwidth}
 		\centering
 		\includegraphics[width=0.9\textwidth]{images/sequence_length_by_target.png}
 		\caption{\textbf{Sequence length distribution for different bacterial exotoxin targets.}(measured in amino acids).
@@ -125,7 +125,7 @@ The residuals plot shows large deviations, meaning that the model struggles to e
 		\label{fig:hydrophobicity_toxin_type}
 	\end{subfigure}
 	\vspace{1em}
-	\begin{subfigure}[H]{\textwidth}
+	\begin{subfigure}{\textwidth}
 		\centering
 		\includegraphics[width=0.9\textwidth]{images/hydrophobicity_by_target.png} % Replace with your figure file
 		\caption{\textbf{Hydrophobicity distribution for different bacterial exotoxin targets.}(measured in amino acids).
@@ -162,7 +162,7 @@ Include which specific folds are considered low-confidence and high-confidence b
 \subsubsection{Dimensionality Reduction Techniques}
 \begin{figure}[H]
 	\centering
-	\begin{subfigure}[H]{\textwidth}
+	\begin{subfigure}{\textwidth}
 		\centering
 		\includegraphics[width=0.7\textwidth]{images/pca_projection_type.png} 
 		\caption{\textbf{Principal Component Analysis (PCA) projection of bacterial exotoxin types}
@@ -170,7 +170,7 @@ Include which specific folds are considered low-confidence and high-confidence b
 		\label{fig:pca_toxin_type}
 	\end{subfigure}
 	\vspace{1em}
-	\begin{subfigure}[H]{\textwidth}
+	\begin{subfigure}{\textwidth}
 		\centering
 		\includegraphics[width=0.7\textwidth]{images/pca_projection_type_scrambled.png} 
 		\caption{\textbf{Scrambled PCA projection of bacterial exotoxin types.} The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, with a wider range of values (-1.5 to 1.0). The same color coding applies: Type I (blue), Type II (green), Type III (red), Type IV (purple), and Unknown (gray). The scrambling reduces separation among the clusters, indicating the effect of shuffling input data.}
@@ -213,18 +213,18 @@ In contrast, the scrambled PCA lacks any visible structure, confirming that the 
 \subsection{Model Training}
 
 \subsubsection{Learning Curves for Protein Sequence-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/sequence_learning_curve1.jpg}
-	\includegraphics[width=0.7\textwidth]{images/sequence_learning_curve2.jpg}
+	\includegraphics[width=0.9\textwidth]{images/2x2_learning_curves_split_test_type.png}
+	\includegraphics[width=0.9\textwidth]{images/2x2_learning_curves_import_test_type.png}
 	\caption{Learning Curves for Protein Sequence-Based Embeddings}
 	\label{fig:sequence_learning_curves}
 \end{figure}
 
 \subsubsection{Learning Curves for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/fold_learning_curve.jpg}
+	\includegraphics[width=1.1\textwidth]{images/2x2_learning_curves_target_folds_test_split.png}
 	\caption{Learning Curve for Protein Fold-Based Embeddings}
 	\label{fig:fold_learning_curve}
 \end{figure}
@@ -232,17 +232,17 @@ In contrast, the scrambled PCA lacks any visible structure, confirming that the 
 \subsection{Performance Evaluation}
 
 \subsubsection{MCC Bar Plots for Protein Sequence-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/mcc_sequence1.jpg}
+		\includegraphics[width=\linewidth]{images/comparison_graph_with_error_bars_test_type_split.png}
 		\caption{MCC Plot 1}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/mcc_sequence2.jpg}
+		\includegraphics[width=\linewidth]{images/comparison_graph_with_error_bars_import_test_type.png}
 		\caption{MCC Plot 2}
 	\end{subfigure}
 	\caption{MCC Bar Plots for Protein Sequence-Based Embeddings}
@@ -250,25 +250,25 @@ In contrast, the scrambled PCA lacks any visible structure, confirming that the 
 \end{figure}
 
 \subsubsection{MCC Bar Plots for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/mcc_fold.jpg}
+	\includegraphics[width=0.7\textwidth]{images/comparison_graph_with_error_bars_folds_test_split_type.png}
 	\caption{MCC Bar Plot for Protein Fold-Based Embeddings}
 	\label{fig:mcc_fold}
 \end{figure}
 
 \subsubsection{ROC Curves for Protein Sequence-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/roc_sequence1.jpg}
+		\includegraphics[width=\linewidth]{images/2x2_roc_curves_split_test_type.png}
 		\caption{ROC Curve 1}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/roc_sequence2.jpg}
+		\includegraphics[width=\linewidth]{images/2x2_roc_curves_import_test_type.png}
 		\caption{ROC Curve 2}
 	\end{subfigure}
 	\caption{ROC Curves for Protein Sequence-Based Embeddings}
@@ -276,72 +276,75 @@ In contrast, the scrambled PCA lacks any visible structure, confirming that the 
 \end{figure}
 
 \subsubsection{ROC Curves for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/roc_fold.jpg}
+	\includegraphics[width=0.7\textwidth]{images/2x2_roc_curves_folds_test_split.png}
 	\caption{ROC Curve for Protein Fold-Based Embeddings}
 	\label{fig:roc_fold}
 \end{figure}
 
 \subsubsection{Precision-Recall Curves for Protein Protein Sequence-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/pr_sequence1.jpg}
-	\includegraphics[width=0.7\textwidth]{images/pr_sequence2.jpg}
+	\includegraphics[width=0.7\textwidth]{images/2x2_precision_recall_curves_split_test_type.png}
+	\includegraphics[width=0.7\textwidth]{images/2x2_precision_recall_curves_import_test_type.png}
 	\caption{Precision-Recall Curves for Protein Sequence-Based Embeddings}
 	\label{fig:pr_sequence}
 \end{figure}
 
 \subsubsection{Precision-Recall Curves for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/pr_fold.jpg}
+	\includegraphics[width=0.7\textwidth]{images/2x2_precision_recall_curves_folds_test_split.png}
 	\caption{Precision-Recall Curve for Protein Fold-Based Embeddings}
 	\label{fig:pr_fold}
 \end{figure}
 
-\subsubsection{Confusion Matrices for Protein Protein Sequence-Based Embeddings}
-\begin{figure}[h]
-	\centering
-	\begin{subfigure}{0.49\textwidth}
-		\centering
-		\includegraphics[width=\linewidth]{images/conf_matrix_sequence1.jpg}
-		\caption{Confusion Matrix 1}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.49\textwidth}
-		\centering
-		\includegraphics[width=\linewidth]{images/conf_matrix_sequence2.jpg}
-		\caption{Confusion Matrix 2}
-	\end{subfigure}
-	\caption{Confusion Matrices for Protein Sequence-Based Embeddings}
-	\label{fig:conf_matrix_sequence}
-\end{figure}
 
-\subsubsection{Confusion Matrices for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.7\textwidth]{images/conf_matrix_fold.jpg}
-	\caption{Confusion Matrix for Protein Fold-Based Embeddings}
-	\label{fig:conf_matrix_fold}
-\end{figure}
+%\subsubsection{Confusion Matrices for Protein Protein Sequence-Based Embeddings}
+%\begin{figure}[h]
+%	\centering
+%	\begin{subfigure}{0.49\textwidth} 
+%		\centering
+%		\includegraphics[width=\linewidth]{images/conf_matrix_sequence1.jpg}
+%		\caption{Confusion Matrix 1}
+%	\end{subfigure}
+%	\hfill
+%	\begin{subfigure}{0.49\textwidth}
+%		\centering
+%		\includegraphics[width=\linewidth]{images/conf_matrix_sequence2.jpg}
+%		\caption{Confusion Matrix 2}
+%	\end{subfigure}
+%	\caption{Confusion Matrices for Protein Sequence-Based Embeddings}
+%	\label{fig:conf_matrix_sequence}
+%\end{figure}
+
+
+
+%\subsubsection{Confusion Matrices for Protein Protein Fold-Based Embeddings}
+%\begin{figure}[h]
+%	\centering
+%	\includegraphics[width=0.7\textwidth]{images/conf_matrix_fold.jpg}
+%	\caption{Confusion Matrix for Protein Fold-Based Embeddings}
+%	\label{fig:conf_matrix_fold}
+%\end{figure}
 
 \subsection{ExoTarget Predictor}
 \subsection{Model Training}
 
 \subsubsection{Learning Curves for Protein Sequence-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/sequence_learning_curve1.jpg}
-	\includegraphics[width=0.7\textwidth]{images/sequence_learning_curve2.jpg}
+	\includegraphics[width=0.9\textwidth]{images/2x2_learning_curves_split_test_target.png}
+	\includegraphics[width=0.9\textwidth]{images/2x2_learning_curves_import_test_target.png}
 	\caption{Learning Curves for Protein Sequence-Based Embeddings}
 	\label{fig:sequence_learning_curves}
 \end{figure}
 
 \subsubsection{Learning Curves for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/fold_learning_curve.jpg}
+	\includegraphics[width=1.1\textwidth]{images/2x2_learning_curves_target_folds_test_split.png}
 	\caption{Learning Curve for Protein Fold-Based Embeddings}
 	\label{fig:fold_learning_curve}
 \end{figure}
@@ -349,17 +352,17 @@ In contrast, the scrambled PCA lacks any visible structure, confirming that the 
 \subsection{Performance Evaluation}
 
 \subsubsection{MCC Bar Plots for Protein Sequence-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/mcc_sequence1.jpg}
+		\includegraphics[width=\linewidth]{images/comparison_graph_with_error_bars_split_test_target.png}
 		\caption{MCC Plot 1}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/mcc_sequence2.jpg}
+		\includegraphics[width=\linewidth]{images/comparison_graph_with_error_bars_import_test_target.png}
 		\caption{MCC Plot 2}
 	\end{subfigure}
 	\caption{MCC Bar Plots for Protein Sequence-Based Embeddings}
@@ -367,25 +370,25 @@ In contrast, the scrambled PCA lacks any visible structure, confirming that the 
 \end{figure}
 
 \subsubsection{MCC Bar Plots for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/mcc_fold.jpg}
+	\includegraphics[width=0.7\textwidth]{images/comparison_graph_with_error_bars_target_folds_test_split.png}
 	\caption{MCC Bar Plot for Protein Fold-Based Embeddings}
 	\label{fig:mcc_fold}
 \end{figure}
 
 \subsubsection{ROC Curves for Protein Sequence-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
 	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/roc_sequence1.jpg}
+		\includegraphics[width=\linewidth]{images/2x2_roc_curves_split_test_target.png}
 		\caption{ROC Curve 1}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{images/roc_sequence2.jpg}
+		\includegraphics[width=\linewidth]{images/2x2_roc_curves_import_test_target.png}
 		\caption{ROC Curve 2}
 	\end{subfigure}
 	\caption{ROC Curves for Protein Sequence-Based Embeddings}
@@ -393,54 +396,54 @@ In contrast, the scrambled PCA lacks any visible structure, confirming that the 
 \end{figure}
 
 \subsubsection{ROC Curves for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/roc_fold.jpg}
+	\includegraphics[width=0.7\textwidth]{images/2x2_roc_curves_folds_test_split.png}
 	\caption{ROC Curve for Protein Fold-Based Embeddings}
 	\label{fig:roc_fold}
 \end{figure}
 
 \subsubsection{Precision-Recall Curves for Protein Protein Sequence-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/pr_sequence1.jpg}
-	\includegraphics[width=0.7\textwidth]{images/pr_sequence2.jpg}
+	\includegraphics[width=0.7\textwidth]{images/2x2_precision_recall_curves_split_test_target.png}
+	\includegraphics[width=0.7\textwidth]{images/2x2_precision_recall_curves_import_test_target.png}
 	\caption{Precision-Recall Curves for Protein Sequence-Based Embeddings}
 	\label{fig:pr_sequence}
 \end{figure}
 
 \subsubsection{Precision-Recall Curves for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/pr_fold.jpg}
+	\includegraphics[width=0.7\textwidth]{images/2x2_precision_recall_curves_target_folds_test_split.png}
 	\caption{Precision-Recall Curve for Protein Fold-Based Embeddings}
 	\label{fig:pr_fold}
 \end{figure}
 
-\subsubsection{Confusion Matrices for Protein Protein Sequence-Based Embeddings}
-\begin{figure}[h]
-	\centering
-	\begin{subfigure}{0.49\textwidth}
-		\centering
-		\includegraphics[width=\linewidth]{images/conf_matrix_sequence1.jpg}
-		\caption{Confusion Matrix 1}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{0.49\textwidth}
-		\centering
-		\includegraphics[width=\linewidth]{images/conf_matrix_sequence2.jpg}
-		\caption{Confusion Matrix 2}
-	\end{subfigure}
-	\caption{Confusion Matrices for Protein Sequence-Based Embeddings}
-	\label{fig:conf_matrix_sequence}
-\end{figure}
+%\subsubsection{Confusion Matrices for Protein Protein Sequence-Based Embeddings}
+%\begin{figure}[H]
+%	\centering
+%	\begin{subfigure}{0.49\textwidth}
+%		\centering
+%		\includegraphics[width=\linewidth]{images/conf_matrix_sequence1.jpg}
+%		\caption{Confusion Matrix 1}
+%	\end{subfigure}
+%	\hfill
+%	\begin{subfigure}{0.49\textwidth}
+%		\centering
+%		\includegraphics[width=\linewidth]{images/conf_matrix_sequence2.jpg}
+%		\caption{Confusion Matrix 2}
+%	\end{subfigure}
+%	\caption{Confusion Matrices for Protein Sequence-Based Embeddings}
+%	\label{fig:conf_matrix_sequence}
+%\end{figure}
 
-\subsubsection{Confusion Matrices for Protein Protein Fold-Based Embeddings}
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.7\textwidth]{images/conf_matrix_fold.jpg}
-	\caption{Confusion Matrix for Protein Fold-Based Embeddings}
-	\label{fig:conf_matrix_fold}
-\end{figure}
+%\subsubsection{Confusion Matrices for Protein Protein Fold-Based Embeddings}
+%\begin{figure}[H]
+%	\centering
+%	\includegraphics[width=0.7\textwidth]{images/conf_matrix_fold.jpg}
+%	\caption{Confusion Matrix for Protein Fold-Based Embeddings}
+%	\label{fig:conf_matrix_fold}
+%\end{figure}
 
 
