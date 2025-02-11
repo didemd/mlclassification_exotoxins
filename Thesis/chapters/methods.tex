@@ -2,18 +2,17 @@
 This study applies machine learning techniques to classify bacterial exotoxins based on their functional types and biological targets.
 The methodology follows a structured pipeline that involves data collection, preprocessing, feature extraction, and model training.
 
-First, raw protein sequence data is collected and analyzed using descriptive statistics to understand key sequence characteristics. Then, the dataset is preprossed by redundancy reduction techniques to derive it to a nonreduntant dataset.
+First, raw protein sequence data is collected and analyzed using descriptive statistics to understand key sequence characteristics. Then, the dataset is preprocessed by redundancy reduction techniques to derive it to a non-redundant dataset.
 Next, protein language models are used to generate numerical embeddings that capture meaningful sequence representations.
 
 Following this, dimensionality reduction techniques are used to refine the embeddings. The processed embeddings are then used to train machine learning models, including conventional classifiers and hierarchical predictors. The machine learning models are evaluated using performance metrics for binary and multiclass classification tasks. 
 
-Figure~\ref{fig:methods_workflow} visualizes key steps on building a machine learning classification pipeline for differentiating exotoxin types and targets.
+Figure~\ref{fig:methods_workflow} visualizes the key steps in building a machine learning classification pipeline for differentiating exotoxin types and targets.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=1.1\textwidth]{images/workflow_methods.png}
-	\caption{: Overview of key steps of methodology: Exotoxin type and target predictions based on prote (left)
-		and protein folding-based classification (right)..}
+	\caption{Overview of the key steps in the methodology: Exotoxin type and target predictions based on protein (left) and protein folding-based classification (right).}
 	\label{fig:methods_workflow}
 \end{figure}
 
@@ -29,7 +28,7 @@ The curated dataset was structured in a CSV file, which contains bacterial speci
 
 The raw FASTA file stores each exotoxin ID alongside its corresponding protein sequence. To integrate these datasets, the CSV and FASTA files were merged using their IDs. The resulting fully labeled dataset includes bacterial exotoxin sequences along with their respective types and targets. This data preprocessing step is implemented in the \texttt{data-preprocessing.py} script using Python 3.13.1.
 
-Then, a Python script was employed to eliminate sequences annotated as 'partial' or 'fragment' in their FASTA headers, thereby reducing incomplete sequences. This python script can be accessed through \texttt{data-cleaning.py} script.
+Then, a Python script was employed to eliminate sequences annotated as 'partial' or 'fragment' in their FASTA headers, thereby reducing incomplete sequences. This Python script is available as \texttt{data-cleaning.py}.
 
 \subsection{Dataset Composition}
 The final dataset contains 2,473 data points. Type III toxins have 2,148 entries, including both Type III and Type III Control. Type II toxins have 169 entries, including Type II and Type II PFT bacteria. Type I toxins have 42 entries, while Type IV toxins have 28 entries. An additional 104 entries are categorized as Unknown, as they do not belong to any of the four existing classes.
@@ -41,7 +40,7 @@ The target category consist of vertebrate-targeting exotoxins and non-vertebrate
 
 Understanding the statistical properties of protein sequences is essential for analyzing their biological characteristics and identifying potential biases in the dataset. Descriptive statistical analysis provides insights into fundamental sequence properties, such as length distributions and hydrophobicity.
 
-This analysis was conducted using custom Python scripts, incorporating key libraries such as Biopython 1.85 for sequence handling, NumPy 2.2.2 for numerical computations, and Matplotlib 3.10.0 for visualization. This python script can be accessed through \texttt{hydrophobicity-sequence-length.py} script.
+This analysis was conducted using custom Python scripts, incorporating key libraries such as Biopython 1.85 for sequence handling, NumPy 2.2.2 for numerical computations, and Matplotlib 3.10.0 for visualization. This Python script can be accessed through \texttt{hydrophobicity-sequence-length.py} script.
 
 \subsection{Mean Sequence Length}
 \label{subsection:mean_sequence_length}
@@ -65,7 +64,7 @@ By analyzing sequence length distributions, we can detect potential biases, such
 \subsection{Hydrophobicity Analysis}
 \label{subsection:hydrophobicity}
 
-Hydrophobicity affects their structural stability, folding, and interactions with cellular components. To quantify the average hydrophobicity $H$ of each sequence was computed using the Kyte-Doolittle scale:
+Hydrophobicity affects their structural stability, folding, and interactions with cellular components. The average hydrophobicity $H$ of each sequence was computed using the Kyte-Doolittle scale:
 
 \begin{equation}
 	H = \frac{1}{L} \sum_{i=1}^{L} H_i
@@ -79,7 +78,7 @@ where:
 	\item $H_i$ is the Kyte-Doolittle hydrophobicity score of the $i^{th}$ amino acid.
 \end{itemize}
 
-By evaluating sequence length and hydrophobicity distributions, this analysis provides a foundational understanding of the dataset. These characteristics can influence identifying statistical outliers that checks whether the dataset is biased or not.
+By evaluating sequence length and hydrophobicity distributions, this analysis provides a foundational understanding of the dataset. These characteristics can help identify statistical outliers and reveal potential biases in the dataset.
 
 \section{Redundancy Reduction}
 \label{section:redundancy_reduction}
@@ -101,12 +100,12 @@ The redundancy reduction process involved the following steps:
 
 \end{enumerate}
 
-The redundancy reduction workflow was implemented in the redundancy-reduction.py python script.
+The redundancy reduction workflow was implemented in the redundancy-reduction.py Python script.
 
 \section{Prediction of 3D Protein Folds}
 \label{section:protein_folds}
 
-After applying redundancy reduction to the protein sequences, their three-dimensional (3D) structures were predicted using AlphaFold2.The structural confidence of these predicted protein folds is quantified using the per-residue \textit{predicted Local Distance Difference Test} (\textit{pLDDT}) score.
+After applying redundancy reduction to the protein sequences, their three-dimensional (3D) structures were predicted using AlphaFold2. The structural confidence of these predicted protein folds is quantified using the per-residue \textit{predicted Local Distance Difference Test} (\textit{pLDDT}) score.
 
 \subsection{Extraction of Confidence Scores from AlphaFold2 Predictions}
 
@@ -129,7 +128,7 @@ Sequences with more than 30\% sequence similarity were designated as the test se
 
 \subsection{Method 2: Random Splitting After Redundancy Reduction}
 
-In the second approach, sequences that had more than 30\% similarity were first removed from the training set, similar to Method 1. However, instead of directly assigning similar sequences to the test set, the remaining non-redundant sequences were randomly splitted into training and test sets.
+In the second approach, sequences that had more than 30\% similarity were first removed from the training set, similar to Method 1. However, instead of directly assigning similar sequences to the test set, the remaining non-redundant sequences were randomly split into training and test sets.
 
 A stratified random split was performed using the train\_test\_split function from Scikit-Learn, with a test size of 20\% and a random state of 42 to ensure reproducibility:
 
@@ -154,7 +153,7 @@ To reduce the complexity of embedding vectors while preserving essential informa
 \section{Machine Learning Model Training and Evaluation}
 \label{section:ml_training_evaluation}
 
-To ensure robust model validation, 5-fold cross-validation was applied, and Matthews Correlation Coefficient(MCC) was used as a primary metric for model evaluation.
+To ensure robust model validation, 5-fold cross-validation was applied, and Matthews Correlation Coefficient (MCC) was used as a primary metric for model evaluation.
 
 \subsection{Model Selection}
 \label{subsection:model_selection}
@@ -186,7 +185,7 @@ To address class imbalances and improve classification accuracy, a hierarchical 
 As a baseline method, BLAST (Basic Local Alignment Search Tool) was employed for sequence similarity analysis. To evaluate the predictive power of similarity-based classification, a custom BLAST database was constructed using the training sequences. 
 
 Each test protein sequence was queried against this database, and the best match was determined based on the lowest e-value, which indicates the statistical significance of the alignment. The predicted label of the matched sequence was then compared to the actual label in the test set to assess the accuracy of this approach.
-,
+
 \subsection{Negative Control: Scrambled Protein Sequence Embeddings}
 \label{subsection:negative_control_scrambled_embeddings}
 
