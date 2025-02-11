@@ -1,0 +1,60 @@
+\contentsline {chapter}{\numberline {1}Introduction}{5}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Bacterial Exotoxins}{5}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Motivation}{6}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectives}{7}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Structure of Thesis}{7}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Background}{9}{chapter.2}%
+\contentsline {chapter}{\numberline {3}Methods}{10}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Data Collection and Curation}{10}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Dataset Structure and Preprocessing}{11}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Dataset Composition}{12}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Descriptive Statistical Analysis of Sequences}{12}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Mean Sequence Length}{12}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Hydrophobicity Analysis}{13}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Redundancy Reduction}{13}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Prediction of 3D Protein Folds}{14}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Extraction of Confidence Scores from AlphaFold2 Predictions}{14}{subsection.3.4.1}%
+\contentsline {section}{\numberline {3.5}Preparation of Training and Test Datasets}{15}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Method 1: Similarity-Based Data Splitting}{15}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Method 2: Random Splitting After Redundancy Reduction}{15}{subsection.3.5.2}%
+\contentsline {section}{\numberline {3.6}Embedding Generation}{16}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Dimensionality Reduction}{16}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Machine Learning Model Training and Evaluation}{16}{section.3.8}%
+\contentsline {subsection}{\numberline {3.8.1}Model Selection}{16}{subsection.3.8.1}%
+\contentsline {subsection}{\numberline {3.8.2}Additional Approach: Hierarchical Predictor}{17}{subsection.3.8.2}%
+\contentsline {subsection}{\numberline {3.8.3}Additional Approach: BLAST-Based Predictor}{17}{subsection.3.8.3}%
+\contentsline {subsection}{\numberline {3.8.4}Negative Control: Scrambled Protein Sequence Embeddings}{18}{subsection.3.8.4}%
+\contentsline {chapter}{\numberline {4}Results}{19}{chapter.4}%
+\contentsline {subsection}{\numberline {4.0.1}Data Exploration and Preprocessing}{19}{subsection.4.0.1}%
+\contentsline {subsubsection}{Dataset Overview}{20}{section*.6}%
+\contentsline {subsection}{\numberline {4.0.2}Redundancy Reduction}{21}{subsection.4.0.2}%
+\contentsline {subsection}{\numberline {4.0.3}Feature Analysis of Exotoxins}{21}{subsection.4.0.3}%
+\contentsline {subsubsection}{Sequence Length Analysis}{22}{section*.9}%
+\contentsline {subsubsection}{Hydrophobicity Feature Analysis}{24}{section*.12}%
+\contentsline {subsection}{\numberline {4.0.4}Quality of Protein Folds Based On pLDDT Scores}{26}{subsection.4.0.4}%
+\contentsline {subsection}{\numberline {4.0.5}Dimensionality Reduction Techniques}{28}{subsection.4.0.5}%
+\contentsline {subsection}{\numberline {4.0.6}ExoType Predictor}{32}{subsection.4.0.6}%
+\contentsline {subsection}{\numberline {4.0.7}Model Training}{32}{subsection.4.0.7}%
+\contentsline {subsubsection}{Learning Curves for Protein Sequence-Based Embeddings}{32}{section*.18}%
+\contentsline {subsubsection}{Learning Curves for Protein Fold-Based Embeddings}{34}{section*.20}%
+\contentsline {subsection}{\numberline {4.0.8}Performance Evaluation}{34}{subsection.4.0.8}%
+\contentsline {subsubsection}{MCC Bar Plots for Protein Sequence-Based Embeddings}{35}{section*.22}%
+\contentsline {subsubsection}{MCC Bar Plots for Protein Protein Fold-Based Embeddings}{36}{section*.24}%
+\contentsline {subsubsection}{ROC Curves for Protein Sequence-Based Embeddings}{36}{section*.26}%
+\contentsline {subsubsection}{ROC Curves for Protein Protein Fold-Based Embeddings}{38}{section*.28}%
+\contentsline {subsubsection}{Precision-Recall Curves for Protein Protein Sequence-Based Embeddings}{40}{section*.30}%
+\contentsline {subsubsection}{Precision-Recall Curves for Protein Protein Fold-Based Embeddings}{41}{section*.32}%
+\contentsline {subsection}{\numberline {4.0.9}ExoTarget Predictor}{44}{subsection.4.0.9}%
+\contentsline {subsection}{\numberline {4.0.10}Model Training}{44}{subsection.4.0.10}%
+\contentsline {subsubsection}{Learning Curves for Protein Sequence-Based Embeddings}{44}{section*.34}%
+\contentsline {subsubsection}{Learning Curves for Protein Protein Fold-Based Embeddings}{45}{section*.36}%
+\contentsline {subsection}{\numberline {4.0.11}Performance Evaluation}{46}{subsection.4.0.11}%
+\contentsline {subsubsection}{MCC Bar Plots for Protein Sequence-Based Embeddings}{46}{section*.38}%
+\contentsline {subsubsection}{MCC Bar Plots for Protein Protein Fold-Based Embeddings}{46}{section*.40}%
+\contentsline {subsubsection}{ROC Curves for Protein Sequence-Based Embeddings}{47}{section*.42}%
+\contentsline {subsubsection}{ROC Curves for Protein Protein Fold-Based Embeddings}{47}{section*.44}%
+\contentsline {subsubsection}{Precision-Recall Curves for Protein Protein Sequence-Based Embeddings}{48}{section*.46}%
+\contentsline {subsubsection}{Precision-Recall Curves for Protein Protein Fold-Based Embeddings}{49}{section*.48}%
+\contentsline {chapter}{\numberline {5}Conclusion}{50}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Discussion}{51}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Additional Performance Metrics}{52}{section.6.1}%

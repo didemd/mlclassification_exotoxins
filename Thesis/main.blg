@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2023/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: plainnat.bst
+Database file #1: bibliography/references.bib
+Warning--I didn't find a database entry for "automated2021bacteria"
+You've used 17 entries,
+            2773 wiz_defined-function locations,
+            720 strings with 8972 characters,
+and the built_in function-call counts, 8671 in all, are:
+= -- 748
+> -- 648
+< -- 8
++ -- 218
+- -- 201
+* -- 771
+:= -- 1406
+add.period$ -- 65
+call.type$ -- 17
+change.case$ -- 117
+chr.to.int$ -- 17
+cite$ -- 34
+duplicate$ -- 341
+empty$ -- 594
+format.name$ -- 228
+if$ -- 1750
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 18
+newline$ -- 107
+num.names$ -- 68
+pop$ -- 207
+preamble$ -- 1
+purify$ -- 101
+quote$ -- 0
+skip$ -- 277
+stack$ -- 0
+substring$ -- 206
+swap$ -- 23
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 182
+warning$ -- 0
+while$ -- 66
+width$ -- 0
+write$ -- 250
+(There was 1 warning)

@@ -88,7 +88,7 @@ Figure~\ref{fig:sequence_length_by_type} shows the distribution of sequence leng
 	\caption{Descriptive Analysis of Bacterial Exotoxin Feature: Sequence Length}
 \end{figure}
 
-The statistical analysis via generalized linear models revealed that Type III, Type IV, and Unknown exotoxins have significantly longer sequences (with coefficients of 209.93, 466.13, and 374.21, respectively; all with p-values \≤ 0.016). In contrast, Type II and vertebrate-targeting exotoxins show no significant length difference. The residuals plot in Figure~\ref{fig:res_seq_length} confirms that sequence length alone does not fully capture the variance, suggesting additional factors may involved.
+The statistical analysis via generalized linear models revealed that Type III, Type IV, and Unknown exotoxins have significantly longer sequences (with coefficients of 209.93, 466.13, and 374.21, respectively; all with p-values less than 0.016). In contrast, Type II and vertebrate-targeting exotoxins show no significant length difference. The residuals plot in Figure~\ref{fig:res_seq_length} confirms that sequence length alone does not fully capture the variance, suggesting additional factors may involved.
 
 \begin{figure}[h]
 	\centering
@@ -294,7 +294,7 @@ Figures~\ref{fig:roc_sequence} and ~\ref{fig:pr_sequence} show ROC and Precision
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{images/2x2_roc_curves_folds_test_split.png}
-	\captionROC Curve for Protein Fold-Based Embeddings. This plot is used to evaluate the performance of models based on protein fold features.}
+	\caption{ROC Curve for Protein Fold-Based Embeddings. This plot is used to evaluate the performance of models based on protein fold features.}
 	\label{fig:roc_fold_}
 \end{figure}
 
