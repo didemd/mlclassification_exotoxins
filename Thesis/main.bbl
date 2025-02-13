@@ -1,138 +1,122 @@
-\begin{thebibliography}{17}
-\providecommand{\natexlab}[1]{#1}
-\providecommand{\url}[1]{\texttt{#1}}
-\expandafter\ifx\csname urlstyle\endcsname\relax
-  \providecommand{\doi}[1]{doi: #1}\else
-  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+\begin{thebibliography}{10}
 
-\bibitem[Actor(2012)]{actor_basic_bacteriology_2012}
-Jeffrey~K. Actor.
-\newblock \emph{Basic Bacteriology}.
-\newblock Elsevier, Philadelphia, PA, USA, 2012.
-
-\bibitem[Alnuaimi and Albaldawi(2021)]{alnuaimi2021machinelearning}
-Amer F.~A. Alnuaimi and Tasnim H.~K. Albaldawi.
-\newblock An overview of machine learning classification techniques.
-\newblock \emph{Open Access Journal Article}, 2021.
-
-\bibitem[Batta(2020)]{batta2020machine}
-Mahesh Batta.
-\newblock Machine learning algorithms - a review.
-\newblock \emph{International Journal of Science and Research (IJSR)},
-  9\penalty0 (1):\penalty0 167--170, 2020.
-\newblock ISSN 2319-7064.
-\newblock URL \url{https://www.ijsr.net}.
-\newblock ResearchGate Impact Factor (2018): 0.28, SJIF (2018): 7.426.
-
-\bibitem[Beltrán et~al.(2021)Beltrán, Herrera‑Belén,
-  Parraguez‑Contreras, Farías, Machuca‑Sepúlveda, and
-  Short]{beltran2021multitoxpred}
-Jorge~F. Beltrán, Lisandra Herrera‑Belén, Fernanda Parraguez‑Contreras,
-  Jorge~G. Farías, Jorge Machuca‑Sepúlveda, and Stefania Short.
-\newblock Multitoxpred 1.0: A novel comprehensive tool for predicting 27
-  classes of protein toxins using an ensemble machine learning approach.
-\newblock \emph{Journal Name (If Available)}, 2021.
-
-\bibitem[Elnaggar et~al.(2021)Elnaggar, Heinzinger, Dallago, Rihawi, Wang,
-  Jones, Gibbs, Feher, Angerer, Steinegger, Bhowmik, and
-  Rost]{elnaggar2021prottrans}
-Ahmed Elnaggar, Michael Heinzinger, Christian Dallago, Ghalia Rihawi, Yu~Wang,
-  Llion Jones, Tom Gibbs, Tamas Feher, Christoph Angerer, Martin Steinegger,
-  Debsindhu Bhowmik, and Burkhard Rost.
-\newblock Prottrans: Towards cracking the language of life's code through
-  self-supervised deep learning and high performance computing.
-\newblock \emph{arXiv}, 2021.
-
-\bibitem[Greenacre et~al.(2022)Greenacre, Groenen, Hastie, D’Enza, Markos,
-  and Tuzhilina]{greenacre2022pca}
-Michael Greenacre, Patrick J.~F. Groenen, Trevor Hastie, Alfonso~Iodice
-  D’Enza, Angelos Markos, and Elena Tuzhilina.
-\newblock Principal component analysis.
-\newblock \emph{Nature Reviews Methods Primers}, 2\penalty0 (100), 2022.
-\newblock \doi{10.1038/s43586-022-00100-0}.
-
-\bibitem[Heinzinger et~al.(2023)Heinzinger, Weissenow, Sanchez, Henkel,
-  Steinegger, and Rost]{heinzinger2023prostt5}
-Michael Heinzinger, Konstantin Weissenow, Joaquin~Gomez Sanchez, Adrian Henkel,
-  Martin Steinegger, and Burkhard Rost.
-\newblock Prostt5: Bilingual language model for protein sequence and structure.
-\newblock \emph{bioRxiv}, 2023.
-\newblock \doi{10.1101/2023.07.23.550085}.
-
-\bibitem[Henkel et~al.(2009)Henkel, Baldwin, and Barbieri]{henkel_toxins_2009}
+\bibitem{henkel_toxins_2009}
 James~S. Henkel, Michael~R. Baldwin, and Joseph~T. Barbieri.
 \newblock Toxins from bacteria.
-\newblock \emph{Medical College of Wisconsin, Department of Microbiology and
+\newblock {\em Medical College of Wisconsin, Department of Microbiology and
   Molecular Genetics}, 2009.
 \newblock 53151.
 
-\bibitem[Kotwal et~al.(2021)Kotwal, Rani, Arif, Manhas, and
-  Sharma]{automated2021bacterial}
-Shallu Kotwal, Priya Rani, Tasleem Arif, Jatinder Manhas, and Sparsh Sharma.
-\newblock Automated bacterial classifications using machine learning based
-  computational techniques: Architectures, challenges and open research issues.
-\newblock \emph{Archives of Computational Methods in Engineering}, 29\penalty0
-  (4):\penalty0 1--22, October 2021.
-\newblock \doi{10.1007/s11831-021-09660-0}.
+\bibitem{actor_basic_bacteriology_2012}
+Jeffrey~K. Actor.
+\newblock {\em Basic Bacteriology}.
+\newblock Elsevier, Philadelphia, PA, USA, 2012.
 
-\bibitem[Krüger et~al.(2024)Krüger, Koludarov, Littmann, Rost, and
-  Jiménez‐Soto]{kruger2024toxin}
-Tanja Krüger, Ivan Koludarov, Maria Littmann, Burkhard Rost, and Luisa~F.
-  Jiménez‐Soto.
-\newblock Toxin data quality: A critical examination of bacterial exotoxins and
-  animal toxins.
-\newblock \emph{Journal Name (If available)}, May 2024.
+\bibitem{sheehan2022bacterial}
+JR~Sheehan, C~Sadlier, and B~O'Brien.
+\newblock Bacterial endotoxins and exotoxins in intensive care medicine.
+\newblock {\em BJA Education}, 22(6):224--230, March 12 2022.
 
-\bibitem[Loman et~al.(2012)Loman, Constantinidou, Chan, Halachev, Sergeant,
-  Penn, Robinson, and Pallen]{loman2012high}
+\bibitem{Ghazaei2022}
+Ciamak Ghazaei.
+\newblock Advances in the study of bacterial toxins, their roles and mechanisms
+  in pathogenesis.
+\newblock {\em Malaysian Journal of Medical Sciences}, 29(1):4--17, 2022.
+
+\bibitem{Silbergleit2020}
+Matthew Silbergleit, Adrian~A. Vasquez, Carol~J. Miller, Jun Sun, and Ikuko
+  Kato.
+\newblock Oral and intestinal bacterial exotoxins: Potential linked to
+  carcinogenesis.
+\newblock In {\em Progress in Molecular Biology and Translational Science},
+  volume 173, pages 129--157. Elsevier, 2020.
+
+\bibitem{ohtani2016toxin}
+Kaori Ohtani and Tohru Shimizu.
+\newblock Regulation of toxin production in clostridium perfringens.
+\newblock {\em Toxins}, 8(7):207, 2016.
+
+\bibitem{loman2012high}
 Nicholas~J Loman, Chrystala Constantinidou, Jacqueline~ZM Chan, Mihail
   Halachev, Martin Sergeant, Charles~W Penn, Esther~R Robinson, and Mark~J
   Pallen.
 \newblock High-throughput bacterial genome sequencing: an embarrassment of
   choice, a world of opportunity.
-\newblock \emph{Nature Reviews Microbiology}, 10:\penalty0 599--606, 2012.
-\newblock \doi{10.1038/nrmicro2850}.
+\newblock {\em Nature Reviews Microbiology}, 10:599--606, 2012.
 
-\bibitem[Ohtani and Shimizu(2016)]{ohtani2016toxin}
-Kaori Ohtani and Tohru Shimizu.
-\newblock Regulation of toxin production in clostridium perfringens.
-\newblock \emph{Toxins}, 8\penalty0 (7):\penalty0 207, 2016.
-\newblock \doi{10.3390/toxins8070207}.
-\newblock URL \url{https://doi.org/10.3390/toxins8070207}.
-
-\bibitem[Richardson and Watson(2013)]{richardson2013automatic}
+\bibitem{richardson2013automatic}
 Elizabeth~Jane Richardson and Mick Watson.
 \newblock The automatic annotation of bacterial genomes.
-\newblock \emph{Briefings in Bioinformatics}, 14\penalty0 (1):\penalty0 1--12,
-  Jan 2013.
-\newblock \doi{10.1093/bib/bbs007}.
+\newblock {\em Briefings in Bioinformatics}, 14(1):1--12, Jan 2013.
 
-\bibitem[Saha and Raghava(2007)]{saha2007btxpred}
-Sudipto Saha and Gajendra P.~S. Raghava.
-\newblock Btxpred: Prediction of bacterial toxins.
-\newblock \emph{in Silico Biology}, 7:\penalty0 405--412, January 2007.
+\bibitem{batta2020machine}
+Mahesh Batta.
+\newblock Machine learning algorithms - a review.
+\newblock {\em International Journal of Science and Research (IJSR)},
+  9(1):167--170, 2020.
+\newblock ResearchGate Impact Factor (2018): 0.28, SJIF (2018): 7.426.
 
-\bibitem[Sheehan et~al.(2022)Sheehan, Sadlier, and
-  O'Brien]{sheehan2022bacterial}
-JR~Sheehan, C~Sadlier, and B~O'Brien.
-\newblock Bacterial endotoxins and exotoxins in intensive care medicine.
-\newblock \emph{BJA Education}, 22\penalty0 (6):\penalty0 224--230, March 12
-  2022.
-\newblock \doi{10.1016/j.bjae.2022.01.003}.
-
-\bibitem[Steinegger and S{\"o}ding(2017)]{steinegger2017mmseqs2}
-Martin Steinegger and Johannes S{\"o}ding.
-\newblock Mmseqs2 enables sensitive protein sequence searching for the analysis
-  of massive data sets.
-\newblock \emph{Nature Biotechnology}, 35\penalty0 (11):\penalty0 1026--1028,
-  2017.
-
-\bibitem[unknown (replace with the~actual author(s))(2021)]{MLAlgorithms2021}
+\bibitem{MLAlgorithms2021}
 Authors unknown (replace with the~actual author(s)).
 \newblock Machine learning: Algorithms, real-world applications and research
   directions.
-\newblock \emph{SN Computer Science}, 2\penalty0 (160), March 2021.
-\newblock \doi{replace_with_doi}.
-\newblock URL \url{replace_with_url}.
+\newblock {\em SN Computer Science}, 2(160), March 2021.
+
+\bibitem{alnuaimi2021machinelearning}
+Amer F.~A. Alnuaimi and Tasnim H.~K. Albaldawi.
+\newblock An overview of machine learning classification techniques.
+\newblock {\em Open Access Journal Article}, 2021.
+
+\bibitem{saha2007btxpred}
+Sudipto Saha and Gajendra P.~S. Raghava.
+\newblock Btxpred: Prediction of bacterial toxins.
+\newblock {\em in Silico Biology}, 7:405--412, January 2007.
+
+\bibitem{beltran2021multitoxpred}
+Jorge~F. Beltrán, Lisandra Herrera‑Belén, Fernanda Parraguez‑Contreras,
+  Jorge~G. Farías, Jorge Machuca‑Sepúlveda, and Stefania Short.
+\newblock Multitoxpred 1.0: A novel comprehensive tool for predicting 27
+  classes of protein toxins using an ensemble machine learning approach.
+\newblock {\em Journal Name (If Available)}, 2021.
+
+\bibitem{automated2021bacterial}
+Shallu Kotwal, Priya Rani, Tasleem Arif, Jatinder Manhas, and Sparsh Sharma.
+\newblock Automated bacterial classifications using machine learning based
+  computational techniques: Architectures, challenges and open research issues.
+\newblock {\em Archives of Computational Methods in Engineering}, 29(4):1--22,
+  October 2021.
+
+\bibitem{kruger2024toxin}
+Tanja Krüger, Ivan Koludarov, Maria Littmann, Burkhard Rost, and Luisa~F.
+  Jiménez‐Soto.
+\newblock Toxin data quality: A critical examination of bacterial exotoxins and
+  animal toxins.
+\newblock {\em Journal Name (If available)}, May 2024.
+
+\bibitem{steinegger2017mmseqs2}
+Martin Steinegger and Johannes S{\"o}ding.
+\newblock Mmseqs2 enables sensitive protein sequence searching for the analysis
+  of massive data sets.
+\newblock {\em Nature Biotechnology}, 35(11):1026--1028, 2017.
+
+\bibitem{elnaggar2021prottrans}
+Ahmed Elnaggar, Michael Heinzinger, Christian Dallago, Ghalia Rihawi, Yu~Wang,
+  Llion Jones, Tom Gibbs, Tamas Feher, Christoph Angerer, Martin Steinegger,
+  Debsindhu Bhowmik, and Burkhard Rost.
+\newblock Prottrans: Towards cracking the language of life's code through
+  self-supervised deep learning and high performance computing.
+\newblock {\em arXiv}, 2021.
+
+\bibitem{heinzinger2023prostt5}
+Michael Heinzinger, Konstantin Weissenow, Joaquin~Gomez Sanchez, Adrian Henkel,
+  Martin Steinegger, and Burkhard Rost.
+\newblock Prostt5: Bilingual language model for protein sequence and structure.
+\newblock {\em bioRxiv}, 2023.
+
+\bibitem{greenacre2022pca}
+Michael Greenacre, Patrick J.~F. Groenen, Trevor Hastie, Alfonso~Iodice
+  D’Enza, Angelos Markos, and Elena Tuzhilina.
+\newblock Principal component analysis.
+\newblock {\em Nature Reviews Methods Primers}, 2(100), 2022.
 
 \end{thebibliography}

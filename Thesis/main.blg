@@ -1,48 +1,46 @@
-This is BibTeX, Version 0.99d (TeX Live 2023/Debian)
-Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: main.aux
-The style file: plainnat.bst
+The style file: unsrt.bst
 Database file #1: bibliography/references.bib
-Warning--I didn't find a database entry for "automated2021bacteria"
-You've used 17 entries,
-            2773 wiz_defined-function locations,
-            720 strings with 8972 characters,
-and the built_in function-call counts, 8671 in all, are:
-= -- 748
-> -- 648
-< -- 8
-+ -- 218
-- -- 201
-* -- 771
-:= -- 1406
-add.period$ -- 65
-call.type$ -- 17
-change.case$ -- 117
-chr.to.int$ -- 17
-cite$ -- 34
-duplicate$ -- 341
-empty$ -- 594
-format.name$ -- 228
-if$ -- 1750
-int.to.chr$ -- 1
-int.to.str$ -- 1
-missing$ -- 18
-newline$ -- 107
-num.names$ -- 68
-pop$ -- 207
+You've used 19 entries,
+            1791 wiz_defined-function locations,
+            574 strings with 7801 characters,
+and the built_in function-call counts, 4271 in all, are:
+= -- 355
+> -- 253
+< -- 2
++ -- 92
+- -- 73
+* -- 322
+:= -- 734
+add.period$ -- 60
+call.type$ -- 19
+change.case$ -- 18
+chr.to.int$ -- 0
+cite$ -- 19
+duplicate$ -- 177
+empty$ -- 375
+format.name$ -- 73
+if$ -- 906
+int.to.chr$ -- 0
+int.to.str$ -- 19
+missing$ -- 20
+newline$ -- 100
+num.names$ -- 19
+pop$ -- 38
 preamble$ -- 1
-purify$ -- 101
+purify$ -- 0
 quote$ -- 0
-skip$ -- 277
+skip$ -- 74
 stack$ -- 0
-substring$ -- 206
-swap$ -- 23
-text.length$ -- 0
+substring$ -- 220
+swap$ -- 29
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 182
+type$ -- 0
 warning$ -- 0
-while$ -- 66
-width$ -- 0
-write$ -- 250
-(There was 1 warning)
+while$ -- 39
+width$ -- 21
+write$ -- 211
