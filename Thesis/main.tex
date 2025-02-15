@@ -5,7 +5,7 @@
 \usepackage[T1]{fontenc}      % For proper font encoding
 \usepackage{graphicx}         % For including images
 \usepackage{hyperref}         % For clickable links
-\usepackage{natbib}           % For bibliography management 
+%\usepackage{natbib}           % For bibliography management 
 \usepackage{subcaption}
 \usepackage{booktabs}
 \usepackage{float}
@@ -13,6 +13,10 @@
 \DeclareUnicodeCharacter{200B}{}
 \graphicspath{{images/}}  % Set default directory for images
 \DeclareGraphicsExtensions{.png,.jpg,.pdf}
+
+% this package allows me to include the comments and alerts (notes) during revision
+\usepackage{easyReview}
+
 
 \begin{document}
 \title{Machine Learning Classification: Differentiating Bacterial Exotoxins based on Exotoxin Types and Targets}
