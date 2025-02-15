@@ -18,14 +18,13 @@ Figure~\ref{fig:dataset_distribution} summarizes the distribution of exotoxin ty
 
 To ensure robustness and generalizability, redundancy reduction was applied to the exotoxin dataset. First, using MMseqs2 with a 100\% similarity threshold, duplicate sequences were removed, reducing the total count from 2,497 to 2,492. Next, applying a 30\% similarity threshold further reduced the count from 2,492 to 1,068. This reduction minimizes sequence similarity, allowing us to focus on the unique characteristics and functional diversity of exotoxins.
 
-As shown in Table~\ref{tab:merged_dataset_distribution}, after eliminating redundant sequences, the over-representation of Type III exotoxins remains even more pronounced, which could increase prediction bias. Such imbalances highlight the need for techniques like oversampling or weighted loss functions during model training.
+As shown in Table~\ref{tab:merged_dataset_distribution}, after eliminating redundant sequences, the over-representation of Type III exotoxins remains even less pronounced (the percentage of Type III drop from \%86 to \%74).
 
-Therefore, generation of these non-redundant data allows further analysis of exotoxin properties such as sequence length and hydrophobicity.
-
+The redundancy reduction reduced the already limited data which increases the likelihood of the model the data by heart, overfitting. This increases the necessity for dimensionality reduction for the later in the project pipeline. The drop in data imbalance will likely to reduce bias towards the majority class of the finished model.
 
 \begin{table}[H]
 	\centering
-	\caption{Summary of the dataset distribution based on exotoxin types and their biological targets before and after redundancy reduction.}
+	\caption{Summary of the dataset distribution based on exotoxin types (a) and their biological targets (b) before and after redundancy reduction.}
 	\label{tab:merged_dataset_distribution}
 	
 	\begin{subtable}[t]{0.45\textwidth}
@@ -59,36 +58,44 @@ Therefore, generation of these non-redundant data allows further analysis of exo
 \end{table}
 
 \subsection{Feature Analysis of Exotoxins}
-In this section, we examine key sequence features such as sequence length and hydrophobicity to assess potential biases that could influence predictive modeling.
+In this section, we examine key sequence features such as sequence length and hydrophobicity to assess potential biases that could influence modeling.
 
 \subsubsection{Sequence Length Analysis}
 
 Following redundancy reduction, a descriptive analysis of sequence lengths was conducted using boxplots with nonredundant dataset. 
-Figure~\ref{fig:sequence_length_by_type} shows the distribution of sequence lengths (measured in amino acids) for each exotoxin type, while Figure~\ref{fig:sequence_length_by_target} displays the distribution by target. These plots are used to identify differences in sequence length among classes.
+Figure~\ref{fig:sequence_length_by_type} shows the distribution of sequence lengths (measured in amino acids) for each exotoxin type, while Figure~\ref{fig:sequence_length_by_target} displays the distribution by target.
 
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}{\textwidth}
 		\centering
 		\includegraphics[width=0.9\textwidth]{images/sequence_length_by_type.png} 
-		\caption{\textbf{Sequence length distribution for different bacterial exotoxin types.}(measured in amino acids).
-			The x-axis represents the exotoxin types and each toxin type is represented by a distinct colors: Type I (blue), Type II (orange), Type III (pink), Type IV (green), and Unknown (yellow). 
-			The y-axis shows sequence length in amino acids, ranging from 0 to approximately 3000 except three outliers.}
+		\caption{}
 		\label{fig:sequence_length_by_type}
 	\end{subfigure}
 	\vspace{1em}
 	\begin{subfigure}{\textwidth}
 		\centering
 		\includegraphics[width=0.9\textwidth]{images/sequence_length_by_target.png}
-		\caption{\textbf{Sequence length distribution for different bacterial exotoxin targets.}(measured in amino acids).
-			The x-axis represents the exotoxin targets, and each toxin type is represented by a distinct color: Vertebrates (dark green) and Non-vertebrates (purple).
-			The y-axis shows sequence length in amino acids, ranging from 0 to approximately 2500 except five outliers.}
+		\caption{}
 		\label{fig:sequence_length_by_target}
 	\end{subfigure}
-	\caption{Descriptive Analysis of Bacterial Exotoxin Feature: Sequence Length}
+	\caption{Descriptive Analysis of Bacterial Exotoxin Feature: Sequence Length
+	(a) Sequence length distribution for different bacterial exotoxin types.(measured in amino acids).
+	The x-axis represents the nonredundant exotoxin types and each toxin type is represented by a distinct colors: Type I (blue), Type II (orange), Type III (pink), Type IV (green), and Unknown (yellow). 
+	The y-axis shows sequence length in amino acids, ranging from 0 to approximately 3000 except three outliers.
+	(b) Sequence length distribution for nonredundant bacterial exotoxin targets.(measured in amino acids).
+	The x-axis represents the exotoxin targets, and each toxin type is represented by a distinct color: Vertebrates (dark green) and Non-vertebrates (purple).
+	The y-axis shows sequence length in amino acids, ranging from 0 to approximately 2500 except five outliers. }
 \end{figure}
 
-The statistical analysis via generalized linear models revealed that Type III, Type IV, and Unknown exotoxins have significantly longer sequences (with coefficients of 209.93, 466.13, and 374.21, respectively; all with p-values less than 0.016). In contrast, Type II and vertebrate-targeting exotoxins show no significant length difference. The residuals plot in Figure~\ref{fig:res_seq_length} confirms that sequence length alone does not fully capture the variance, suggesting additional factors may involved.
+As seen in Figure~\ref{fig:sequence_length_by_type} (a), the average length for the different toxin types vary: X for Type I, X for Type II, X for Type III, X for Type I, X for Type IV. Toxin targets mean lengths lies at x for the non-vertebrate targets  and X for Non-vertebrates. A Generalized Linear Model(GLM) was used to assess whether the tozin sequence length differs significantly among toxin types and targets. 
+Results of GLMs (describe all coefficients and what they mean and p value)
+one time for the toxin type and one time and toxin targets in different paragraphs or sentences.
+Describe simply what it means significantly different or not.
+What it means for the rest of the project.
+
+%The statistical analysis via generalized linear models revealed that Type III, Type IV, and Unknown exotoxins have significantly longer sequences (with coefficients of 209.93, 466.13, and 374.21, respectively; all with p-values less than 0.016). In contrast, Type II and vertebrate-targeting exotoxins show no significant length difference. The residuals plot in Figure~\ref{fig:res_seq_length} confirms that sequence length alone does not fully capture the variance, suggesting additional factors may involved.
 
 \begin{figure}[h]
 	\centering
@@ -132,7 +139,7 @@ Generalized linear models indicate that only Type II toxins have significantly h
 
 \subsection{Quality of Protein Folds Based On pLDDT Scores}
 
-Figure~\ref{fig:lddt_scores} displays the distribution of pLDDT scores (obtained from the B-factor column) for predicted protein folds. This figure is used to evaluate the confidence of our protein structure predictions; higher scores indicate greater model confidence, while lower scores suggest regions that may require further analysis.
+Figure~\ref{fig:lddt_scores} displays the distribution of pLDDT scores for predicted protein folds. This figure is used to evaluate the confidence of our protein structure predictions; higher scores indicate greater model confidence, while lower scores suggest regions that may require further analysis.
 
 \begin{figure}[H]
 	\centering
@@ -156,14 +163,14 @@ In Figure~\ref{fig:pca_toxin_type}, the PCA projection for exotoxin types shows 
 		\centering
 		\includegraphics[width=0.7\textwidth]{images/pca_projection_type.png} 
 		\caption{\textbf{Principal Component Analysis (PCA) projection of bacterial exotoxin types}
-			The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, both ranging from approximately -1.0 to 1.0. Each exotoxin type is color-coded: Type I (blue), Type II (purple), Type III (pink), Type IV (green), and Unknown (yellow). Clusters suggest some overlap but distinct separations for specific types.}
+			The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, both ranging from approximately -1.0 to 1.0. Each exotoxin type is color-coded: Type I (blue), Type II (purple), Type III (pink), Type IV (green), and Unknown (yellow).}
 		\label{fig:pca_toxin_type}
 	\end{subfigure}
 	\vspace{1em}
 	\begin{subfigure}{\textwidth}
 		\centering
 		\includegraphics[width=0.7\textwidth]{images/pca_projection_type_scrambled.png} 
-		\caption{Scrambled PCA projection of bacterial exotoxin types.The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, with a wider range of values between -1.5 and 1.0. The same color coding applies:Type I (blue), Type II (purple), Type III (pink), Type IV (green), and Unknown (yellow). The scrambling reduces separation among the clusters, validating the effect of shuffling of protein sequences.}
+		\caption{PCA projection of scrambled bacterial exotoxin types.The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2, with a wider range of values between -1.5 and 1.0. The same color coding applies:Type I (blue), Type II (purple), Type III (pink), Type IV (green), and Unknown (yellow). The scrambling reduces separation among the clusters, validating the effect of shuffling of protein sequences.}
 		\label{fig:scrambled_pca_toxin_type}
 	\end{subfigure}
 	\caption{Principal Component Analysis Based On Exotoxin Types For Dimensionality Reduction}
@@ -193,18 +200,19 @@ Similarly, Figure~\ref{fig:pca_projection_non_scrambled_target} and Figure~\ref{
 
 \subsection{ExoType Predictor}
 
-This section describes the development of the ExoType predictor, which classifies exotoxins into five categories: Type I, Type II, Type III, Type IV, and Unknown. The following subsections detail the training and evaluation of the model.
+This section describes the development of the ExoType predictor, which classifies exotoxins into five categories: Type I, Type II, Type III, Type IV, and Unknown. The following subsections detail the training and evaluation of the model. Two data representations were used to train the predictors: sequence-based embeddings and fold-based embeddings.
 
 \subsection{Model Training}
 
-To ensure robust evaluation and mitigate class imbalance, we employed 5-fold cross-validation with \texttt{class\_weight=balanced} and GridSearchCV for hyperparameter tuning. Initially, the preprocessed dataset was split into an 80\%-20\% training-test split to evaluate generalization on unique sequences. However, due to the imbalanced distribution of exotoxin classes, some models (e.g., KNN and Logistic Regression) exhibited overfitting, as indicated by a flat training curve in Figure~\ref{fig:split_test_learning_curves}.
+Five models with different architectures were trained to predict different exotoxin types: Logistic Regression, SVM, KNN, Hierarchical Model, RF.  To exhibit whether the models overfit during learning, the next section focuses on the learning curves.
 
-In a second approach, the entire non-redundant dataset was used for training, and the previously eliminated redundant sequences were used as the test set. As shown in Figure~\ref{fig:import_test_learning_curves}, this approach improved the performance of KNN and Logistic Regression, while Random Forest and SVM maintained strong performance with smoother learning curves.
+In Figure 4 there are learning curves of 4 different models, hierarchical model was excluded due its nature. Each learning curves shows you the training and validating MCC scores over different number of training examples.
+For Random Forest and KNN the  learning MCC is always 1. For SVM and LR, training MCC from 1 to approximately 0.8. For all, validation MCC score increases starting at different values. (GIVE NUMBERS ) 
+With increasing data, the models  traning curve ideally decline as the model indicates stops overfitting and able to extrapolate to unseen data.
+The fact that the training MCC for do not drop indicates a continuos of overfitting.
+This suggests SVM and LR are more suitable for the classification of toxin types using sequence-based embeddings.
 
-\subsubsection{Learning Curves for Protein Sequence-Based Embeddings}
-
-While the first approach displays a more traditional generalization test, the second approach benefits from a richer training set at the cost of testing on potentially redundant data. Random Forest and SVM performed well in both cases, but the first approach led to greater variability in KNN and Logistic Regression, making them less reliable for handling unseen data. 
-
+repeat for folds
 \begin{figure}[H]
 	\centering
 	\begin{subfigure}[b]{0.9\textwidth}
@@ -225,8 +233,6 @@ While the first approach displays a more traditional generalization test, the se
 	\label{fig:sequence_learning_curves_type}
 \end{figure}
 
-\subsubsection{Learning Curves for Protein Fold-Based Embeddings}
-
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{images/2x2_learning_curves_folds_test_split.png}
@@ -235,8 +241,16 @@ While the first approach displays a more traditional generalization test, the se
 \end{figure}
 
 \subsection{Performance Evaluation}
-After testing different data-splitting methods, a hierarchical predictor was built to mitigate class imbalance. We evaluated model performance using MCC, ROC, and Precision-Recall curves.
 
+To test the models,  their perfomance on unseen testdata is depicted in figure xxx. Is shows the mcc values for all five models and BLAST as non machine leanring approache, already established in literature. Fig xxx a shows the performance using sequence based embeddings and Fig xx b depicts the performance of the fold based embeddings. 
+Using sequence based embeddings SVM and KNN and the hirarchical model performa
+error bars do not show a signifincace but mean MCC values show differentiation.
+
+The same can be seen in the ROC curve
+ROC curve blind people
+best predicts class 1-2 
+what does it mean for the project
+.... 
 Figure~\ref{fig:mcc_sequence_type} shows MCC bar plots for protein sequence-based embeddings. The top panel (split test) indicates that SVM (0.67) and KNN (0.68) outperform other models, while the bottom panel (import test) shows improved performance, with SVM and KNN exceeding 0.80. The hierarchical models further improve performance, particularly Hierarchical SVM.
 \subsubsection{MCC Bar Plots for Protein Sequence-Based Embeddings}
 \begin{figure}[H]
@@ -258,6 +272,7 @@ Figure~\ref{fig:mcc_sequence_type} shows MCC bar plots for protein sequence-base
 	\label{fig:mcc_sequence_type}
 \end{figure}
 
+MC
 The graph on the top in Figure~\ref{fig:mcc_sequence_type}, SVM (0.67) and KNN (0.68) outperform other models, while Random Forest (0.55) and BLAST (0.60) show moderate performance. Hierarchical SVM (0.62) improves over standard SVM, indicating better handling of class imbalance. Logistic Regression and Hierarchical Random Forest perform worse, with MCC values below 0.50.
 
 The graph at the bottom in Figure~\ref{fig:mcc_sequence_type}, SVM and KNN exceed 0.80, while Hierarchical SVM reaches ~0.78, reinforcing its robustness. Random Forest (0.75) and BLAST (0.72) improve notably, but Hierarchical Random Forest (0.65) still lags behind. The second approach results in higher MCC scores across models, showing the advantage of a larger training set. Hierarchical models consistently perform better, particularly Hierarchical SVM, which balances class distributions effectively.
@@ -470,4 +485,5 @@ Overall, the comparison between Figures~\ref{fig:pr_sequence_} and \ref{fig:pr_f
 %	\caption{Confusion Matrix for Protein Fold-Based Embeddings}
 %	\label{fig:conf_matrix_fold}
 %\end{figure}
+
 
