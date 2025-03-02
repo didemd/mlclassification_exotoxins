@@ -1,6 +1,13 @@
 
 This study applies machine learning techniques to classify bacterial exotoxins based on their functional types and biological targets.
-The methodology follows a structured pipeline (scheme in \ref{fig:methods_workflow}) that involves data collection, preprocessing, feature extraction, and model training.
+The methodology follows a structured pipeline that involves data collection, preprocessing, feature extraction, and model training.
+
+First, primary sequences was collected and analyzed using descriptive statistics to understand key sequence characteristics. Next, the dataset was preprocessed using redundancy reduction techniques to generate a non-redundant set of sequences.
+Next, protein language models were used to generate numerical embeddings that capture meaningful sequence representations.
+
+Subsequently, dimensionality reduction using Principal Component Analysis is applied to the embeddings. The processed embeddings are then used to train machine learning models, including conventional classifiers and hierarchical predictors. The machine learning models are evaluated using performance metrics for binary and multiclass classification tasks. 
+
+Figure~\ref{fig:methods_workflow} visualizes the key steps in building a machine learning classification pipeline for differentiating exotoxin types and targets.
 
 \begin{figure}[htbp]
 	\centering
@@ -9,20 +16,9 @@ The methodology follows a structured pipeline (scheme in \ref{fig:methods_workfl
 	\label{fig:methods_workflow}
 \end{figure}
 
-First, \comment{raw protein sequence}{What is raw protein sequence? Usually a raw is the most basic, which in case of proteins will be the amino acid chemical structure. Please describe it as primary sequence or the traditional file for sequences like fasta files} data \comment{is}{Usually methods are described in past tense. It is difficult for me to say here since I am not sure if you are just describing traditional pipelines or what you did in your thesis. Think about it when revising} collected and analyzed using descriptive statistics to understand key sequence characteristics. Then, the dataset is preprocessed by redundancy reduction techniques to derive it to a non-redundant dataset.
-Next, protein language models are used to generate numerical embeddings that capture meaningful sequence representations.
-
-Following this, dimensionality reduction techniques are used to refine the embeddings. The processed embeddings are then used to train machine learning models, including conventional classifiers and hierarchical predictors. The machine learning models are evaluated using performance metrics for binary and multiclass classification tasks. 
-
-Figure~\ref{fig:methods_workflow} visualizes the key steps in building a machine learning classification pipeline for differentiating exotoxin types and targets.
-\alert{I think this is not necessary if you keep my reference to the graphic I introduced in the first part of the section.}
-
-
-
 \section{Data Collection and Curation}
 
-\alert{Dear Didem, I thought we discussed this already. Yes, you are telling how the data was collected and curated, however the way you are declaring it here is as if you did it all by yourself. Please tell that the labeling was done by me, using the species associated with the toxin and the knowledge of the type of pathogenic association known in the literature. In science we all work and advance because other people have done previous work we use :-) }
-Bacterial \add{toxins }protein sequences were collected from public sequence databases, such as UniProt and NCBI\add{, as decribed previously by Krueger et al}. \cite{kruger2024toxin} The dataset was curated \add{and labeled} by selecting proteins from bacterial pathogens based on their host specificity \add{by PD. Dr. Luisa F. Jimenez-Soto}.
+Bacterial toxins protein sequences were collected from public sequence databases, such as UniProt and NCBI, as decribed previously by Krueger et al \cite{kruger2024toxin}. The dataset was curated and labeled by selecting proteins from bacterial pathogens based on their host specificity by PD. Dr. Luisa F. Jimenez-Soto.
 Proteins from bacterial pathogens affecting insects, plants, and other bacteria were categorized as non-vertebrate targets, whereas proteins from bacterial pathogens affecting vertebrates—including fish, amphibians, birds, reptiles, and mammals—were classified as vertebrate targets. 
 
 Similarly, bacterial exotoxins were categorized based on their mode of action on how they exert their effect on the host. Bacterial exotoxins were classified into different functional types, including membrane-transducing toxins, pore-forming toxins, intracellular toxins, and toxins that degrade the extracellular matrix.
@@ -30,14 +26,12 @@ Similarly, bacterial exotoxins were categorized based on their mode of action on
 \subsection{Dataset Structure and Preprocessing}
 The curated dataset was structured in a CSV file, which contains bacterial species, their exotoxin types, and their specific targets. This labeled data was used to annotate the input files to build a predictive model for classifying bacterial exotoxins.
 
-The \remove{raw }FASTA file stores each exotoxin ID alongside its corresponding protein sequence. To integrate these datasets, the CSV and FASTA files were merged using their IDs. The resulting fully labeled dataset includes bacterial exotoxin sequences along with their respective types and targets. This data preprocessing step is implemented in the \texttt{data-preprocessing.py} script using Python 3.13.1.
+The FASTA file stores each exotoxin ID alongside its corresponding protein sequence. To integrate these datasets, the CSV and FASTA files were merged using their IDs. The resulting fully labeled dataset includes bacterial exotoxin sequences along with their respective types and targets. This data preprocessing step is implemented in the \texttt{data-preprocessing.py} script using Python 3.13.1.
 
-Then, a Python script was employed to eliminate sequences annotated as 'partial' or 'fragment' in their FASTA headers, thereby reducing incomplete sequences. This Python script is available as \texttt{data-cleaning.py}.
-
-\alert{I love you put the files doing each task in here! you are making my life much easier and any other reader can go into the file if they want! Very OpenSciency :) }
+Then, a Python script was employed to eliminate sequences annotated as 'partial' or 'fragment' in their FASTA headers, thereby reducing incomplete sequences.
 
 \subsection{Dataset Composition}
-The final dataset contains 2,473 \replace{data points}{sequences}. Type III toxins have 2,148 entries, including both Type III and Type III Control. Type II toxins have 169 entries, including Type II and Type II PFT bacteria. Type I toxins have 42 entries, while Type IV toxins have 28 entries. An additional 104 entries are categorized as Unknown, as they do not belong to any of the four existing classes.
+The final dataset contains 2,473 sequences. Type III toxins have 2,148 entries, including both Type III and Type III Control. Type II toxins have 169 entries, including Type II and Type II PFT bacteria. Type I toxins have 42 entries, while Type IV toxins have 28 entries. An additional 104 entries are categorized as Unknown, as they do not belong to any of the four existing classes.
 
 The target category consist of vertebrate-targeting exotoxins and non-vertebrate-targeting bacterial exotoxins, with 1,863 and 629 data points, respectively.
 
@@ -46,7 +40,7 @@ The target category consist of vertebrate-targeting exotoxins and non-vertebrate
 
 Understanding the statistical properties of protein sequences is essential for analyzing their biological characteristics and identifying potential biases in the dataset. Descriptive statistical analysis provides insights into fundamental sequence properties, such as length distributions and hydrophobicity.
 
-This analysis was conducted using custom Python scripts, incorporating key libraries such as Biopython 1.85 for sequence handling, NumPy 2.2.2 for numerical computations, and Matplotlib 3.10.0 for visualization. This Python script can be accessed through \texttt{hydrophobicity-sequence-length.py} script.
+This analysis was conducted using custom Python scripts, incorporating key libraries such as Biopython 1.85 for sequence handling, NumPy 2.2.2 for numerical computations, and Matplotlib 3.10.0 for visualization. 
 
 \subsection{Mean Sequence Length}
 \label{subsection:mean_sequence_length}
@@ -65,12 +59,10 @@ where:
 	\item $L_i$ represents the length of the $i^{th}$ sequence.
 \end{itemize}
 
-By analyzing sequence length distributions, we can detect potential biases, such as an overrepresentation of shorter or longer sequences, which may impact model performance.
-
 \subsection{Hydrophobicity Analysis}
 \label{subsection:hydrophobicity}
 
-Hydrophobicity affects \replace{their }{protein }structural stability, folding, and interactions with cellular components\alert{ref?}. The average hydrophobicity $H$ of each sequence was computed using the Kyte-Doolittle scale \alert{(ref?)}:
+Hydrophobicity affects protein structural stability, folding, and interactions with cellular components \cite{Baldwin2007}. The average hydrophobicity $H$ of each sequence was computed using the Kyte-Doolittle scale \cite{Kyte1982}:
 
 \begin{equation}
 	H = \frac{1}{L} \sum_{i=1}^{L} H_i
@@ -84,7 +76,7 @@ where:
 	\item $H_i$ is the Kyte-Doolittle hydrophobicity score of the $i^{th}$ amino acid.
 \end{itemize}
 
-\comment{By evaluating sequence length and hydrophobicity distributions, this analysis provides a foundational understanding of the dataset. These characteristics can help identify statistical outliers and reveal potential biases in the dataset.}{I am not sure if this should be here. This sounds more like a discussion. Since I do not know if you are placing the results of this analysis, I cannot tell if this should be here, in the results or discussion. Keep it mind when writing the rest please.}
+These characteristics can help identify statistical outliers and reveal potential biases in the dataset.
 
 \section{Redundancy Reduction}
 \label{section:redundancy_reduction}
@@ -106,12 +98,10 @@ The redundancy reduction process involved the following steps:
 
 \end{enumerate}
 
-The redundancy reduction workflow was implemented in the redundancy-reduction.py Python script.
-
 \section{Prediction of 3D Protein Folds}
 \label{section:protein_folds}
 
-After applying redundancy reduction to the protein sequences, their three-dimensional (3D) structures were predicted using AlphaFold2. The structural confidence of these predicted protein folds is quantified using the per-residue \textit{predicted Local Distance Difference Test} (\textit{pLDDT}) score.
+After applying redundancy reduction to the protein sequences, their three-dimensional (3D) structures were predicted using AlphaFold2. The structural confidence of these predicted protein folds is quantified using the per-residue \textit{predicted Local Distance Difference Test} (\textit{pLDDT}) score. The pLDDT scores were used for exploratory purposes and no threshold was set based on pLDDT scores.
 
 \subsection{Extraction of Confidence Scores from AlphaFold2 Predictions}
 
@@ -121,7 +111,6 @@ To evaluate the quality of the generated protein folds, a computational pipeline
 	\item The program iterates through all PDB files generated by AlphaFold2, stored in the directory where each file corresponds to a single predicted protein structure.
 	\item The script employs the PDBParser module from \texttt{Biopython} to parse the structural information of each protein model. The pLDDT score is stored within the B-factor field of each atom in the PDB file. Since all atoms within a residue share the same pLDDT value, only one atom per residue is used to extract this confidence score.
 \end{enumerate}
-\alert{What did you do with the results of this step? Do you have results? was it just exploratory? did you use the result to stablish a threshold?}
 
 \section{Preparation of Training and Test Datasets}
 \label{section:training_test_set}
@@ -137,31 +126,29 @@ Sequences with more than 30\% sequence similarity were designated as the test se
 
 In the second approach, sequences that had more than 30\% similarity were first removed from the training set, similar to Method 1. However, instead of directly assigning similar sequences to the test set, the remaining non-redundant sequences were randomly split into training and test sets.
 
-A stratified random split was performed using the train\_test\_split function from Scikit-Learn \alert{version?}, with a test size of 20\% and a random state of 42 to ensure reproducibility:
+A stratified random split was performed using the train\_test\_split function from Scikit-Learn 1.6.1, with a test size of 20\% and a random state of 42 to ensure reproducibility:
 
-	\texttt{X\_train, X\_test, y\_train, y\_test = train\_test\_split(X, y,
+\texttt{X\_train, X\_test, y\_train, y\_test = train\_test\_split(X, y,
 	test\_size=0.2, random\_state=42)}
-
 
 \section{Embedding Generation}
 \label{section:embedding_generation}
 
 In this study, protein embeddings were generated from both protein sequences and protein folds, utilizing protein language models: ProtT5 and ProstT5.
 
-For protein sequence based protein embedding generation, I employed the ProtT5 language model to generate embeddings for each protein sequence which encodes protein sequence features\cite{elnaggar2021prottrans}. \alert{how? which website? when was it accessed? etc. Methods have to be described in a way that someone can reproduce what you did. Since embeddings are only from outside sources, describe that you use a collab notebook, accessed (date), and follow the intructions by the authors. Same for the ProstT5}
+For protein sequence based protein embedding generation, I employed the ProtT5 language model to generate embeddings for each protein sequence which encodes protein sequence features\cite{elnaggar2021prottrans}. A Google Colab script called embed\_ProtT5.ipynb was used during embedding generation.  
 
-To incorporate structural information, embeddings were also generated using the ProstT5 language model from protein folds, which is trained to encode 3D structural features of proteins \cite{heinzinger2023prostt5}.
+To incorporate structural information, embeddings were also generated using the ProstT5 language model from protein folds, which is trained to encode 3D structural features of proteins \cite{heinzinger2023prostt5}. A Google Colab script called ProstT5.ipynb was used during embedding generation.
 
 \section{Dimensionality Reduction}
 \label{section:dimensionality_reduction}
 
 To reduce the complexity of embedding vectors while preserving essential information, Principal Component Analysis (PCA) was employed. PCA transforms the high-dimensional embeddings into a lower-dimensional space by keeping maximum variance. \cite{greenacre2022pca}
 
-\alert{Didem, you should add the file names performing the tasks as you did before. For models and their reproducibility, all different algorithms have specific hyperparameter and options that need to be declared.}
 \section{Machine Learning Model Training and Evaluation}
 \label{section:ml_training_evaluation}
 
-To ensure robust model validation, 5-fold cross-validation was applied, and \comment{Matthews Correlation Coefficient (MCC}{Are you adding the formula somewhere? Then reference it here please.}) was used as a primary metric for model evaluation.
+To ensure robust model validation, 5-fold cross-validation was applied, and Matthews Correlation Coefficient (MCC) was used as a primary metric for model evaluation.
 
 \subsection{Model Selection}
 \label{subsection:model_selection}
@@ -169,42 +156,33 @@ To ensure robust model validation, 5-fold cross-validation was applied, and \com
 Several machine learning algorithms were selected for the classification tasks. The models used in this study include:
 
 \begin{itemize}
-	\item Random Forest
-	\item Logistic Regression
-	\item Support Vector Machine (SVM)
-	\item K-Nearest Neighbors (KNN)
+	\item Random Forest  \cite{Breiman2001}
+	\item Logistic Regression  \cite{Cox1958}
+	\item Support Vector Machine (SVM)  \cite{Cortes1995}
+	\item K-Nearest Neighbors (KNN)  \cite{Guo2003}
 \end{itemize}
-
-\alert{Please add the reference to each of the type of models.}
 
 \subsection{Additional Approach: Hierarchical Predictor}
 \label{subsection:hierarchical_model}
 
-To address class imbalances and improve classification accuracy, a hierarchical predictor was implemented. This approach first uses a classifier to group exotoxins into broader type families based on their prevalence. A second-stage classifier is then applied within each group to refine the classification to specific exotoxin types. The architecture of this predictor is depicted in Figure~\ref{fig:hier_logic} below.
+To address class imbalances and improve classification accuracy, a hierarchical predictor was implemented. This approach first uses a classifier to group exotoxins into broader type families based on their prevalence. A second-stage classifier is then applied within each group to classify specific exotoxin types with similar datapoints. The architecture of this predictor is depicted in Figure~\ref{fig:hier_logic} below.
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=1.1\textwidth]{images/hierarical_model_drawio.png}
+	\includegraphics[width=1.1\textwidth]{images/hierarical_model.drawio.png}
 	\caption{Architecture behind Hierarchical Models}
 	\label{fig:hier_logic}
 \end{figure}
-\alert{Please extend the caption of the figure. Remember, a graph has to be able to stand on its own. First layer? second? third? what do they mean? Very short but to the point to understand the graph right away. For this assume expert knowledge. Since you are explaining it in the text in a more "non-experty" way, everyone can benefit of both approaches.}
 
 \subsection{Additional Approach: BLAST-Based Predictor}
 \label{subsection:blast_predictor}
-
-As a baseline method, BLAST (Basic Local Alignment Search Tool) \alert{ref?} was employed for sequence similarity analysis. To evaluate the predictive power of similarity-based classification, a custom BLAST database was constructed using the training sequences. 
+As a baseline method, BLAST (Basic Local Alignment Search Tool) was employed for sequence similarity analysis. To evaluate the predictive power of similarity-based classification, a custom BLAST database was constructed using the training sequences\cite{Altschul1990}.
 
 Each test protein sequence was queried against this database, and the best match was determined based on the lowest e-value, which indicates the statistical significance of the alignment. The predicted label of the matched sequence was then compared to the actual label in the test set to assess the accuracy of this approach.
-
-\alert{Please make sure you are writing different from what we have in publication or in manuscript, or reference to a Kruger et al (in preparation). If not, our paper might be flag for plagiarism when your thesis is in the e-library of the University. I say this because it sound WAY similar to the manuscript Tanja and I are preparing...}
 
 \subsection{Negative Control: Scrambled Protein Sequence Embeddings}
 \label{subsection:negative_control_scrambled_embeddings}
 
-To evaluate whether the machine learning models are based on meaningful biological patterns a negative control was used using scrambled protein sequences to generate protein embeddings.
+To verify that the machine learning models capture meaningful biological patterns, a negative control was implemented by generating embeddings from scrambled protein sequences. The shuffling of protein sequences was applied while preserving amino acid composition.
 
-For this study, protein sequences were randomly shuffled while preserving their amino acid composition. These scrambled sequences were then processed through the same embedding pipeline using ProtT5 and ProstT5 to generate protein embeddings. 
-
-\alert{Dear Didem, I am missing here the deployment of the models (pickle?) which file has the info to use your models (you can reference your README.md in the github). When thinking about Material and Methods, think always: what information will I (you) need if I would start today with this project and I need to reproduce it to create something based on this.}
-
+For this study, protein sequences were randomly shuffled while preserving their amino acid composition. These scrambled sequences were then processed through the same embedding pipeline using ProtT5 and ProstT5 to generate protein embeddings.
