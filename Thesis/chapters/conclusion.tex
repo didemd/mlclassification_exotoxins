@@ -1,0 +1,43 @@
+In this chapter, we conclude from the findings presented in this thesis on the machine learning classification of bacterial exotoxins. We summarize our key findings, discuss the limitations of our approach, and outline potential directions for future research based on the insights gained from our study.
+
+\section{Summary}
+Our research has made several contributions to the classification and characterization of bacterial exotoxins using machine learning. Key findings include:
+
+\begin{itemize}
+	\item \textbf{ExoType and ExoTarget Predictors:} We developed machine learning-based tools, ExoType and ExoTarget, for classifying bacterial exotoxin types and predicting their specific targets. Our results show that these models can effectively distinguish between toxin types and targets with significant Matthews Correlation Coefficient (MCC) values.
+	
+	\item \textbf{Protein Embeddings for Improved Classification:} We explored different protein representations, including primary sequences and protein embeddings derived from ProtT5 and ProstT5 models. Our findings indicate that embeddings preserve crucial biochemical properties and enhance classification performance.
+	
+	\item \textbf{Dimensionality Reduction and Redundancy Elimination:} We applied Principal Component Analysis (PCA) to reduce the dimensionality of protein embeddings from 1024 to 50 dimensions while retaining 90\% of the variance. Additionally, we performed redundancy reduction using MMseqs2 to minimize sequence similarity bias, reducing the dataset size while maintaining diversity.
+	
+	\item \textbf{Hierarchical Predictor as an Alternative Approach:} Besides conventional classifiers such as Random Forest and Support Vector Machines (SVM), we developed a hierarchical predictor approach that classifies exotoxins in a stepwise manner, reducing overfitting and improving performance for underrepresented classes.
+\end{itemize}
+
+\section{Limitations}
+While our research has yielded valuable insights, several limitations should be acknowledged:
+
+\begin{itemize}
+	
+	\item \textbf{Small Dataset Size:} The dataset used in this study was relatively small, which can affect the generalizability of the models. A larger dataset could improve model robustness and performance.
+	
+	\item \textbf{Data Imbalance:} The dataset exhibited significant class imbalance, particularly for some exotoxin types. This resulted in models favoring overrepresented classes, potentially affecting generalizability.
+	
+	\item \textbf{Lack of Extensive Benchmarks:} There is a limited number of external benchmarks available for evaluating exotoxin classification models, making comparative analysis challenging.
+	
+	\item \textbf{Black-Box Nature of Embeddings:} Although protein embeddings capture structural and biochemical properties, their interpretability remains a challenge, as they do not directly correspond to human-readable sequence features.
+\end{itemize}
+
+\section{Future Work}
+Building on the foundation set by this thesis, several promising areas for future research can be outlined:
+
+\begin{itemize}
+	\item \textbf{Integration of Biochemical Features:} Future work could incorporate biochemical properties such as aromaticity and isoelectric point into machine learning models to enhance classification performance.
+	
+	\item \textbf{Development of a User-Friendly Interface:} A graphical interface for ExoType and ExoTarget would facilitate easier use by researchers and experimentalists, allowing them to input protein sequences and receive predictions without requiring extensive computational expertise.
+	
+	\item \textbf{Collaboration with Wet-Lab Research:} Validating our machine learning predictions through experimental studies will be crucial for refining and improving the predictive models. Collaborations with wet-lab researchers could provide essential ground-truth data.
+	
+	\item \textbf{Expanding the Dataset:} Increasing the dataset size through literature mining and database expansions could improve the robustness and generalization of the models.
+\end{itemize}
+
+In conclusion, this thesis investigated methods to classify bacterial exotoxins using machine learning. Our contributions include the development of ExoType and ExoTarget predictors, the exploration of protein embeddings While challenges such as data imbalance and model interpretability remain, our findings provide a foundation for future advancements in the computational classification of bacterial exotoxins.
