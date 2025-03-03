@@ -5,7 +5,7 @@ The methodology follows a structured pipeline that involves data collection, pre
 First, primary sequences was collected and analyzed using descriptive statistics to understand key sequence characteristics. Next, the dataset was preprocessed using redundancy reduction techniques to generate a non-redundant set of sequences.
 Next, protein language models were used to generate numerical embeddings that capture meaningful sequence representations.
 
-Subsequently, dimensionality reduction using Principal Component Analysis is applied to the embeddings. The processed embeddings are then used to train machine learning models, including conventional classifiers and hierarchical predictors. The machine learning models are evaluated using performance metrics for binary and multiclass classification tasks. 
+Then, dimensionality reduction using Principal Component Analysis is applied to the embeddings. The processed embeddings are then used to train machine learning models, including conventional classifiers and hierarchical predictors. The machine learning models are evaluated using performance metrics for binary and multiclass classification tasks. 
 
 Figure~\ref{fig:methods_workflow} visualizes the key steps in building a machine learning classification pipeline for differentiating exotoxin types and targets.
 
@@ -98,6 +98,8 @@ The redundancy reduction process involved the following steps:
 
 \end{enumerate}
 
+This redundancy reduction step is implemented in the \texttt{redundancy-reduction.py} script.
+
 \section{Prediction of 3D Protein Folds}
 \label{section:protein_folds}
 
@@ -136,14 +138,16 @@ A stratified random split was performed using the train\_test\_split function fr
 
 In this study, protein embeddings were generated from both protein sequences and protein folds, utilizing protein language models: ProtT5 and ProstT5.
 
-For protein sequence based protein embedding generation, I employed the ProtT5 language model to generate embeddings for each protein sequence which encodes protein sequence features\cite{elnaggar2021prottrans}. A Google Colab script called embed\_ProtT5.ipynb was used during embedding generation.  
+For protein sequence based protein embedding generation, I employed the ProtT5 language model to generate embeddings for each protein sequence which encodes protein sequence features\cite{elnaggar2021prottrans}. A Google Colab script called embed\_ProtT5.ipynb was used during embedding generation. This script was used in November 2024.
 
-To incorporate structural information, embeddings were also generated using the ProstT5 language model from protein folds, which is trained to encode 3D structural features of proteins \cite{heinzinger2023prostt5}. A Google Colab script called ProstT5.ipynb was used during embedding generation.
+To incorporate structural information, embeddings were also generated using the ProstT5 language model from protein folds, which is trained to encode 3D structural features of proteins \cite{heinzinger2023prostt5}. A Google Colab script called ProstT5.ipynb was used during embedding generation.  This script was used in December 2024.
 
 \section{Dimensionality Reduction}
 \label{section:dimensionality_reduction}
 
 To reduce the complexity of embedding vectors while preserving essential information, Principal Component Analysis (PCA) was employed. PCA transforms the high-dimensional embeddings into a lower-dimensional space by keeping maximum variance. \cite{greenacre2022pca}
+
+This dimensionality reduction step is implemented in the \texttt{dimensionality-reduction.py} script.
 
 \section{Machine Learning Model Training and Evaluation}
 \label{section:ml_training_evaluation}
@@ -162,23 +166,24 @@ Several machine learning algorithms were selected for the classification tasks. 
 	\item K-Nearest Neighbors (KNN)  \cite{Guo2003}
 \end{itemize}
 
-\subsection{Additional Approach: Hierarchical Predictor}
+All machine learning models are saved in the \texttt{predictors} directory as pickle files.
+
+\subsection{Additional Approach: Hierarchical Predictor} 
 \label{subsection:hierarchical_model}
 
-To address class imbalances and improve classification accuracy, a hierarchical predictor was implemented. This approach first uses a classifier to group exotoxins into broader type families based on their prevalence. A second-stage classifier is then applied within each group to classify specific exotoxin types with similar datapoints. The architecture of this predictor is depicted in Figure~\ref{fig:hier_logic} below.
+To address class imbalances and improve classification accuracy, a hierarchical predictor was built. This approach first uses a predictor to predict between group exotoxins into broader type families based on their prevalence. A second-stage classifier is then applied within each group to classify specific exotoxin types with similar datapoints. The architecture of this predictor is shown in Figure~\ref{fig:hier_logic} below.
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=1.1\textwidth]{images/hierarical_model.drawio.png}
-	\caption{Architecture behind Hierarchical Models}
+	\includegraphics[width=1.1\textwidth]{images/hierarical_model_drawio.png}
+	\caption{\caption{The hierarchical predictor architecture for exotoxin classification. The model employs a two-step approach to address class imbalance and improve classification accuracy. In the first stage, a high-level classifier groups exotoxins into broader type families based on their prevalence in the dataset. In the second stage, a specialized classifier is applied within each group to refine the classification and distinguish specific exotoxin types that share similar features.}
+	}
 	\label{fig:hier_logic}
 \end{figure}
 
 \subsection{Additional Approach: BLAST-Based Predictor}
 \label{subsection:blast_predictor}
-As a baseline method, BLAST (Basic Local Alignment Search Tool) was employed for sequence similarity analysis. To evaluate the predictive power of similarity-based classification, a custom BLAST database was constructed using the training sequences\cite{Altschul1990}.
-
-Each test protein sequence was queried against this database, and the best match was determined based on the lowest e-value, which indicates the statistical significance of the alignment. The predicted label of the matched sequence was then compared to the actual label in the test set to assess the accuracy of this approach.
+As a baseline method, BLAST (Basic Local Alignment Search Tool) was employed for sequence similarity analysis \cite{Altschul1990}.
 
 \subsection{Negative Control: Scrambled Protein Sequence Embeddings}
 \label{subsection:negative_control_scrambled_embeddings}
@@ -186,3 +191,5 @@ Each test protein sequence was queried against this database, and the best match
 To verify that the machine learning models capture meaningful biological patterns, a negative control was implemented by generating embeddings from scrambled protein sequences. The shuffling of protein sequences was applied while preserving amino acid composition.
 
 For this study, protein sequences were randomly shuffled while preserving their amino acid composition. These scrambled sequences were then processed through the same embedding pipeline using ProtT5 and ProstT5 to generate protein embeddings.
+
+Please refer to the visualization in Appendix Figure~\ref{fig:data_management_plan} for the structure of the project's data management plan. The project's code can be accessed through the following link: \url{https://github.com/didemd/mlclassification_exotoxins}.

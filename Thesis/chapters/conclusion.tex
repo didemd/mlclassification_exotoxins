@@ -8,19 +8,19 @@ Our research has made several contributions to the classification and characteri
 	
 	\item \textbf{Protein Embeddings for Improved Classification:} We explored different protein representations, including primary sequences and protein embeddings derived from ProtT5 and ProstT5 models. Our findings indicate that embeddings preserve crucial biochemical properties and enhance classification performance.
 	
-	\item \textbf{Dimensionality Reduction and Redundancy Elimination:} We applied Principal Component Analysis (PCA) to reduce the dimensionality of protein embeddings from 1024 to 50 dimensions while retaining 90\% of the variance. Additionally, we performed redundancy reduction using MMseqs2 to minimize sequence similarity bias, reducing the dataset size while maintaining diversity.
+	\item \textbf{Dimensionality Reduction and Redundancy Elimination:}  Principal Component Analysis (PCA) to reduce the dimensionality of protein embeddings from 1024 to 50 dimensions while retaining 90\% of the variance. Additionally, we performed redundancy reduction using MMseqs2 to minimize sequence similarity bias, reducing the dataset size while maintaining diversity.
 	
 	\item \textbf{Hierarchical Predictor as an Alternative Approach:} Besides conventional classifiers such as Random Forest and Support Vector Machines (SVM), we developed a hierarchical predictor approach that classifies exotoxins in a stepwise manner, reducing overfitting and improving performance for underrepresented classes.
 \end{itemize}
 
 \section{Limitations}
-While our research has yielded valuable insights, several limitations should be acknowledged:
+During this thesis project, there were many challenges that deserves recognition:
 
 \begin{itemize}
 	
-	\item \textbf{Small Dataset Size:} The dataset used in this study was relatively small, which can affect the generalizability of the models. A larger dataset could improve model robustness and performance.
+	\item \textbf{Small Dataset Size:} The dataset used in this thesis project was quite small, around 2400 datapoints, which can affect the generalizability of the models.
 	
-	\item \textbf{Data Imbalance:} The dataset exhibited significant class imbalance, particularly for some exotoxin types. This resulted in models favoring overrepresented classes, potentially affecting generalizability.
+	\item \textbf{Data Imbalance:} The dataset had significant class imbalance, particularly for some exotoxin types such as overrepresentation of Type III and Vertebrate labels. This resulted in models favoring overrepresented classes, potentially affecting generalizability.
 	
 	\item \textbf{Lack of Extensive Benchmarks:} There is a limited number of external benchmarks available for evaluating exotoxin classification models, making comparative analysis challenging.
 	
@@ -31,13 +31,11 @@ While our research has yielded valuable insights, several limitations should be 
 Building on the foundation set by this thesis, several promising areas for future research can be outlined:
 
 \begin{itemize}
-	\item \textbf{Integration of Biochemical Features:} Future work could incorporate biochemical properties such as aromaticity and isoelectric point into machine learning models to enhance classification performance.
+	\item \textbf{Integration of Biochemical Features:} Future work could incorporate biochemical properties such as aromaticity and isoelectric point into machine learning models.
 	
-	\item \textbf{Development of a User-Friendly Interface:} A graphical interface for ExoType and ExoTarget would facilitate easier use by researchers and experimentalists, allowing them to input protein sequences and receive predictions without requiring extensive computational expertise.
+	\item \textbf{Development of a User-Friendly Interface:} A interface for ExoType and ExoTarget would provide easier use by researchers and experimentalists, allowing them to input protein sequences and receive predictions without requiring extensive computational expertise.
 	
-	\item \textbf{Collaboration with Wet-Lab Research:} Validating our machine learning predictions through experimental studies will be crucial for refining and improving the predictive models. Collaborations with wet-lab researchers could provide essential ground-truth data.
-	
-	\item \textbf{Expanding the Dataset:} Increasing the dataset size through literature mining and database expansions could improve the robustness and generalization of the models.
+	\item \textbf{Collaboration with Wet-Lab Research:} Validating our machine learning predictions through experimental studies would be essential by the aid of ground-truth data.
 \end{itemize}
 
-In conclusion, this thesis investigated methods to classify bacterial exotoxins using machine learning. Our contributions include the development of ExoType and ExoTarget predictors, the exploration of protein embeddings While challenges such as data imbalance and model interpretability remain, our findings provide a foundation for future advancements in the computational classification of bacterial exotoxins.
+In conclusion, this thesis investigated methods to classify bacterial exotoxins using machine learning. Our contributions include the development of ExoType and ExoTarget predictors, the exploration of protein embeddings While challenges such as data imbalance still exists, our findings provide a foundation for future advancements in the computational classification of bacterial exotoxins.
