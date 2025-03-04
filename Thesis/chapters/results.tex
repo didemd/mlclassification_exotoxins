@@ -1,5 +1,5 @@
 
-This section presents two predictors, ExoType and ExoTarget, which differentiate bacterial exotoxin types and targets based on different inputs, including protein sequences and protein folds. We first describe the data exploration and preprocessing steps, then outline the feature analysis, and finally discuss the model training and evaluation results. 
+This section presents two predictors, \textbf{ExoType }and \textbf{ExoTarget}, which differentiate bacterial exotoxin types and targets based on different inputs, including protein sequences \replace{and}{or} \replace{protein}{their} folds. \replace{We}{I} first describe the data exploration and preprocessing steps, then outline the feature analysis, and finally discuss the model training and evaluation results. 
 
 \section{Data Exploration and Preprocessing}
 In this section, we describe the data distribution among exotoxin types and targets and explain the preprocessing steps—including redundancy reduction—that prepare the dataset for modelling.
@@ -8,7 +8,7 @@ In this section, we describe the data distribution among exotoxin types and targ
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{images/upset_plot_of_raw_data.png}
-	\caption{\small Upset plot illustrating the distribution of exotoxin types and their host targets. This plot visualizes the intersections between categories and highlights class imbalances in the dataset. The upper bar chart shows the intersection sizes, with the tallest bar (approximately 1,694) indicating the most common category intersection. The lower matrix, composed of black-filled circles on a grey background, maps each exotoxin type (Type I, Type II, Type III, Type IV, Unknown) and host target (Vertebrate, Invertebrate) to its intersection. The horizontal bars on the left are the total occurrences of each category.}
+	\caption{\small Upset plot illustrating the distribution of exotoxin types and their host targets. This plot visualizes the intersections between categories \remove{and highlights class imbalances} in the dataset. The upper bar chart shows the intersection sizes, \remove{with the tallest bar (approximately 1,694) indicating the most common category intersection}. The lower matrix, composed of black-filled circles on a grey background, maps each exotoxin type (Type I, Type II, Type III, Type IV, Unknown) and host target (Vertebrate, Invertebrate) to its intersection. The horizontal bars on the left are the total occurrences of each category.}
 	\label{fig:dataset_distribution}
 \end{figure}
 
@@ -63,7 +63,7 @@ The hydrophobicity of bacterial exotoxins was analyzed per residue across differ
 		\caption{}
 		\label{fig:hydrophobicity_by_target}
 	\end{subfigure}
-	\caption{\small \textbf{Hydrophobicity distribution of bacterial exotoxin types and targets.} (a) The x-axis represents exotoxin types, with each type colour-coded: Type I (blue), Type II (orange), Type III (pink), Type IV (green), and Unknown (yellow). Box plots show the median, interquartile range, whiskers span to 1.5 times the interquartile range, with outliers as separate points. Type II toxins exhibit the widest spread, while Type I and Type IV have more compact distributions. (b) The x-axis represents exotoxin targets: Vertebrates (dark green) and Non-vertebrates (purple). Hydrophobicity distributions are similar, though vertebrate-targeting exotoxins show slightly higher variability.}
+	\caption{\small \textbf{Hydrophobicity distribution of bacterial exotoxin types and targets.} (a) The x-axis represents exotoxin types, with each type colour-coded: Type I (blue), Type II (orange), Type III (pink), Type IV (green), and Unknown (yellow). Box plots show the median, interquartile range, whiskers span to 1.5 times the interquartile range, with outliers as separate points. \remove{Type II toxins exhibit the widest spread, while Type I and Type IV have more compact distributions.} (b) The x-axis represents exotoxin targets: Vertebrates (dark green) and Non-vertebrates (purple). \remove{Hydrophobicity distributions are similar, though vertebrate-targeting exotoxins show slightly higher variability}.}
 	
 \end{figure}
 
@@ -135,7 +135,7 @@ Approximately 68\% of the data falls within the grey shaded area, corresponding 
 
 \section{Dimensionality Reduction Techniques}
 
-We applied Principal Component Analysis (PCA) to check the clustering patterns of bacterial exotoxins and their targets using both regular and scrambled protein embeddings. The results reveal important insights into the role of sequence-based embeddings in toxin classification.
+\replace{We}{I} applied Principal Component Analysis (PCA) to check the clustering patterns of bacterial exotoxins and their targets using both regular and scrambled protein embeddings. The results reveal important insights into the role of sequence-based embeddings in toxin classification.
 
 The PCA of non-scrambled embeddings (Figure~\ref{fig:pca_toxin_type}) shows clustering among toxin types.
 
@@ -161,6 +161,7 @@ The PCA of scrambled embeddings (Figure~\ref{fig:scrambled_pca_toxin_type}) reve
 		(b)The scrambling reduces separation among the clusters, validating the effect of the shuffling of protein sequences.}
 	\label{fig:dimensionality_reduction_toxin_type}
 \end{figure}
+\comment{Figure}{For some reason, the (a) and (b) appear twice. Maybe removing the caption from the subfigure? }
 
 Similarly, Figure~\ref{fig:pca_projection_non_scrambled_target} and Figure~\ref{fig:pca_projection_scrambled_target} show the PCA projections for exotoxin targets, confirming that vertebrate and invertebrate sequences exhibit biologically meaningful clustering.
 
@@ -233,7 +234,7 @@ The dataset of 1,067 embeddings was divided into:
 \end{itemize}
 
 The best cross-validation MCC scores for each model under both data-splitting approaches are summarized in Table~\ref{tab:mcc_scores}.
-
+\comment{MCC scores}{When using a table with numbers, you still have to include the confidence interval or the SEM for the values. Usually is give as 0.62(+- 0.03) and the Column should have the unit (Standard split (SEM) or Standard split (95\%CI))}
 \begin{table}[h]
 	\centering
 	\caption{MCC Scores for Different Models}
@@ -252,6 +253,7 @@ The best cross-validation MCC scores for each model under both data-splitting ap
 
 Comparing the two approaches reveals several key differences. In the original split, the training set consisted of 848 samples with relatively fewer samples for the minority classes, whereas the redundancy reduction approach yielded a training set with slightly higher counts for these classes, yet the overall distribution remained heavily skewed toward Type III. 
 
+\comment{Next paragraph}{Dear Didem, the figure is not correctly referenced by the system and it does not seem to fit the rest of the sentence. Can you check here again?}
 In Figure~\ref{fig:import_test_learning_curves_type} In terms of cross-validation MCC, the original approach achieved values of 0.62, 0.62, 0.63, and 0.74 for Random Forest, Logistic Regression, SVM, and KNN respectively. With the second approach, Random Forest had an MCC of 0.62, while Logistic Regression and SVM improved to 0.64 and 0.65, respectively, and KNN decreased to 0.73. These changes mean that while the redundancy reduction approach has improved the performance of some models, due to the increasing of the minority classes, the overall impact is similar. The class imbalance in the second approach may limit the models' ability to generalize better, indicating that while there is a hint of improvement, additional strategies to further address the imbalance might be necessary to prevent the potential underfitting of the minority classes.
 
 In addition to the numerical comparisons, the learning curves provide further insight into how each model responds to increasing amounts of training data under both approaches. In Figure~\ref{fig:split_test_learning_curves}, the learning curves for these four models display the training and validation MCC scores across various training set sizes. Ideally, as the amount of training data increases, the training MCC should decline slightly—indicating that the model stops overfitting and starts to generalize better to unseen data.  
@@ -287,7 +289,7 @@ Performance assessment is based on the Matthews Correlation Coefficient (MCC), w
 	\label{fig:mcc_sequence_type}
 \end{figure}
 
-Figure~\ref{fig:mcc_sequence_type} presents the MCC scores for models trained on \textbf{sequence-based embeddings}. SVM and KNN achieved the highest MCC scores}, approximately 0.67 and 0.68 in the first approach (80\% training, 20\% test). Their performance improved further with a larger training set, exceeding 0.80 in the second approach. Random Forest and BLAST showed moderate performance MCC of 0.60 in the first approach, increasing to 0.75 in the second one. On the other hand, Logistic Regression and Hierarchical Random Forest had the lowest MCC scores, remaining below 0.50.
+Figure~\ref{fig:mcc_sequence_type} presents the MCC scores for models trained on \textbf{sequence-based embeddings}. SVM and KNN achieved the highest MCC scores, approximately 0.67 and 0.68 in the first approach (80\% training, 20\% test). Their performance improved further with a larger training set, exceeding 0.80 in the second approach. Random Forest and BLAST showed moderate performance MCC of 0.60 in the first approach, increasing to 0.75 in the second one. On the other hand, Logistic Regression and Hierarchical Random Forest had the lowest MCC scores, remaining below 0.50.
 
 To see if the model experiences overfitting or not, \textbf{learning curves} were inspected. As a result, it can be seen that Random Forest and KNN have high training MCC values, suggesting overfitting. SVM and Logistic Regression had lower training MCC scores, indicating better generalization.
 
@@ -296,21 +298,23 @@ Overall, SVM and KNN were the most effective classifiers for sequence-based embe
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{images/comparison_graph_with_error_bars_folds_test_split_type.png}
-\caption{\small MCC Bar Plot for Protein Fold-Based Embeddings. The x-axis represents different classification models: Random Forest (RF, blue), Logistic Regression (LR, orange), Support Vector Machine (SVM, green), K-Nearest Neighbors (KNN, pink), Hierarchical Random Forest (Hier\_RF, yellow), Hierarchical Support Vector Machine (Hier\_SVM, light blue), and BLAST predictor (brown). The y-axis indicates the Matthews Correlation Coefficient (MCC) scores, with higher values suggesting better classification performance. (a) The first MCC Plot belongs to the first approach while (b) the Second MCC Plot belongs to the second approach, where the whole nonredundant dataset was used for training, and previously removed redundant data was used as the test set. Models trained using the second approach generally show higher MCC scores, demonstrating the benefit of increased training data. The hierarchical models (Hier\_RF, Hier\_SVM) exhibit improved MCC scores, highlighting their ability to mitigate class imbalance.}
+\caption{\small MCC Bar Plot for Protein Fold-Based Embeddings. The x-axis represents different classification models: Random Forest (RF, blue), Logistic Regression (LR, orange), Support Vector Machine (SVM, green), K-Nearest Neighbors (KNN, pink), Hierarchical Random Forest (Hier\_RF, yellow), Hierarchical Support Vector Machine (Hier\_SVM, light blue), and BLAST predictor (brown). The y-axis indicates the Matthews Correlation Coefficient (MCC) scores, with higher values suggesting better classification performance. \remove{(a) The first MCC Plot belongs to the first approach while (b) the Second MCC Plot belongs to the second approach, where the whole nonredundant dataset was used for training, and previously removed redundant data was used as the test set. Models trained using the second approach generally show higher MCC scores, demonstrating the benefit of increased training data. The hierarchical models (Hier\_RF, Hier\_SVM) exhibit improved MCC scores, highlighting their ability to mitigate class imbalance.}}
 \label{fig:mcc_fold_type}
 \end{figure}
 
+\comment{Figure}{The figure above has only one graph, but the caption talks about a and b. The rest of the sentence is more result description.}
 Figure~\ref{fig:mcc_fold_type} presents the MCC values for predictors built using protein fold-based embeddings. It was visible that fold-based embeddings performed worse than sequence-based embeddings due to its MCC values. Among the models, KNN achieved the highest MCC score, around 0.50, and Logistic Regression with an MCC value of 0.40. The hierarchical models provided some improvements, but their effectiveness varied across different test scenarios. The error bars in the figure indicate higher variance in MCC scores, suggesting that models trained on fold-based embeddings exhibited greater instability across cross-validation folds.
 
 The lower performance of models on fold-based embeddings suggests that sequence-based representations may be more effective for exotoxin classification.  These results highlight the importance of embedding choice in exotoxin classification. Sequence-based embeddings consistently led to higher MCC scores, particularly when used with SVM, KNN, and hierarchical models. However, fold-based embeddings still provide valuable structural information.
 
 \subsubsection{Evaluation of Classifier Performance: ROC and Precision-Recall Curves}
 
-To quantitatively assess classifier performance, we analyze two key evaluation metrics: the **Receiver Operating Characteristic (ROC) curves** and **Precision-Recall (PR) curves**. These metrics are particularly crucial for imbalanced datasets, as accuracy alone may provide misleading results.
+To quantitatively assess classifier performance, we analyze two key evaluation metrics: the \comment{**Receiver Operating Characteristic (ROC) curves**}{if you want to have these bold, you need to use the function for bold in latex. You seem to be using markdown format here} and **Precision-Recall (PR) curves**. These metrics are particularly crucial for imbalanced datasets, as accuracy alone may provide misleading results.
 
 Figures~\ref{fig:roc_sequence_} and~\ref{fig:pr_sequence_} display the Receiver Operating Characteristic (ROC) and Precision-Recall (PR) curves, respectively, for models trained on sequence-based embeddings, while Figures~\ref{fig:roc_fold_} and~\ref{fig:pr_fold_} present the corresponding curves for models trained on protein fold-based embeddings. These evaluation metrics are essential for assessing classification performance, particularly in imbalanced datasets, where accuracy alone can be misleading.
 
 \paragraph{Receiver Operating Characteristic (ROC)}
+\comment{figures ROC}{The legends are too small. Even for the pdf. And what are class 0 to micro-average? There is no description in the caption of the figure or in material and methods about this. Same with the PRecision Recall curves}
 
 \begin{figure}[H]
 \centering
@@ -410,6 +414,7 @@ In Figure~\ref{fig:learningcurve_fold_type}, the learning curves for the protein
 
 \subsection{Performance Evaluation}
 
+\comment{Legends}{In the following graphs, the legends are totally unnecessary. Please make the X axis writing bigger and do not forget to describe what each short form means in the caption of the figure. Like RF (Random Forest, LR (Logistic regression))}
 \subsubsection{MCC Bar Plots}
 \begin{figure}[H]
 \centering
