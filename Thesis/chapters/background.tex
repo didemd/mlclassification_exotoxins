@@ -1,0 +1,215 @@
+This chapter provides the background information necessary for understanding the context and technical implementation of this thesis study.
+First, we present information about the necessary biological background of the thesis.
+Then, we explain alternative representations of biological data and the machine learning models used in this study.
+Finally, this chapter summarizes the quantitative and qualitative techniques used for the analysis of machine learning classification results.
+
+\section{Bacterial Exotoxins}
+
+Bacterial exotoxins are protein toxins secreted by bacteria that manipulate cellular functions within the host \cite{sheehan2022bacterial}.
+They are capable of damaging the host by distinct mechanisms to exert their effect \cite{popoff2018bacterial} \cite{Ghazaei2022}.
+
+Bacterial exotoxins exhibit a wide range of mechanisms of action and target specificities. Bacterial exotoxins are grouped based on their mode of action  \cite{Ghazaei2022} \cite{kruger2024toxin}.
+
+Firstly, membrane-transducing toxins (Type I), with a majority of superantigens, bind to the surface of the membrane without entering the cell. They are capable of activating signalling pathways that could lead to an excessive immune response. Secondly, membrane-disrupting toxins (Type II) operate by causing damage within the cell membranes of the host; they could perform this by forming pores on them. This interaction can lead to cell lysis and tissue damage. Thirdly, intracellular-acting toxins (Type III), the most common mode of action structure of Type III toxins are AB toxins, composed of an active enzymatic subunit that stands for "A" and a binding subunit that stands for "B" that takes place in entry into the host cell. The "B" subunit attaches to host cell receptors and allows the "A" subunit into the cell and exerts its toxic effects  \cite{Ghazaei2022}  \cite{henkel_toxins_2009} \cite{Idris2024}.
+
+At last, extracellular matrix-degrading toxins (Type IV), these toxins target components of the extracellular matrix and harm the host cell in different ways, such as tissue invasion. (Note: While mentioned in \cite{kruger2024toxin}, a formal, widely accepted definition of Type IV toxins as a distinct class is still emerging.)
+
+This work focuses on classifying exotoxins based on their type and target, which aids in understanding their mechanisms and understanding their roles in diseases \cite{Ghazaei2022}.
+
+\section{Traditional Approaches to Protein Analysis}
+
+Inspecting amino acid sequences and three-dimensional structures is a good starting point for protein analysis.
+
+Commonly used methods have been developed for this purpose which can be categorized as sequence-based and structure-based methods.
+
+\subsection{Sequence-Based Analysis}
+
+Sequence-based analysis is based on the idea that similar sequences often show similar functions \cite{durbin1998biological}.
+Sequence alignment tools like \gls{BLAST} \cite{Camacho2009} allow bioinformaticians to find similar protein sequences in databases and suggest functional annotations.
+
+\gls{BLAST} compares query sequences and database sequences. Its results give areas of similarity, which gives information about the query sequence's function, evolutionary relationships, and potential classification \cite{Camacho2009}.
+In this thesis, we use the \gls{BLAST} tool as a baseline classification method for comparison against our proposed predictors.
+
+However, sequence based methods alone may not be enough to fully analyze protein function.
+This especially becomes more severe for proteins with low sequence identity (often below ~20–30\%), where alignment methods struggle to confidently detect relationships \cite{Rost1999} \cite{Bernardes2011}.
+
+In summary, traditional sequence analysis is fast and effective for closely related proteins, but its performance degrades for remotely related proteins or novel sequences.
+This is particularly true for proteins with low sequence similarity to known proteins, where our proposed classification methods can be useful.
+
+As a result, purely sequence-based classification may fail to recognize that two exotoxins are functionally related if their sequences are not strongly aligned.
+Moreover, sequence similarity does not always result in functional similarity – small sequence differences can lead to different toxin targets.
+Relying on sequence comparisons alone for the classification of exotoxin types and targets can result in bad performance, particularly for remotely related proteins or novel sequences  \cite{Rost1999} \cite{Bernardes2011}.
+
+
+This motivates the use of complementary approaches that incorporate structural and machine-learning-based information to classify proteins when sequence signals are weak or ambiguous.
+
+
+
+\subsection{Structure-Based Analysis}
+
+Protein structure often provides fundamental insights into protein function.
+While traditional methods, such as X-ray crystallography and Nuclear Magnetic Resonance spectroscopy, can provide high-resolution information, they are usually time-consuming, expensive, and labour-intensive.
+
+AlphaFold2 \cite{Jumper2021}, a neural network model founded by DeepMind, has made incredible progress in protein structure prediction.
+It often produces protein structures with accuracy comparable to experimental methods, even when no close similar structure is available.
+This has opened new gates for proteins (including exotoxins) that have not been experimentally characterized.
+For instance, if one can predict that a toxin’s structure resembles a known A-B toxin fold, one might infer it has a similar mechanism of entry into host cells.
+
+In this thesis, we use AlphaFold2-predicted structures to generate structural embeddings with protein language models to partially capture structural signals from sequence data \cite{rives2021biological}.
+The combination of structure prediction with protein language model allows us to implement structural context into our classification models that elaborates on our ability to classify proteins beyond what is possible with sequence alignment alone \cite{rao2019evaluating}.
+
+
+
+\section{Machine Learning}
+\label{section:machine_learning}
+
+ \gls{ML), a subfield of artificial intelligence, enables the detection of hidden information in complex biological data and making predictions \cite{batta2020machine, sarker2021machine}.
+ML models can be broadly categorized into two fundamental types: supervised learning and unsupervised learning machine learning models \cite{batta2020machine} \cite{sarker2021machine}.
+In supervised learning, models are trained on a labelled dataset, while models are trained to identify patterns in unlabeled data in unsupervised machine learning \cite{bishop2006pattern}.
+This section discusses both supervised and unsupervised learning techniques, including specific algorithms used in this thesis.
+
+
+
+\subsection{Supervised Learning}
+
+A variety of supervised learning \gls{ML) algorithms have been developed in protein classification and bioinformatics, each with diverse strengths:
+
+
+\begin{description}
+	\item[Random Forest  \cite{Breiman2001}:] An ensemble machine learning algorithm that combines the prediction of multiple decision trees. They are robust against overfitting, and they are widely used in protein function annotation in bioinformatics. The importance of Random Forest is that it can understand the pattern even with few datasets  \cite{Chen2011}.
+	
+	
+	\item[Logistic Regression  \cite{Cox1958}:] A linear machine learning model that uses a sigmoid function as an activation function, that is defined in Equation \eqref{eq:sigmoid}, to predict the probability of a binary outcome.
+	
+	\begin{equation}
+		\sigma(x) = \frac{1}{1 + e^{-x}}
+		\label{eq:sigmoid}
+	\end{equation}
+	
+	It is frequently used in bioinformatics because of its simplicity and probabilistic output.
+	Although Logistic Regression is less flexible than non-linear models, we can use Logistic Regression as a baseline model in our thesis to understand how well simple linear separation works for distinguishing toxin types and targets compared to other models.
+	
+	
+	\item[Support Vector Machine (SVM)  \cite{Cortes1995}:] A supervised machine learning algorithm that finds an optimal hyperplane to separate data points of different classes.
+	They are especially effective in high-dimensional feature spaces.
+	They can handle many features at the same time, which makes them well-suited for our classification analysis, in which inputs are high-dimensional embeddings. \cite{Alcaraz2022}
+	
+	
+	\item[K-Nearest Neighbors (KNN)  \cite{Guo2003}:] A supervised instance-based machine learning method that classifies a sample based on the majority class of its k-nearest neighbours in the feature space.
+	While easy to implement, KNN can struggle with high-dimensional protein data, which is used in our thesis.
+	Still, KNN can act as a useful baseline for comparing against more complex classifiers in protein classification tasks.
+	\end{description}
+	
+	
+	
+Each of these algorithms has been applied successfully in bioinformatics \cite{Larranaga2006} \cite{Chen2011}.
+	
+In this thesis, we experiment with these methods during model training.
+By evaluating multiple algorithms defined here, we can select a model that provides the best balance of performance and generalization for our curated exotoxin dataset.
+
+\subsection{Unsupervised Learning}
+
+Unsupervised learning finds patterns in unlabeled data.
+Instead of predicting labels like supervised learning, it discovers hidden patterns of data. In this thesis, we use Principal Component Analysis (PCA), a type of unsupervised learning, to simplify our data.
+
+\subsubsection{Principal Component Analysis (PCA)}
+
+\gls{PCA} is a linear dimensionality reduction technique that reduces the number of dimensions in data while keeping the most important information \cite{jolliffe2016principal, greenacre2022principal}.
+These newly calculated dimensions are called the principal components that are orthogonal to each other.
+In \gls{PCA} calculation, these components are ordered according to their explainability of variance, as the first principal component captures the highest variance in the dataset \cite{bishop2006pattern}.
+
+Mathematically, given a data matrix \( X \in {R}^{n \times p} \) with \( n \) observations and \( p \) features, \gls{PCA} is performed as follows:
+
+\paragraph{Step 1: Calculate Covariance Matrix}
+First, we subtract the mean vector \( \bar{X} \) from each observation to have data with zero mean:
+\begin{equation}
+	X_{\text{centered}} = X - \bar{X}
+	\label{eq:centering}
+\end{equation}
+where \( \bar{X} \) is the mean of each feature.
+
+Then, the covariance matrix \( C \) is calculated as:
+\begin{equation}
+	C = \frac{1}{n-1} X_{\text{centered}}^\top X_{\text{centered}}
+	\label{eq:covariance}
+\end{equation}
+
+\paragraph{Step 2: Compute Eigenvalues and Eigenvectors}
+To find the principal components, the eigenvalue equation below is solved:
+\begin{equation}
+	C V = \Lambda V
+	\label{eq:eigendecomposition}
+\end{equation}
+where:
+\begin{itemize}
+	\item \( V \) is the matrix of eigenvectors (principal components),
+	\item \( \Lambda \) is the diagonal matrix of eigenvalues, sorted in descending order \( (\lambda_1 \geq \lambda_2 \geq \dots \geq \lambda_p) \).
+\end{itemize}
+
+\paragraph{Step 3: Project Data onto Principal Components Space}
+The data is then transformed into the new principal component space:
+\begin{equation}
+	Z = X_{\text{centered}} V
+	\label{eq:projection}
+\end{equation}
+where \( Z \) is the transformed data in the principal component space.
+
+\paragraph{Step 4: Dimensionality Reduction}
+
+
+In order to perform dimensionality reduction, only the first \( k \) eigenvectors are used in the transformation, leading to the reduced representation:
+\begin{equation}
+	Z_k = X_{\text{centered}} V_k
+	\label{eq:dim_reduction}
+\end{equation}
+where \( Z_k \) is the transformed data in the reduced dimensions.
+
+
+In the thesis, we use \gls{PCA}  to perform dimensionality reduction on our high-dimensional protein embeddings before training our classification models.
+
+
+\section{Protein Language Models (pLMs) for Feature Extraction}
+
+With the rise of AI, bioinformatics started to evolve into the adoption of protein language models. \cite{naveed2024llm, Arcas2022}.
+In protein language models, the most basic unit is individual amino acids.
+Protein language models treat amino acid sequences as sentences compared to large language models, which is also mentioned as the “language” of proteins \cite{ruffolo2024designing} \cite{elnaggar2021prottrans}.
+
+They are trained with millions of protein sequences so that they can learn the semantic meaning behind protein sequences, allowing them to perform many tasks \cite{ruffolo2024designing}.
+
+\subsection{ProtT5}
+
+\gls{ProtT5} is a subset of the ProtTrans family, which was trained based on millions of protein sequence datasets to learn general protein sequence features \cite{elnaggar2021prottrans}.
+It is based on T5 (Text-to-Text Transfer Transformer) deep learning architecture.
+The results of \gls{ProtT5} can also be used for downstream tasks such as the classification of proteins.
+In fact, embeddings from  \gls{ProtT5} have been shown to outperform even some alignment-based features for certain tasks without requiring multiple sequence alignment \cite{elnaggar2021prottrans}.
+
+\subsection{ProstT5}
+
+On the other hand, \gls{ProstT5} (Protein structure-sequence T5) is a protein language model fine-tuned from \gls{ProtT5}, integrating 3D protein structures using AlphaFold2 \cite{Jumper2021} \cite{heinzinger2023prostt5}.
+It extends \gls{ProtT5} by integrating structural information.
+That means that \gls{ProstT5} jointly learns the mapping between protein sequences and their 3D structure folds by training on millions of proteins with known or predicted structures with AlphaFold2 \cite{heinzinger2023prostt5}.
+Thanks to that, \gls{ProstT5} can generate embeddings informed by both protein sequence and structural information \cite{heinzinger2023prostt5}.
+
+
+\subsection{ PLMs as feature extractors}
+
+For downstream machine learning applications, \gls{PLM}s are used as advanced feature extractors.
+Rather than manually creating features for machine learning applications, vector embeddings generated by \gls{PLM}s are used as input to machine learning models.
+These embeddings capture the information summary of protein sequences that are learned by the training of a large corpus of datasets.
+It is observed that sequences with similar embeddings often share structural or functional characteristics \cite{Rao2021}. 
+These embeddings are used as learned features in this thesis.
+
+
+\section{Redundancy Reduction in Protein Datasets}
+
+
+Redundancy reduction is eliminating protein sequences based on a certain similarity threshold.
+In protein sequence databases such as UniProt and \gls{NCBI}, there exists significant redundancy \cite{sikic2010protein}.
+Different labs and different researchers give entry to the same protein from different organisms and conditions, which results in almost identical sequence submissions.
+For machine learning applications in biology, this redundant data can lead to a bias towards the overrepresented sequences in the database, necessitating redundancy reduction techniques before model training.
+
+Several tools are used for redundancy reduction of protein sequences in the literature, including CD-HIT \cite{Fu2012}, UCLUST \cite{Li2010}, and MMseqs2 \cite{steinegger2017mmseqs2}.
+MMseqs2 (Many-against-Many sequence searching) is a tool known for how it operates rapidly and how it can handle big biological datasets \cite{steinegger2017mmseqs2}.
+It is specifically designed for large-scale sequence analysis.
+While both MMseqs2 and \gls{BLAST} are based on sequence similarity, MMseqs2 outperforms the  \gls{BLAST} tool in terms of speed and sensitivity \cite{steinegger2017mmseqs2}.
+MMseqs2 uses a much faster k-mer based approach, allowing it to process millions of sequences efficiently.
