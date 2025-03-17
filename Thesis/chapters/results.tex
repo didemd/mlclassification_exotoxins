@@ -1,92 +1,98 @@
 
-This section presents two predictors, \textbf{ExoType }and \textbf{ExoTarget}, which differentiate bacterial exotoxin types and targets based on different inputs, including protein sequences \replace{and}{or} \replace{protein}{their} folds. \replace{We}{I} first describe the data exploration and preprocessing steps, then outline the feature analysis, and finally discuss the model training and evaluation results. 
+This section focuses on \textbf{ExoType} and \textbf{ExoTarget} predictors, which classify bacterial exotoxin types and targets, respectively. In this thesis, \textbf{six different predictors} are developed—three for ExoType and three for ExoTarget—to evaluate their performance under different variations. These three predictors vary in \textbf{input types (protein sequences and protein folds)} and \textbf{data splitting approaches (standard split and redundancy reduction based split)}.
 
-\section{Data Exploration and Preprocessing}
-In this section, we describe the data distribution among exotoxin types and targets and explain the preprocessing steps—including redundancy reduction—that prepare the dataset for modelling.
+The results section begins with data exploration and preprocessing, outlining key dataset characteristics and preparation steps. Afterwards, feature analysis and model performance is shown.
 
-\subsection{Dataset Overview}
+First, Figure~\ref{fig:dataset_distribution} examines the distribution of labels in the dataset, including exotoxin type and target.
+
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=0.8\textwidth]{images/upset_plot_of_raw_data.png}
-	\caption{\small Upset plot illustrating the distribution of exotoxin types and their host targets. This plot visualizes the intersections between categories \remove{and highlights class imbalances} in the dataset. The upper bar chart shows the intersection sizes, \remove{with the tallest bar (approximately 1,694) indicating the most common category intersection}. The lower matrix, composed of black-filled circles on a grey background, maps each exotoxin type (Type I, Type II, Type III, Type IV, Unknown) and host target (Vertebrate, Invertebrate) to its intersection. The horizontal bars on the left are the total occurrences of each category.}
+	\centering\includegraphics[width=0.5\textwidth]{images/upset_plot_of_raw_data.png}
+	\caption{\small Upset plot showing the distribution of exotoxin types and their host targets. The upper bar chart represents intersection sizes, while the lower matrix maps each exotoxin type (Type I, II, III, IV, Unknown) and host target (Vertebrate, Invertebrate) to their intersections. Horizontal bars on the left indicate total occurrences per category.}
 	\label{fig:dataset_distribution}
 \end{figure}
 
-Figure~\ref{fig:dataset_distribution} summarizes the distribution of exotoxin types and targets within the dataset. Notably, the dataset is heavily skewed toward Type III exotoxins (2,149 sequences), which indicates a significant class imbalance that could affect model performance. In contrast, exotoxins categorized as "Unknown" comprise only 104 samples. Additionally, target classification shows that bacterial exotoxins targeting vertebrates (1,863 sequences) are three times more abundant than those targeting invertebrates (629 sequences). These observations highlight the need to mitigate data imbalance, which will be observed in the following model training step.
+The dataset shows a strong imbalance, with Type III exotoxins being the most prevalent at 2,149 sequences, while the 'Unknown' category is underrepresented with only 104 samples. Vertebrate-targeting exotoxins are more common, with 1,863 sequences compared to 629 for invertebrate-targeting exotoxins.
 
-\subsection{Feature Analysis of Exotoxins}
-In this section, we inspect key sequence properties, such as sequence length and hydrophobicity, to examine potential biases within the dataset.
-
-\subsubsection{Sequence Length Analysis}
-
-A descriptive analysis of sequence lengths was conducted using boxplots generated from the dataset. Figure~\ref{fig:sequence_length_by_type} displays the distribution of sequence lengths for each exotoxin type, while Figure~\ref{fig:sequence_length_by_target} shows the distribution according to exotoxin targets.
+\section{Data Exploration and Processing}
+Following the analysis of data distribution, the next step examines \textbf{key sequence properties such as sequence length and hydrophobicity} to identify patterns and potential biases in the dataset. For sequence length analysis, the box plots in Figure~\ref{fig:sequence_length_by_type} display the distribution of sequence lengths for each exotoxin type, while Figure~\ref{fig:sequence_length_by_target} presents the distribution based on exotoxin targets.
 
 \begin{figure}[H]
 	\centering
-	\begin{subfigure}{\textwidth}
+	\begin{subfigure}[b]{0.6\textwidth}
 		\centering
-		\includegraphics[width=0.9\textwidth]{images/sequence_length_by_type.png} 
-		\caption{}
+		\includegraphics[width=\textwidth]{images/sequence_length_by_type.png} 
+		\caption{Sequence length distribution by exotoxin type.}
 		\label{fig:sequence_length_by_type}
 	\end{subfigure}
-	\vspace{1em}
-	\begin{subfigure}{\textwidth}
+	\hfill
+	\begin{subfigure}[b]{0.6\textwidth}
 		\centering
-		\includegraphics[width=0.9\textwidth]{images/sequence_length_by_target.png}
-		\caption{}
+		\includegraphics[width=\textwidth]{images/sequence_length_by_target.png}
+		\caption{Sequence length distribution by exotoxin target.}
 		\label{fig:sequence_length_by_target}
 	\end{subfigure}
-	\caption{\small Descriptive analysis of bacterial exotoxin feature: sequence length. (a) Sequence length distribution for different bacterial exotoxin types, measured in amino acids. The x-axis exhibit the exotoxin types, with each Type described by a colour: Type I (blue), Type II (orange), Type III (pink), Type IV (green), and Unknown (yellow). The y-axis shows sequence length in amino acids, ranging from 0 to approximately 3000, excluding three outliers. (b) Sequence length distribution for bacterial exotoxin targets, measured in amino acids. The x-axis represents the exotoxin targets, with each category represented by a distinct colour: Vertebrates (dark green) and Non-vertebrates (purple). The y-axis shows sequence length in amino acids, ranging from 0 to approximately 2500, excluding five outliers.}
+	\caption{\small Sequence length distribution of bacterial exotoxins. (a) Distribution across different exotoxin types as boxplots, measured in amino acids. Exotoxin types are color-coded: Type I (blue), Type II (orange), Type III (pink), Type IV (green), and Unknown (yellow). (b) Distribution across exotoxin targets, categorized as vertebrates (dark green) and non-vertebrates (purple).}
+	\label{fig:sequence_length_distribution}
 \end{figure}
 
-As observed in Figure~\ref{fig:sequence_length_by_type}(a), the average sequence lengths differ across toxin types. Specifically, Type I toxins have a mean length of 239.87 amino acids, Type II toxins average 329.47 amino acids, Type III toxins measure approximately 448.01 amino acids, Type IV toxins have an average length of 706.00 amino acids, and toxins labelled as Unknown average 607.86 amino acids. In contrast, Figure~\ref{fig:sequence_length_by_target}(b) reveals that non-vertebrate targets have a mean sequence length of 460.66 amino acids, whereas vertebrate targets average 438.74 amino acids.
+Figure \ref{fig:sequence_length_by_type} shows that average sequence lengths differ by toxin type. Type I toxins have a mean length of 239.9 amino acids. Type II toxins average 329.4 amino acids. Type III toxins measure about 448 amino acids. Type IV toxins average 706 amino acids, and toxins labeled as Unknown average about 607.8 amino acids. In contrast, Figure \ref{fig:sequence_length_by_target} shows that non-vertebrate targets average around 460 amino acids, while vertebrate targets average about 438 amino acids. 
 
-A generalized linear model (GLM) was used to assess whether the differences in sequence length were statistically significant among the toxin types and targets. The GLM results indicate that toxin type is the primary factor affecting sequence length variability. In particular, compared to the overall average, Type I toxins are significantly shorter by 228.56 amino acids and Type II toxins are shorter by 136.04 amino acids, while Type IV toxins are significantly longer by 237.57 amino acids since all p values are lower than 0.002. The model did not show a statistically significant difference for Type III toxins, nor was there a significant effect of the target variable on sequence length.
+ \gls{GLM} tests the statistical significance of these differences among types and targets. Compared to the overall average, Type I toxins are shorter by about 228 amino acids, Type II toxins are shorter by about 136 amino acids, and Type IV toxins are longer by about 237 amino acids (all p values are below 0.002). 
+The  \gls{GLM} shows that toxin type is the primary factor driving sequence length variability. Plus, the model finds no significant difference for Type III toxins, and it indicates a significant effect of the target variable on sequence length.
+%These findings suggest that the classification of exotoxins based on sequence length is largely driven by the toxin type rather than the biological target.
 
-These findings suggest that the classification of exotoxins based on sequence length is largely driven by the toxin type rather than the biological target.
+Figure~\ref{fig:hydrophobicity_toxin_type} and Figure~\ref{fig:hydrophobicity_by_target} display hydrophobicity per residue per residue across different toxin types and targets to determine whether there is a feature pattern among groups. 
 
-\subsubsection{Hydrophobicity Feature Analysis}
-The hydrophobicity of bacterial exotoxins was analyzed per residue across different toxin types and targets to determine whether this feature systematically varies among groups. Figure~\ref{fig:hydrophobicity_toxin_type} and Figure~\ref{fig:hydrophobicity_by_target} visualize these distributions using box plots.
+%mean values by 'type':
+%Hydrophobicity  Sequence_Length
+%type                                     
+%Type_I         -0.399536       239.869565
+%Type_II        -0.192125       329.469027
+%Type_III       -0.358247       448.009302
+%Type_IV        -0.440321       706.000000
+%Unknown        -0.300758       607.857143
+
+%Mean values by 'target':
+%Hydrophobicity  Sequence_Length
+%target                                         
+%Non-vertebrate       -0.316875       460.656958
+%Vertebrate           -0.345380       438.744681
 
 \begin{figure}[H]
 	\centering
-	\begin{subfigure}[b]{\textwidth}
+	\begin{subfigure}[b]{0.6\textwidth}
 		\centering
-		\includegraphics[width=0.9\textwidth]{images/hydrophobicity_by_type.png} 
-		\caption{}
+		\includegraphics[width=\textwidth]{images/hydrophobicity_by_type.png} 
+		\caption{Hydrophobicity distribution by exotoxin type.}
 		\label{fig:hydrophobicity_toxin_type}
 	\end{subfigure}
-	\vspace{1em}
-	\begin{subfigure}{\textwidth}
+	\hfill
+	\begin{subfigure}[b]{0.6\textwidth}
 		\centering
-		\includegraphics[width=0.9\textwidth]{images/hydrophobicity_by_target.png} 
-		\caption{}
+		\includegraphics[width=\textwidth]{images/hydrophobicity_by_target.png} 
+		\caption{Hydrophobicity distribution by exotoxin target.}
 		\label{fig:hydrophobicity_by_target}
 	\end{subfigure}
-	\caption{\small \textbf{Hydrophobicity distribution of bacterial exotoxin types and targets.} (a) The x-axis represents exotoxin types, with each type colour-coded: Type I (blue), Type II (orange), Type III (pink), Type IV (green), and Unknown (yellow). Box plots show the median, interquartile range, whiskers span to 1.5 times the interquartile range, with outliers as separate points. \remove{Type II toxins exhibit the widest spread, while Type I and Type IV have more compact distributions.} (b) The x-axis represents exotoxin targets: Vertebrates (dark green) and Non-vertebrates (purple). \remove{Hydrophobicity distributions are similar, though vertebrate-targeting exotoxins show slightly higher variability}.}
-	
+	\caption{\small Hydrophobicity distribution of bacterial exotoxin types and targets. (a) The x-axis represents exotoxin types, color-coded: Type I (blue), Type II (orange), Type III (pink), Type IV (green), and Unknown (yellow). Box plots show the median, interquartile range, whiskers extending to 1.5 times the interquartile range, with outliers as separate points. (b) The x-axis represents exotoxin targets: Vertebrates (dark green) and Non-vertebrates (purple).}
+	\label{fig:hydrophobicity_distribution}
 \end{figure}
 
-In Figure~\ref{fig:hydrophobicity_toxin_type}, Type I and Type IV toxins show more compact distributions, indicating lower variability, while Type II toxins exhibit the widest spread, suggesting greater diversity in sequence properties. The broader variation in Type II toxins may imply functional differences within this group. Type III and Unknown categories display moderate variability.
+Figure \ref{fig:sequence_length_by_type} shows that average sequence lengths differ by toxin type. Type I toxins have a mean length of 239.9 amino acids. Type II toxins average 329.4 amino acids. Type III toxins measure about 448 amino acids. Type IV toxins average 706 amino acids, and toxins labeled as Unknown average about 607.8 amino acids. In contrast, Figure \ref{fig:sequence_length_by_target} shows that non-vertebrate targets average around 460 amino acids, while vertebrate targets average about 438 amino acids. 
 
-Figure~\ref{fig:hydrophobicity_by_target} shows that vertebrate- and invertebrate-targeting exotoxins exhibit largely overlapping hydrophobicity distributions, with vertebrate-targeting toxins displaying slightly higher variability. However, the overlap suggests that hydrophobicity alone does not strongly differentiate exotoxin targets.
+Figure~\ref{fig:hydrophobicity_toxin_type}, shows hydrophobicity differ by toxin type. Type I toxins have a hydrophobicity of -0.40. Type II toxins average -0.19 amino acids. Type III toxins measure about -0.36. Type IV has a hydrophobicity value of -0.44 and toxins labeled as Unknown has hydrophobicity  of 0.30. In contrast, it shows that non-vertebrate targets hydrophobicity value of  0.31, while vertebrate targets has a value of 0.34.  Figure~\ref{fig:hydrophobicity_by_target} shows that vertebrate- and invertebrate-targeting exotoxins exhibit largely overlapping hydrophobicity distributions, with vertebrate-targeting toxins displaying slightly higher variability. However, the overlap suggests that hydrophobicity alone does not strongly differentiate exotoxin targets.
 
-A Generalized Linear Model (GLM) analysis confirms that only Type II toxins show a statistically significant increase in hydrophobicity (coefficient: 0.1461, p < 0.001). No significant differences were found between target groups or other toxin types.
-These findings suggest that hydrophobicity may help distinguish certain toxin types, particularly Type II, but it is not a strong predictor for toxin targets. 
+ \gls{GLM} analysis confirms that only Type II toxins show a statistically significant increase in hydrophobicity with a coefficient of 0.1461 and p value lower than 0.001. In a nutshell, no significant differences were found between target groups or other toxin types. These findings suggest that hydrophobicity may help distinguish certain toxin types, particularly Type II, but it is not a strong predictor for toxin targets. 
 
-\section{Redundancy Reduction}
 
-This step was applied to ensure models ability to generalize unseen data.
+\subsection{Redundancy Reduction with Protein Sequences}
 
-First, MMseqs2 tool was used to set the similarity threshold to 100\% in order to get rid of duplicates, if there are any. After that , 30\% similarity was applied reduced the count from 2,492 to 1,068. This reduction reduces sequence similarity among dataset, allowing us to focus on the unique characteristics and functional diversity of exotoxins.
-
-As shown in Table~\ref{tab:merged_dataset_distribution}, after eliminating redundant sequences, the over-representation of Type III exotoxins remains even less pronounced (the percentage of Type III drops from 86\% to 74\%).
-
-The redundancy reduction further limited the already scarce data, which increases the likelihood of the model memorizing it and overfitting. This, in turn, increases the necessity for dimensionality reduction later in the project pipeline. The drop in data imbalance will likely reduce bias toward the majority class in the final model. While reducing redundancy improves model generalizability, it further limits the available data, increasing the risk of overfitting.
+Table~\ref{tab:merged_dataset_distribution}, displays results of redundancy reduction with 30\% similarity threshold. The Table~\ref{tab:exotoxin_types_merged} contains 42 Type I, 169 Type II, 2149 Type III, 28 Type IV, and 104 Unknown sequences. 
+After redundancy reduction, the counts drop to 29, 145, 852, 25, and 93 respectively. This method reduces the overall sequence count from 2,492 to 1,068. Notably, the percentage of Type III drops from 86\% to 74\% . On the other hand, in Table~\ref{tab:exotoxin_targets_merged} original dataset contains 1863 Vertebrates and 614 Non-Vertebrates. This reduction decreases sequence similarity within the dataset, increasing the unique characteristics and functional diversity of exotoxins before training.
 
 \begin{table}[H]
 	\centering
-	\caption{\small Summary of the dataset distribution based on exotoxin types (a) and their biological targets (b) before and after redundancy reduction.}
+	\caption{Summary of the dataset distribution based on exotoxin types and their biological targets before and after redundancy reduction using MMseqs2.}
+	
 	\label{tab:merged_dataset_distribution}
 	
 	\begin{subtable}[t]{0.45\textwidth}
@@ -100,7 +106,7 @@ The redundancy reduction further limited the already scarce data, which increase
 			Type II & 169 & 145 \\
 			Type III & 2149 & 852 \\
 			Type IV & 28 & 25 \\
-			Other Types & 104 & 93 \\
+			Unknown & 104 & 93 \\
 			\bottomrule
 		\end{tabular}
 	\end{subtable}
@@ -119,325 +125,470 @@ The redundancy reduction further limited the already scarce data, which increase
 	\end{subtable}
 \end{table}
 
-\subsection{Quality of Protein Folds Based On pLDDT Scores}
 
-Figure~\ref{fig:lddt_scores} displays the distribution of pLDDT scores for predicted nonredundant protein folds. This figure is used to evaluate the confidence of our protein structure predictions; higher scores indicate greater model confidence, while lower scores suggest regions that may require further analysis. 
+
+\section{Data Transformation}
+
+This project uses two different raw data: \textbf{protein folds} or \textbf{protein sequences}. 
+
+In the next stages, machine learning pipeline uses 1067 nonredundant protein sequences as raw data. As a second raw data, it uses protein sequence information to predict 3D structures information that can be referred as protein folds. This analysis looks into the quality of predicted protein folds by AlphaFold. Notably, both sequence-based and fold-based embeddings have 1024 dimensions.
+
+Figure~\ref{fig:lddt_score} displays the distribution of \gls{pLDDT} scores for nonredundant protein folds. It to evaluates the confidence of our protein structure predictions; higher scores indicate greater model confidence, while lower scores indicate lower model confidence.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{images/LDDT.png}
-	\caption{\small The black line is mean LDDT score across samples. The gray-colored region stands for one standard deviation around the mean, capturing the spread of LDDT scores within each sample. The red data points indicate the median LDDT scores, providing an alternative measure of central tendency and highlighting any deviations from the mean.}
-	\label{fig:lddt_scores}
+	\includegraphics[width=0.7\textwidth]{images/LDDT.png}
+	\caption{\small \textbf{\Gls{pLDDT}} score to assess fold quality. The black line is mean  \gls{pLDDT} score across samples. The gray-colored region stands for one standard deviation around the mean, capturing the spread of  \gls{pLDDT} scores within each sample. The red data points indicate the median \gls{pLDDT} scores, providing an alternative measure of central tendency and highlighting any deviations from the mean.}
+	\label{fig:lddt_score}
 \end{figure}
 
-Approximately 68\% of the data falls within the grey shaded area, corresponding to one standard deviation around the mean. The distribution shows that most LDDT scores lie between 40 and 100, with increasing variability as the mean score rises. Lower LDDT values (below 50) are present in a subset of samples, but the majority of structures show mean LDDT values above 60, suggesting overall reasonable confidence in the predictions. This analysis is useful in assessing the quality of predicted 3D structures before the prediction. 
-\pagebreak
+Approximately 68\% of the data falls within the grey region, corresponding to one standard deviation around the mean. The distribution shows that most  \gls{pLDDT} scores lie between 40 and 100, with increasing variability as the mean score rises.  \gls{pLDDT} values below 50 are present in a subset of samples, but the majority of structures show mean  \gls{pLDDT} values above 60, suggesting overall reasonable confidence in the predictions. This analysis is useful in assessing the quality of predicted 3D structures before the prediction. 
 
-\section{Dimensionality Reduction Techniques}
+Then, the protein embedding structures indicate that both sequence-based and fold-based embeddings have 1024 dimensions.
 
-\replace{We}{I} applied Principal Component Analysis (PCA) to check the clustering patterns of bacterial exotoxins and their targets using both regular and scrambled protein embeddings. The results reveal important insights into the role of sequence-based embeddings in toxin classification.
+\subsection{Dimensionality Reduction with Protein Embeddings}
 
-The PCA of non-scrambled embeddings (Figure~\ref{fig:pca_toxin_type}) shows clustering among toxin types.
+\gls{PCA} is used to check clustering patterns of bacterial exotoxins and their targets using both regular and scrambled protein embeddings. The results reveal important insights into the role of sequence-based embeddings in toxin classification.
 
-The PCA of scrambled embeddings (Figure~\ref{fig:scrambled_pca_toxin_type}) reveals no meaningful structure, with all toxin types overlapping substantially. This lack of clustering indicates that the scrambled embeddings fail to capture meaningful toxin-specific information, as opposed to the regular embeddings.
+The \gls{PCA} of non-scrambled sequence based embeddings (Figure~\ref{fig:pca_toxin_type}) shows clustering among toxin types. Principal component 1 is 9.72 \% and principal component 2 is 5.54\%.
+
+The \gls{PCA} of scrambled embeddings (Figure~\ref{fig:scrambled_pca_toxin_type}) reveals no meaningful structure, with all toxin types overlapping substantially. This lack of clustering indicates that the scrambled embeddings fail to capture meaningful toxin-specific information, as opposed to the regular embeddings.
+
+	\begin{figure}[H]
+		\centering
+		\begin{subfigure}[b]{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/pca_projection_type_nonscrambled.png} 
+			\caption{}
+			\label{fig:pca_toxin_type}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[b]{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/pca_projection_type_scrambled.png} 
+			\caption{}
+			\label{fig:scrambled_pca_toxin_type}
+		\end{subfigure}
+		\caption{\small \gls{PCA} projections comparing original and scrambled protein sequences for bacterial exotoxin types. The subfigure (a) belongs to non-scrambled, while the subfigure (b) belongs to scrambled sequence based embeddings. The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2. Each exotoxin type is color-coded: Type I (blue), Type II (purple), Type III (pink), Type IV (green), and Unknown (yellow).}
+		\label{fig:dimensionality_reduction_toxin_type}
+	\end{figure}
+
+Similarly, based on non-scrambled sequence-based embeddings, Figure~\ref{fig:pca_projection_non_scrambled_target} shows small clustering patterns among toxin targets. Principal component 1 is 9.72 \% and principal component 2 is 5.54\%.
+Based on scrambled sequence-based embeddings, Figure~\ref{fig:pca_projection_scrambled_target} reveals no meaningful structure. This confirms vertebrate and invertebrate sequences exhibit biologically meaningful clustering in non-scrambled ones.
+
 
 \begin{figure}[H]
 	\centering
-	\begin{subfigure}{\textwidth}
+	\begin{subfigure}[b]{0.48\textwidth}
 		\centering
-		\includegraphics[width=0.7\textwidth]{images/pca_projection_type.png} 
-		\caption{(a)}
-		\label{fig:pca_toxin_type}
-	\end{subfigure}
-	\vspace{1em}
-	\begin{subfigure}{\textwidth}
-		\centering
-		\includegraphics[width=0.7\textwidth]{images/pca_projection_type_scrambled.png} 
-		\caption{(b)}
-		\label{fig:scrambled_pca_toxin_type}
-	\end{subfigure}
-	\caption{\small (a) Principal Component Analysis (PCA) projection of bacterial exotoxin types
-		Each exotoxin type is colour-coded: Type I (blue), Type II (purple), Type III (pink), Type IV (green), and Unknown (yellow)
-		(b)The scrambling reduces separation among the clusters, validating the effect of the shuffling of protein sequences.}
-	\label{fig:dimensionality_reduction_toxin_type}
-\end{figure}
-\comment{Figure}{For some reason, the (a) and (b) appear twice. Maybe removing the caption from the subfigure? }
-
-Similarly, Figure~\ref{fig:pca_projection_non_scrambled_target} and Figure~\ref{fig:pca_projection_scrambled_target} show the PCA projections for exotoxin targets, confirming that vertebrate and invertebrate sequences exhibit biologically meaningful clustering.
-
-The PCA of regular embeddings (Figure~\ref{fig:pca_projection_non_scrambled_target}) reveals small clustering patterns among vertebrate toxin targets. The PCA of scrambled embeddings (Figure~\ref{fig:pca_projection_scrambled_target}) reveals no meaningful structure, with all toxin targets overlapping.
-
-\begin{figure}[H]
-	\centering
-	\begin{subfigure}[b]{\textwidth}
-		\centering
-		\includegraphics[width=0.7\textwidth]{images/pca_projection_target.png} 
+		\includegraphics[width=\textwidth]{images/pca_projection_target_nonscrambled.png} 
 		\caption{}
 		\label{fig:pca_projection_non_scrambled_target}
 	\end{subfigure}
-	\vspace{1em}
-	\begin{subfigure}[b]{\textwidth}
+	\hfill
+	\begin{subfigure}[b]{0.48\textwidth}
 		\centering
-		\includegraphics[width=0.7\textwidth]{images/pca_projection_target_scrambled.png}
+		\includegraphics[width=\textwidth]{images/pca_projection_target_scrambledd.png}
 		\caption{}
 		\label{fig:pca_projection_scrambled_target}
 	\end{subfigure}
-	\caption{\small Principal Component Analysis (PCA) projection of bacterial exotoxin targets and scrambled PCA projection of bacterial exotoxin targets. The x-axis describes Principal Component 1, and the y-axis describes Principal Components Targets are color-coded: Vertebrates (purple) and Non-vertebrates (dark green). Plus, the scrambling reduces cluster compactness, demonstrating the loss of structure in the data.}
+	\caption{\small \gls{PCA} projections comparing original and scrambled protein sequences for bacterial exotoxin targets. The subfigure (a) belongs to non-scrambled, while the subfigure (b) belongs to scrambled sequence based embeddings. The x-axis represents Principal Component 1, and the y-axis represents Principal Component 2. Targets are color-coded: Vertebrates (purple) and Non-vertebrates (dark green). Scrambling reduces cluster compactness, demonstrating the loss of structure in the data.}
 	\label{fig:dimensionality_reduction_toxin_target}
-\end{figure} 
+\end{figure}
 
 \section{ExoType Predictor}
-This section describes the development of the ExoType predictor, which classifies exotoxins into five categories: Type I, Type II, Type III, Type IV, and Unknown. The following subsections outline the training and evaluation of the model using two different data representations:
-
-1. Sequence-based embeddings (generated from protein sequences using MMseqs2)
-2. Fold-based embeddings (derived from protein structures predicted by AlphaFold2)
-
-\subsection{Model Training}
-Five models with different architectures were trained to predict different exotoxin types: Logistic Regression, Support Vector Machines, K-Nearest Neighbours, Hierarchical Model, and Random Forest. 
+This section describes the development of the ExoType predictor, which classifies exotoxins into five categories: \textbf{Type I, Type II, Type III, Type IV, and Unknown}. The following subsections outline the training and evaluation of the model using two alternative data representations:
 
 \begin{itemize}
-	\item Logistic Regression,
-	\item Support Vector Machines,
-	\item K-Nearest Neighbours,
-	\item Random Forest,
-	\item Hierarchical Model
+	\item Sequence-based embeddings,
+	\item Fold-based embeddings 
 \end{itemize}
 
-To evaluate performance, we applied two data-splitting strategies:
+\subsection{ExoType Dataset}
+This section proposes two data-splitting strategies and the class distribution among exotoxin types: Type I, Type II, Type III, Type IV, Unknown. Two data-splitting strategies are used in the Section~\ref{section:training_test_set}. Table~\ref{tab:data_distribution_type} shows the class distribution after data splitting. 
 
-\subsubsection{Approach 1: Standard Train-Test Split}
+In the standard split, the training set contains 10 Type I, 77 Type II, 699 Type III, 14 Type IV, and 48 Unknown sequences whereas in the redundancy split, the sequence counts increases to 12 Type I, 96 Type II, 875 Type III, 18 Type IV, and 60 Unknown sequences. Additionally, the number of test samples in redundancy reduction split increases 2 to 25 in Type I, 19 to 68 Type II, 176 to 1178 Type III, 4 to 9 Type IV, and 12 to 39 Unknown sequences.
 
-The dataset of 1,067 embeddings was divided into:
-\begin{itemize}
-	\item 80\% training set (848 samples)
-	\item 20\% test set (213 samples)
-\end{itemize}
-
-Class distribution in the training set:
-\begin{itemize}
-	\item \textbf{Type I}: 10
-	\item \textbf{Type II}: 77
-	\item \textbf{Type III}: 699
-	\item \textbf{Type IV}: 14
-	\item \textbf{Unknown}: 48
-\end{itemize}
-
-\subsubsection{Approach 2: Redundancy Reduction Based Split}
-
-The dataset of 1,067 embeddings was divided into:
-\begin{itemize}
-	\item \textbf{Type I}: 12
-	\item \textbf{Type II}: 96
-	\item \textbf{Type III}: 875
-	\item \textbf{Type IV}: 18
-	\item \textbf{Unknown}: 60
-\end{itemize}
-
-The best cross-validation MCC scores for each model under both data-splitting approaches are summarized in Table~\ref{tab:mcc_scores}.
-\comment{MCC scores}{When using a table with numbers, you still have to include the confidence interval or the SEM for the values. Usually is give as 0.62(+- 0.03) and the Column should have the unit (Standard split (SEM) or Standard split (95\%CI))}
 \begin{table}[h]
 	\centering
-	\caption{MCC Scores for Different Models}
-	\label{tab:mcc_scores}
-	\begin{tabular}{lcc}
-		\toprule
-		\textbf{Model} & \textbf{Standard Split} & \textbf{Redundancy Reduction Split} \\
-		\midrule
-		Random Forest & 0.62 & 0.62 \\
-		Logistic Regression & 0.62 & 0.64 \\
-		SVM & 0.63 & 0.65 \\
-		KNN & 0.74 & 0.73 \\
-		\bottomrule
-	\end{tabular}
+	\caption{Class distribution before and after redundancy reduction using two different splitting approaches.}
+	\resizebox{\textwidth}{!}{ 
+		\begin{tabular}{lcccc}
+			\toprule
+			\textbf{Class} & \shortstack{\textbf{Standard Split:} \\ \textbf{Training Data}} 
+			& \shortstack{\textbf{Redundancy Reduction Split:} \\ \textbf{Training Data}} 
+			& \shortstack{\textbf{Standard Split:} \\ \textbf{Test Data}} 
+			& \shortstack{\textbf{Redundancy Reduction Split:} \\ \textbf{Test Data}} \\
+			\midrule
+			Type I     & 10  & 12  & 2  & 25  \\
+			Type II    & 77  & 96  & 19 & 68 \\
+			Type III   & 699 & 875 & 176 & 1178 \\
+			Type IV    & 14  & 18  & 4  & 9  \\
+			Unknown    & 48  & 60  & 12 & 39 \\
+			\midrule
+			\bottomrule
+	\end{tabular}}
+	\label{tab:data_distribution_type}
 \end{table}
 
-Comparing the two approaches reveals several key differences. In the original split, the training set consisted of 848 samples with relatively fewer samples for the minority classes, whereas the redundancy reduction approach yielded a training set with slightly higher counts for these classes, yet the overall distribution remained heavily skewed toward Type III. 
+Data splitting methods used in Table~\ref{tab:data_distribution_type} (standard split and redundancy reduction split) explained in Section~\ref{section:training_test_set}.
 
-\comment{Next paragraph}{Dear Didem, the figure is not correctly referenced by the system and it does not seem to fit the rest of the sentence. Can you check here again?}
-In Figure~\ref{fig:import_test_learning_curves_type} In terms of cross-validation MCC, the original approach achieved values of 0.62, 0.62, 0.63, and 0.74 for Random Forest, Logistic Regression, SVM, and KNN respectively. With the second approach, Random Forest had an MCC of 0.62, while Logistic Regression and SVM improved to 0.64 and 0.65, respectively, and KNN decreased to 0.73. These changes mean that while the redundancy reduction approach has improved the performance of some models, due to the increasing of the minority classes, the overall impact is similar. The class imbalance in the second approach may limit the models' ability to generalize better, indicating that while there is a hint of improvement, additional strategies to further address the imbalance might be necessary to prevent the potential underfitting of the minority classes.
 
-In addition to the numerical comparisons, the learning curves provide further insight into how each model responds to increasing amounts of training data under both approaches. In Figure~\ref{fig:split_test_learning_curves}, the learning curves for these four models display the training and validation MCC scores across various training set sizes. Ideally, as the amount of training data increases, the training MCC should decline slightly—indicating that the model stops overfitting and starts to generalize better to unseen data.  
+\subsection{Training Performance}
 
-For Random Forest and KNN, the training MCC remains nearly constant, suggesting these models continue to overfit the training data. Conversely, SVM and Logistic Regression exhibit lower training MCC scores, implying they do not overfit. Moreover, although the validation MCC scores for all models improve with more data, SVM and Logistic Regression appear more balanced between fitting the training data and generalizing well. This pattern indicates that SVM and Logistic Regression are more suitable for the classification of toxin types using sequence-based embeddings.
+Four models with different architectures were trained to predict different exotoxin types: \textbf{Logistic Regression, Support Vector Machines, K-Nearest Neighbours, and Random Forest}.
+
+%Below the training performance of both embedding types are discussed with the help of the cross validation mcc and the learning curves. Table~\ref{tab:mcc_comparison} shows the MCC cross validation values of different architectures using sequence based embeddigns while Table~\ref{tab:standard_split_mcc} shows the the MCC cross validation scores of the fold based embeddings. 
+
+\subsubsection{Sequence-based Embeddings:}  
+
+\begin{table}[h]
+	\centering
+	\caption{Comparison of cross-validation \gls{MCC} scores for different models using Standard Split and Redundancy Reduction Split based on fold based embeddings for ExoType. The \gls{MCC}  is a metric that takes place between –1 and +1. The value of +1 means the predictions perfectly match the true classes. 0 means the model is guessing randomly.}
+	\resizebox{\textwidth}{!}{ 
+		\begin{tabular}{lcc}
+			\toprule
+			\textbf{Model} & \textbf{Standard Split MCC} & \textbf{Redundancy Reduction Split MCC} \\
+			\midrule
+			Random Forest           & 0.62 ± 0.07 & 0.62 ± 0.01 \\
+			Logistic Regression     & 0.62 ± 0.05 & 0.64 ± 0.03 \\
+			Support Vector Machine  & 0.63 ± 0.04 & 0.65 ± 0.04 \\
+			K-Nearest Neighbors     & 0.74 ± 0.06 & 0.73 ± 0.02 \\
+			\bottomrule
+		\end{tabular}
+	}
+	\label{tab:mcc_comparison_type}
+\end{table}
+
+Table~\ref{tab:mcc_comparison_type} depicts cross-validation \gls{MCC} scores with their error values among models with different machine learning algorithm with two data-splitting strategies. The cross-validation \gls{MCC} scores indicates that data splitting methods doesn't significantly make a difference in training performance as it is visible in Random Forest (0.62 ± 0.07 to 0.62 ± 0.01), Logistic Regression (0.62 ± 0.05 to 0.64 ± 0.03), \gls{SVM} (0.63 ± 0.04 to 0.65 ± 0.04), K-Nearest Neighbors (KNN) (0.74 ± 0.06  to 0.73 ± 0.02). 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/2x2_learning_curves_split_test_type.png}
-	\caption{\small MCC Bar Plot for Protein Sequence-Based Embeddings: This graph is used to assess model generalization when the dataset is split into 80\% training and 20\% test sets.}
+	\includegraphics[width=0.99\textwidth]{images/learning_curve_type_split.png}
+	\caption{\small Learning Curve for Protein Sequence-Based Embeddings: This graph is used to assess model generalization when the dataset is split into 80\% training and 20\% test sets.}
 	\label{fig:split_test_learning_curves}
 \end{figure}
 
+Figure~\ref{fig:split_test_learning_curves} displays the \gls{MCC} cross validation changes across training and validation sets. The analysis of learning curvecan be assessed in two phases: the process of the model learning it with training \gls{MCC} curve and the level of generalization the model reaches. The training \gls{MCC} of Random Forest, the training \gls{MCC} conclude 0.62 at 600 samples and it converges with validation curve which is a sign of improvement in generalization. In contrast, the training \gls{MCC} remains at 1.00 during 700 training examples in Random Forest and \gls{KNN} models.
+
+In Appendix, Figure~\ref{fig:learning_curve_type_import} uses the redundancy split training set as input. In learning curves, it is visible that as the training sample size increases, the overfitting trend decreases among models e.g. \gls{KNN}. Additionally, for both the Logistic Regression model and \gls{SVM}, the training \gls{MCC}and validation \gls{MCC} values converge at 480 training examples, suggesting improved generalization and model performance.
+
+
+\subsubsection{Fold-based Embeddings:}  
+
+\begin{table}[h]
+	\centering
+	\caption{Cross-validation \gls{MCC} scores for different models using the sequence-based embeddings for ExoType.}
+	\begin{tabular}{lc}
+		\toprule
+		\textbf{Model} & \textbf{Standard Split MCC} \\
+		\midrule
+		Random Forest           & 0.16 ± 0.11 \\
+		Logistic Regression     & 0.36 ± 0.03 \\
+		Support Vector Machine  & 0.37 ± 0.03 \\
+		K-Nearest Neighbors     & 0.38 ± 0.03 \\
+		\bottomrule
+	\end{tabular}
+	\label{tab:standard_split_mcc}
+\end{table}
+
+In Table~\ref{tab:standard_split_mcc} in terms of cross-validation \gls{MCC} based on sequence embeddings, the original approach achieved values of 0.62 ± 0.11, 0.62 ± 0.03, 0.63 ± 0.03, and 0.74 ± 0.03 for Random Forest, Logistic Regression, \gls{SVM}, and \gls{KNN} respectively. With the redundancy reduction split, Random Forest had an \gls{MCC} of 0.62 ± 0.11, while Logistic Regression and \gls{SVM} improved to 0.64 ± 0.04 and 0.65, respectively, and \gls{KNN} decreased to 0.73 ± 0.03. These changes indicate that while the redundancy reduction split has improved the performance of some models, due to the increasing of the minority classes, the overall impact is similar. 
+
+%The class imbalance in the second approach may limit the models' ability to generalize better, indicating that while there is a hint of improvement, additional strategies to further address the imbalance might be necessary to prevent the potential underfitting of the minority classes.
+%In addition to the numerical comparisons, the learning curves provide further insight into how each model responds to increasing amounts of training data under both approaches. In Figure~\ref{fig:split_test_learning_curves}, the learning curves for these four models display the training and validation MCC scores across various training set sizes. Ideally, as the amount of training data increases, the training MCC should decline slightly—indicating that the model stops overfitting and starts to generalize better to unseen data.  k
+%For Random Forest and KNN, the training MCC remains nearly constant, suggesting these models continue to overfit the training data. Conversely, SVM and Logistic Regression exhibit lower training MCC scores, implying they do not overfit. Moreover, although the validation MCC scores for all models improve with more data, SVM and Logistic Regression appear more balanced between fitting the training data and generalizing well. This pattern indicates that SVM and Logistic Regression are more suitable for the classification of toxin types using sequence-based embeddings. 
+
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/2x2_learning_curves_folds_test_split.png}
-	\caption{\small MCC Bar Plot for Protein Fold-Based Embeddings: This graph is used to assess model generalization when the dataset is split into 80\% training and 20\% test sets.}
+	\includegraphics[width=0.99\textwidth]{images/learning_curves_type_folds.png}
+	\caption{\small Learning Curve for Protein Fold-Based Embeddings: This graph is used to assess model generalization when the dataset is split into 80\% training and 20\% test sets.}
 	\label{fig:learningcurve_fold_type}
 \end{figure}
 
-In Figure~\ref{fig:learningcurve_fold_type}, the learning curves for the protein folds illustrate how each classifier's MCC on the training and validation sets evolves as more training samples become available. Random Forest shows a relatively stable performance but remains at a low validation MCC of 0.16 in cross-validation, suggesting that while it fits the training data quickly, it struggles to generalize. Logistic Regression (0.36), SVM (0.37), and KNN (0.38) exhibit modest improvements in validation MCC with increasing training size, but none converge on particularly high MCC values. These trends underscore the challenge posed by class imbalance and potential redundancy in the data, as well as the need for more extensive feature engineering or alternative approaches to further boost model generalization.
+In Figure~\ref{fig:learningcurve_fold_type}, the fold-based learning curves for the embeddings based on protein folds illustrate how each classifier's \gls{MCC} on the training and validation sets evolves as more training samples become available. Random Forest shows a relatively stable performance but remains at a low validation \gls{MCC} of 0.16 in cross-validation, suggesting that while it fits the training data quickly and it struggles to generalize. Logistic Regression (0.36), \gls{SVM} (0.37), and \gls{KNN} (0.38) exhibit modest improvements in validation \gls{MCC} with increasing training size, but none converge on particularly high \gls{MCC} values. 
+
+%These trends underscore the challenge posed by class imbalance and potential redundancy in the data, as well as the need for more extensive feature engineering or alternative approaches to further boost model generalization.
 
 \subsection{Model Performance Evaluation}
 
-This section evaluates the performance of five machine learning models trained on two different embedding types: sequence-based embeddings and protein fold-based embeddings. The models include Logistic Regression (LR), Support Vector Machines (SVM), K-Nearest Neighbors (KNN), Random Forest (RF), and Hierarchical Models (Hier\_RF, Hier\_SVM). Additionally, BLAST, a non-machine learning baseline based on sequence similarity, is included for comparison.
+This section evaluates the performance of five machine learning models using the  \gls{MCC}: Random Forest , Logistic Regression, Support Vector Machine, K-Nearest Neighbors, Hierarchical Random Forest model, Hierarchical Support Vector Machine model, and \gls{BLAST} predictor. \gls{MCC} bar plots, precision-recall curves, and confusion matrices assess each model’s generalization to test data. \gls{BLAST}, a non-machine-learning, sequence-based predictor operating on sequence similarity, serves as a comparison to embedding-based machine learning models.
 
-Performance assessment is based on the Matthews Correlation Coefficient (MCC), with error bars indicating standard deviation across cross-validation folds. Learning curves are also analyzed to detect potential overfitting.
-
+\subsubsection{MCC Bar Plots}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{images/comparison_graph_with_error_bars_test_type_split.png}
-	\caption{\small MCC Bar Plots for Protein Sequence-Based Embeddings. The x-axis represents different classification models: Random Forest (RF, blue), Logistic Regression (LR, orange), Support Vector Machine (SVM, green), K-Nearest Neighbors (KNN, pink), Hierarchical Random Forest (Hier\_RF, yellow), Hierarchical Support Vector Machine (Hier\_SVM, light blue), and BLAST predictor (brown). The y-axis indicates the Matthews Correlation Coefficient (MCC) scores, with higher values reflecting better classification performance. Error bars represent the standard deviation across cross-validation folds. (a) The first MCC Plot corresponds to the first approach, where the dataset was split into 80\% training and 20\% test sets.}
-	\label{fig:mcc_sequence_type}
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/mcc_type_split.png}
+		\caption{}
+		\label{fig:mcc_sequence_type}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/mcc_type_folds.png}
+		\caption{}
+		\label{fig:mcc_fold_type}
+	\end{subfigure}
+	\caption{\small Comparison of \gls{MCC} scores for different classification models. The x-axis represents different classification models: Random Forest (RF, blue), Logistic Regression (LR, orange), Support Vector Machine (SVM, green), K-Nearest Neighbors (KNN, pink), Hierarchical Random Forest (Hier\_RF, yellow), Hierarchical Support Vector Machine (Hier\_SVM, light blue), and \gls{BLAST}  predictor (brown). The y-axis indicates the  \gls{MCC} scores. (a) The first \gls{MCC} Plot corresponds to the first approach, where the dataset was split into 80\% training and 20\% test sets. Error bars represent the standard deviation across cross-validation folds. (b) Fold-based embeddings}
+	\label{fig:mcc_comparison}
 \end{figure}
 
-Figure~\ref{fig:mcc_sequence_type} presents the MCC scores for models trained on \textbf{sequence-based embeddings}. SVM and KNN achieved the highest MCC scores, approximately 0.67 and 0.68 in the first approach (80\% training, 20\% test). Their performance improved further with a larger training set, exceeding 0.80 in the second approach. Random Forest and BLAST showed moderate performance MCC of 0.60 in the first approach, increasing to 0.75 in the second one. On the other hand, Logistic Regression and Hierarchical Random Forest had the lowest MCC scores, remaining below 0.50.
+ %In light of the learning curves however it can be assumed that Random Forest and KNN overfitted while SVM and logistic regression generalized better. Overall the errorbars of all models overlap, the differences between the model performances are therefore not significant.  This indicates that using sequence based embeddings to predic the toxin types is not an improvment over using BLAST to match toxins to their closest toxin types. 
+%For this approach BLAST significantly outperformed the fold embeddings. 
+%This suggests that the fold based approach is less effective for exotoxin types prediction compared to sequence based embedings approach or the existing BLAST. However, fold-based embeddings still provide valuable structural information.
 
-To see if the model experiences overfitting or not, \textbf{learning curves} were inspected. As a result, it can be seen that Random Forest and KNN have high training MCC values, suggesting overfitting. SVM and Logistic Regression had lower training MCC scores, indicating better generalization.
+Figure~\ref{fig:mcc_sequence_type} displays the final \gls{MCC} values for \textbf{sequence-based embeddings} using a \textit{standard split}.
+Random Forest has a \gls{MCC} score of 0.50±0.15 and \gls{SVM} achieves an \gls{MCC} of 0.62±0.11, Logistic Regression reaches 0.58±0.11, and \gls{KNN} scores about 0.65±0.13 which suggests \gls{KNN} has a better performance than other models. In terms of SVM  and Random Forest Hierarchical predictors, their scores consist of 0.62±0.11 and 0.45±0.14. Apart from the embedding-based models, a sequence-based model has a \gls{MCC} score of 0.67±0.09. Finally, as the test data size increases under a \textit{redundancy reduction split} (see Figure~\ref{fig:MCC_type_import} in the Appendix), Random Forest and \gls{KNN}  improve to an \gls{MCC} around 0.8, while Logistic Regression and SVM maintain a similar \gls{MCC}  as before. The improvement of \gls{KNN}  and RF can indicate increase in data size may benefit model's performance.
 
-Overall, SVM and KNN were the most effective classifiers for sequence-based embeddings. Increasing the training data improved MCC scores across all models, highlighting the impact of dataset size on model generalization.
+Figure~\ref{fig:mcc_fold_target} displays the final \gls{MCC} values for \textbf{fold-based embeddings} using a \textit{standard split}. Random Forest, Logistic Regression, and \gls{SVM} each reach an \gls{MCC} of about 0.6, while \gls{KNN} achieves a lower \gls{MCC} of around 0.5. The decrease of \gls{KNN}'s performance when compared to sequence based embeddings may be linked to the limitation of information gathered from fold based embeddings.
+
+
+\subsubsection{Precision-Recall Curves}
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{images/comparison_graph_with_error_bars_folds_test_split_type.png}
-\caption{\small MCC Bar Plot for Protein Fold-Based Embeddings. The x-axis represents different classification models: Random Forest (RF, blue), Logistic Regression (LR, orange), Support Vector Machine (SVM, green), K-Nearest Neighbors (KNN, pink), Hierarchical Random Forest (Hier\_RF, yellow), Hierarchical Support Vector Machine (Hier\_SVM, light blue), and BLAST predictor (brown). The y-axis indicates the Matthews Correlation Coefficient (MCC) scores, with higher values suggesting better classification performance. \remove{(a) The first MCC Plot belongs to the first approach while (b) the Second MCC Plot belongs to the second approach, where the whole nonredundant dataset was used for training, and previously removed redundant data was used as the test set. Models trained using the second approach generally show higher MCC scores, demonstrating the benefit of increased training data. The hierarchical models (Hier\_RF, Hier\_SVM) exhibit improved MCC scores, highlighting their ability to mitigate class imbalance.}}
-\label{fig:mcc_fold_type}
+	\centering\includegraphics[width=0.99\textwidth]{images/precisionrecalltypesplit.png}
+	\caption{\small Precision-Recall curve for protein sequence based embeddings. In each plot, the x-axis represents Recall, and the y-axis represents Precision. Each plot has the Average Precision (AP) value of Type I, Type II, Type III, Type IV, Unknown . \gls{AP} measures the area under the precision-recall curve. The area under the corresponding curves are a metric for model performance.}
+	\label{fig:pr_curve_sequence_type}
 \end{figure}
 
-\comment{Figure}{The figure above has only one graph, but the caption talks about a and b. The rest of the sentence is more result description.}
-Figure~\ref{fig:mcc_fold_type} presents the MCC values for predictors built using protein fold-based embeddings. It was visible that fold-based embeddings performed worse than sequence-based embeddings due to its MCC values. Among the models, KNN achieved the highest MCC score, around 0.50, and Logistic Regression with an MCC value of 0.40. The hierarchical models provided some improvements, but their effectiveness varied across different test scenarios. The error bars in the figure indicate higher variance in MCC scores, suggesting that models trained on fold-based embeddings exhibited greater instability across cross-validation folds.
+Figure~\ref{fig:pr_curve_sequence_type}  shows the precision-recall curves for Random Forest, Logistic Regression, SVM, KNN - using \textbf{sequence based embeddings} with \textit{standard split}. Each plot has Type I, Type II, Type III, Type IV, Unknown AP values. 
 
-The lower performance of models on fold-based embeddings suggests that sequence-based representations may be more effective for exotoxin classification.  These results highlight the importance of embedding choice in exotoxin classification. Sequence-based embeddings consistently led to higher MCC scores, particularly when used with SVM, KNN, and hierarchical models. However, fold-based embeddings still provide valuable structural information.
+In Random Forest, Type I, II, III, IV, Unknown have a 0.50, 0.70, 0.99, 0.81 and 0.73  \gls{AP} respectively. Logistic Regression, Type I, II, III, IV, Unknown have a  0.26, 0.68, 0.99, 0.62 and 0.58  \gls{AP} respectively. Support Vector Machine, Type I, II, III, IV, Unknown have a  0.55, 0.77, 0.99, 0.48 and 0.46  \gls{AP} respectively. \gls{KNN}, Type I, II, III, IV, Unknown have a  0.50, 0.68, 0.98, 0.89 and 0.74  \gls{AP} respectively.
 
-\subsubsection{Evaluation of Classifier Performance: ROC and Precision-Recall Curves}
+Overall, Type III is the classified best when compared to other categories. At first, Random Forest and \gls{SVM} shows a better performance for Type I and II across other models. As the test set size increases, Figure~\ref{fig:precision_recall_type_import}, performance of \gls{KNN} improves. Figure~\ref{fig:pr_curve_fold_type}  shows the precision-recall curves for Random Forest, Logistic Regression, \gls{SVM}, \gls{KNN} - using \textbf{fold based embeddings} with \textit{standard split}. Overall, Type I shows a very poor performance across other models. \gls{SVM} and \gls{KNN} outperforms across others.
 
-To quantitatively assess classifier performance, we analyze two key evaluation metrics: the \comment{**Receiver Operating Characteristic (ROC) curves**}{if you want to have these bold, you need to use the function for bold in latex. You seem to be using markdown format here} and **Precision-Recall (PR) curves**. These metrics are particularly crucial for imbalanced datasets, as accuracy alone may provide misleading results.
 
-Figures~\ref{fig:roc_sequence_} and~\ref{fig:pr_sequence_} display the Receiver Operating Characteristic (ROC) and Precision-Recall (PR) curves, respectively, for models trained on sequence-based embeddings, while Figures~\ref{fig:roc_fold_} and~\ref{fig:pr_fold_} present the corresponding curves for models trained on protein fold-based embeddings. These evaluation metrics are essential for assessing classification performance, particularly in imbalanced datasets, where accuracy alone can be misleading.
+\subsubsection{Confusion Matrices}
+\begin{figure}[H]
+	\centering\includegraphics[width=1.2\textwidth]{images/confusionmatrixtypesplit1.png}
+	\caption{\small This confusion matrix displays multicass classification protein sequence based embeddings. For each graph, there are sixteen cells that represent the exotoxin type category: Type I, Type II, Type III, Type IV, Unknown. Each cell represents percentage of categories that have a certain true label and were predicted to be a certain class. The diagonal cells shows the correct predictions whereas off-diagonal cells (Type I, II errors) are incorrect predictions. Additionally, the cell shading darkens as the percentage values increase.}
+	\label{fig:confusion_matrix_sequence_type}
+\end{figure}
 
-\paragraph{Receiver Operating Characteristic (ROC)}
-\comment{figures ROC}{The legends are too small. Even for the pdf. And what are class 0 to micro-average? There is no description in the caption of the figure or in material and methods about this. Same with the PRecision Recall curves}
+In Figure~\ref{fig:confusion_matrix_sequence_type}, \textbf{sequence-based embeddings} using a \textit{standard split}. It is visible that the Random Forest confusion matrix there is a clear dominance of Type III with 99.43\% correct predictions. All Type I and almost all Unknowns are mislabeled as Type III. On the other hand, logistic regression predicts Type III, Type IV correctly by 89\% and 100\% where Type I shows a lower performance by 50\% correct predictions.
+
+Figure~\ref{fig:confusion_matrix_type_import}, \textbf{sequence-based embeddings} using a \textit{redundancy reduction split}, as the test data count increases Random Forest shows a diagonal pattern that indicates an abundancy in correct predictions for all and no dominance of Type III is seen as it was in standard split. Logistic Regression performance also shows and improvement.
+
+Figure~\ref{fig:confusion_matrix_fold_type}, \textbf{fold-based embeddings} using a \textit{standard split}. It is visible that the Random Forest confusion matrix there is a clear dominance of Type III with 100\% correct predictions. All Type I and all Unknowns are mislabeled as Type III. On the other hand, logistic regression predicts shows a relatively poor performance in terms of Type III. Overall poor performance could be related to limited information gathered by protein fold embeddings.
+
+
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{images/2x2_roc_curves_split_test_type.png}
-\caption {\small ROC Curve for Protein Sequence-Based Embeddings. This curve is used to evaluate the sensitivity and specificity for a split test.}
-\label{fig:roc_sequence_}
+	\centering\includegraphics[width=1.2\textwidth]{images/confusionmatrixtypesplit2.png}
+	\caption{\small This confusion matrix displays multicass classification protein sequence based embeddings. For each graph, there are sixteen cells that represent the exotoxin type category: Type I, Type II, Type III, Type IV, Unknown. Each cell represents percentage of categories that have a certain true label and were predicted to be a certain class. The diagonal cells shows the correct predictions whereas off-diagonal cells (Type I, II errors) are incorrect predictions. Additionally, the cell shading darkens as the percentage values increase.}
+	\label{fig:confusion_matrix_sequence_type_2}
 \end{figure}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{images/2x2_roc_curves_folds_test_split.png}
-\caption {\small ROC Curve for Protein Fold-Based Embeddings.}
-\label{fig:roc_fold_}
-\end{figure}
+In Figure~\ref{fig:confusion_matrix_sequence_type_2}, \textbf{sequence-based embeddings} using a \textit{standard split}. It is visible that the \gls{SVM} shows a better performance when compared to Random Forest and Logistic Regression. Confusion matrices display a diagonal prediction pattern that indicates they have an ideal balance between true labels and predicted labels.
 
-Figure~\ref{fig:roc_sequence_} presents the ROC curves for multiple classification models trained on sequence-based features, evaluating their performance under different testing conditions. The results indicate that SVM and Random Forest achieved the highest AUC scores (~0.98 and ~0.99, respectively), demonstrating strong generalization. Logistic Regression also performed well (AUC ~0.97) but exhibited slightly lower sensitivity for certain classes. In contrast, KNN showed inconsistencies across classes, with an AUC of 1.00 for Type III but only 0.74 for Type I, indicating variability in its class separability.
+Figure~\ref{fig:confusion_matrix_type_import}, \textbf{sequence-based embeddings} using a \textit{redundancy reduction split}, as the test data count increases Random Forest shows a diagonal pattern that indicates an abundancy in correct predictions for all and no dominance of Type III is seen as it was in standard split. Logistic Regression performance also shows and improvement.
 
-Figure~\ref{fig:roc_fold_} illustrates the ROC curves for models trained on protein fold-based embeddings.  The overall AUC values were lower than in sequence-based embeddings. Despite this, SVM and Random Forest still performed well (AUC ~0.96 and ~0.92, respectively), albeit at slightly reduced levels. Logistic Regression and KNN struggled more in this setting, showing reduced class separability. Plus, the increased variance in AUC scores suggests lower classification performance when using fold-based embeddings as raw data.
+Figure~\ref{fig:confusion_matrix_fold_type_2}, \textbf{fold-based embeddings} using a \textit{standard split} with \gls{SVM} and \gls{KNN} models. It is visible that the \gls{KNN} confusion matrix there is a clear dominance of Type III. Majority of Type I and all Unknowns are mislabeled as Type III. On the other hand,  \gls{SVM} does not follow a diagonal patter even though  \gls{SVM} performs best with sequence-based embeddings which could be related to quality of protein fold embeddings.
 
-\paragraph{Precision-Recall Curves}
+%Type I is split evenly between correct classifications (50%) and confusion with Type IV. Type II is mostly correct (63.16%) but does get confused with Type III (15.79%) and Unknown (10.53%). Type III again emerges as the best‐recognized class (over 91% correct), while Type IV remains perfectly classified (100%). The Unknown category is correctly identified in the majority (83.33%) of its samples. Overall, SVM strongly differentiates Type III and Type IV, but it still confuses Type I with Type IV, and Type II with both Type III and Unknown.
 
-Figure~\ref{fig:pr_sequence_} illustrates the PR curves for models trained on sequence-based embeddings. The results align with the ROC analysis, showing that Random Forest and SVM outperform other classifiers. Both models maintain high precision across different recall levels, leading to micro-average AP scores of 0.96 and 0.94, respectively. Logistic Regression also exhibits competitive performance, though with slightly more variability, as indicated by a micro-average AP of 0.93. KNN, on the other hand, performs inconsistently, with some classes displaying drops in precision, particularly at higher recall levels, further confirming its instability in this feature space.
+%Type I is correctly identified half of the time and confused with Type IV the other half (similar to SVM and Logistic Regression). Type III is recognized very confidently (98.30\% correct), though this can come at the cost of mislabeling other classes as Type III, particularly Unknown—half of the true Unknown samples are incorrectly classified as Type III. Meanwhile, Type IV is mostly recognized (75\%) but also gets confused with Type II. Finally, Type II sits at 57.89\% correct but leans more toward being mislabeled as Type III (36.84\%) than as other classes. Overall, KNN does particularly well with Type III, but Type I–Type IV confusion and Unknown–Type III confusion are the main weaknesses.
 
-Figure~\ref{fig:pr_fold_} displays the PR curves for models trained on fold-based embeddings. The micro-average AP scores for all models decrease compared to sequence-based embeddings, confirming that classification is more challenging in this setting. The PR curves reveal significant fluctuations in precision for Logistic Regression and KNN, with KNN experiencing the most dramatic drops. Random Forest and SVM remain the most robust models, although their AP scores are reduced compared to the sequence-based setting (Random Forest AP = 0.90, SVM AP = 0.91). These observations indicate that fold-based embeddings may lead to a higher false positive rate, reducing precision in classification tasks.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{images/2x2_precision_recall_curves_split_test_type.png}
-\caption{\small Precision-Recall Curves for Protein Sequence-Based Embeddings. These curves are used to assess the balance between precision and recall across different models.}
-\label{fig:pr_sequence_}
-\end{figure}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{images/2x2_precision_recall_curves_folds_test_split.png}
-\caption{\small Precision-Recall Curve for Protein Fold-Based Embeddings. This plot is used to evaluate the precision-recall trade-off for models using protein fold-based features.}
-\label{fig:pr_fold_}
-\end{figure}
 
-Overall, the comparison between Figures~\ref{fig:pr_sequence_} and \ref{fig:pr_fold_}, sequence-based embeddings lead to better classification performance, while fold-based embeddings introduce challenges that make classification more difficult. 
-A comparison between Figures~\ref{fig:pr_sequence_} and~\ref{fig:pr_fold_} 
+%Looking at the Random Forest confusion matrix (far left), you can see a strong tendency for the model to lump almost everything into Type III. For example, 100\% of true Type I samples, Type III samples, and Unknown samples are all predicted as Type III. Even Type II and Type IV are mostly misclassified as Type III (over 70\% each). This indicates that Random Forest is failing to differentiate these classes effectively and is disproportionately favoring Type III as its predicted label.
 
-\subsection{ExoTarget Predictor}
-This section describes the development of the ExoType predictor, which classifies exotoxins into two categories: Vertebrates and Non-vertebrates. The following subsections outline the training and evaluation of the model using two different data representations:
+%In the Logistic Regression matrix (top right), there is more variety in predictions, though some significant confusion remains. Notably, none of the true Type I samples are actually classified as Type I; they split evenly between Type IV and Unknown. Type III fares better, with 72.66\% of its samples correctly identified, but it still shows confusion with Type II (7.91\%) and Unknown (12.95\%). Meanwhile, Type IV is correctly identified 75\% of the time, and Type II achieves 50\% accuracy. Although the distribution is less skewed than Random Forest’s, certain classes (especially Type I) remain poorly distinguished.
 
-1. Sequence-based embeddings (generated from protein sequences using MMseqs2)
-2. Fold-based embeddings (derived from protein structures predicted by AlphaFold2)
+%The SVM model (bottom left) shows that Type III is recognized with about 78\% accuracy, better than most other classes. Type II lands around 61\% correct, but it tends to be mislabeled as either Type III or Type IV. Interestingly, Type IV is either mistaken for Type II (75\%) or correctly identified (25\%), indicating a substantial mix‐up between these two classes. Unknown is recognized only 25\% of the time, with half of those samples labeled as Type III. Overall, SVM does well for Type III but still struggles separating Type I, II, IV, and Unknown consistently.
 
-\subsection{Model Training}
-Five models with different architectures were trained to predict different exotoxin types: Logistic Regression, Support Vector Machines, K-Nearest Neighbours, and Random Forest. 
+%Finally, the KNN confusion matrix (bottom right) also reveals that Type III is the easiest class for the model to learn, with over 95\% correct. Type I samples split evenly between Type II and Type III predictions (50\% each), meaning that KNN never actually labels any Type I samples as Type I. Type II is correct 55.56\% of the time, frequently confused with Type III (44.44\%). Meanwhile, Unknown is most often misinterpreted as Type III (75\%). Thus, while KNN excels in identifying Type III, it struggles notably in correctly recognizing Type I and Unknown.
+
+\pagebreak
+
+\section{ExoTarget Predictor}
+This section analyzes ExoTarget predictor that classifies exotoxins into two target based categories: \textbf{Vertebrates} and \textbf{Non-vertebrates}. The following subsections outline the training and evaluation of the model using two different data representations:
 
 \begin{itemize}
-\item Logistic Regression,
-\item Support Vector Machines,
-\item K-Nearest Neighbours,
-\item Random Forest,
+	\item Sequence-based embeddings,
+	\item Fold-based embeddings 
 \end{itemize}
 
-To evaluate performance, we applied two data-splitting strategies:
-The dataset of 1,067 embeddings was divided into:
-\begin{itemize}
-\item 80\% training set (848 samples)
-\item 20\% test set (213 samples)
-\end{itemize}
 
-Class distribution in the training set:
-\begin{itemize}
-\item \textbf{Vertebrates}: 614
-\item \textbf{Invertebrates}: 234
-\end{itemize}
 
-\subsubsection{Approach 2: Redundancy Reduction Based Split}
+\subsection{ExoTarget Dataset}
 
-Class distribution in the training set:
-\begin{itemize}
-\item \textbf{Vertebrates}: 768
-\item \textbf{Invertebrates}: 293
-\end{itemize}
+This section proposes two data-splitting strategies and the class distribution among exotoxin targets: vertebrates and non-vertebrates. Two data-splitting strategies are used in the Section~\ref{section:training_test_set}. Table~\ref{tab:distribution_target} shows the class distribution after data splitting. 
+In the standard split, the training set contains 614 vertebrates and 234 invertebrates, whereas in the redundancy split, the sequence count increases to 768 and 259, respectively. Additionally, the number of test samples in redundancy reduction split (1060) is quite larger than the number of test data of standard split (154). Similarly, the test data of non-vertebrates increases from 59 to 259 after redundancy reduction.
 
+\begin{table}[h]
+	\centering
+		\caption{Class distribution before and after redundancy reduction using two different splitting approaches. Redundancy Reduction Split and Standard Split}
+	\resizebox{\textwidth}{!}{ 
+		\begin{tabular}{lcccc}
+			\toprule
+			\textbf{Class} & \shortstack{\textbf{Standard Split:} \\ \textbf{Training Data}} 
+			& \shortstack{\textbf{Redundancy Reduction Split:} \\ \textbf{Training Data}} 
+			& \shortstack{\textbf{Standard Split:} \\ \textbf{Test Data}} 
+			& \shortstack{\textbf{Redundancy Reduction Split:} \\ \textbf{Test Data}} \\
+			\midrule
+			Vertebrates     & 614  & 768  & 154  & 1060  \\
+			Invertebrates    & 234  & 293  & 59 & 259
+			 \\
+			\midrule
+			\bottomrule
+	\end{tabular}}
+	\label{tab:distribution_target}
+\end{table}
+
+
+\subsection{Training Performance}
+Four machine learning models were trained to predict different exotoxin targets: \textbf{Logistic Regression, Support Vector Machines, K-Nearest Neighbours, and Random Forest}.
+
+\subsubsection{Sequence-based Embeddings:}  
+
+\begin{table}[H]
+	\centering
+	\caption{Comparison of cross-validation  \gls{MCC} scores for different models using Standard Split and Redundancy Reduction Split based on fold based embeddings for ExoTarget. \gls{MCC}  is a metric that takes place between –1 and +1. +1 means the predictions perfectly match the true classes. 0 means the model is guessing randomly.}
+	\resizebox{\textwidth}{!}{ % Ensures table fits within margins
+		\begin{tabular}{lcc}
+			\toprule
+			\textbf{Model} & \textbf{Standard Split MCC} & \textbf{Redundancy Reduction Split MCC} \\
+			\midrule
+			Random Forest           & 0.58 ± 0.07 & 0.59 ± 0.06 \\
+			Logistic Regression     & 0.58 ± 0.04 &  0.58 ± 0.03 \\
+			Support Vector Machine  & 0.58 ± 0.05 & 0.57 ± 0.03 \\
+			K-Nearest Neighbors     & 0.62 ± 0.06 & 0.62 ± 0.04 \\
+			\bottomrule
+		\end{tabular}
+	}
+	
+	\label{tab:mcc_comparison_target}
+\end{table}
+
+
+
+ Table~\ref{tab:mcc_comparison_target} depicts cross-validation  \gls{MCC} scores with their error values among models with different machine learning algorithm with two data-splitting strategies. The cross-validation  \gls{MCC} scores indicates that data splitting methods doesn't significantly make a difference in training performance as it is visible in Random Forest (0.58 ± 0.07 to 0.59 ± 0.06), Logistic Regression (0.58 ± 0.04 to 0.58 ± 0.03), Support Vector Machine (SVM) (0.58 ± 0.05 to 0.57 ± 0.03), K-Nearest Neighbors (KNN) (0.62 ± 0.06 to 0.62 ± 0.04). 
+ 
 \begin{figure}[H]
-\centering
-\includegraphics[width=1.1\textwidth]{images/2x2_learning_curves_split_test_target.png}
-\caption{\small Learning Curves for Protein Sequence-Based Embeddings}
-\label{fig:sequence_learning_curves}
+	\centering\includegraphics[width=0.99\textwidth]{images/learning_curve_target_split.png}
+	\caption{\small Learning Curves for Protein Sequence-Based Embeddings}
+	\label{fig:sequence_learning_curves}
 \end{figure}
 
-In Figure~\ref{fig:sequence_learning_curves} illustrate how the MCC changes for the training and validation sets as the training sample size increases. For Random Forest, the training MCC starts on 0.80 at 100 samples and stabilizes on 0.72 at 700 samples, while the validation MCC improves from 0.68 to 0.72. Logistic Regression’s training MCC rises from about 0.72 to 0.68, with validation of 0.65. SVM begins around 0.80 for training and ends around 0.75, while validation moves between 0.65 to 0.72. KNN’s training curve decreases from 0.78 to 0.73, resulting with validation around 0.68.
+Figure~\ref{fig:sequence_learning_curves} displays the  \gls{MCC} cross validation changes across training and validation sets. The analysis of learning can be assessed in two phases: the process of the model learning it with training  \gls{MCC} curve and the level of generalization the model reaches. The training  \gls{MCC} of Logistic Regression, the training  \gls{MCC} conclude around 0.75 at 700 samples and it converges with validation curve which is a sign of improvement in generalization. In contrast, the training  \gls{MCC} remains at 1.00 during 700 training examples in Random Forest and \gls{KNN} models.
+In the learning curve plots in Appendix, Figure~\ref{fig:sequence_learning_curves_import} 
+which uses the redundancy split training set, it is visible that as the training sample size increases, the overfitting trend decreases among models e.g. \gls{KNN}. Additionally, for both the Logistic Regression model and \gls{SVM}, the training  \gls{MCC} and validation \gls{MCC} values converge at 480 training examples, suggesting improved generalization and model performance.
+
+\subsubsection{Fold-based Embeddings:}  
+
+\begin{table}[H]
+	\centering
+	\caption{Cross-validation \gls{MCC}  scores for different models using the fold-based embeddings for ExoTarget. The Matthews Correlation Coefficient (MCC) is a metric that takes place between –1 and +1. +1 means the predictions perfectly match the true classes. 0 means the model is guessing randomly.}
+	\begin{tabular}{lc}
+		\toprule
+		\textbf{Model} & \textbf{Standard Split MCC} \\
+		\midrule
+		Random Forest           & 0.41 ± 0.07 \\
+		Logistic Regression     & 0.44 ± 0.05 \\
+		Support Vector Machine  & 0.43 ± 0.04 \\
+		K-Nearest Neighbors     & 0.40 ± 0.08 \\
+		\bottomrule
+	\end{tabular}
+	
+	\label{tab:standard_split_mcc_target}
+\end{table}
+
+Table~\ref{tab:standard_split_mcc_target} depicts cross-validation \gls{MCC}  scores with their error values among models with different machine learning algorithm with standard splitting method. The cross-validation \gls{MCC} scores of the classifier indicates that the machine learning models don't significantly make a difference in training performance as it is visible in Random Forest (0.41 ± 0.07), Logistic Regression (0.44 ± 0.05), Support Vector Machine (SVM) (0.43 ± 0.04), K-Nearest Neighbors (KNN) (0.40 ± 0.08). 
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=1.1\textwidth]{images/2x2_learning_curves_target_folds_test_split.png}
+\centering\includegraphics[width=0.99\textwidth]{images/learning_curve_target_folds.png}
 \caption{\small Learning Curve for Protein Fold-Based Embeddings}
 \label{fig:fold_learning_curve}
 \end{figure}
 
-In Figure~\ref{fig:learningcurve_fold_type}, the learning curves for the protein folds illustrate how each classifier's MCC on the training and validation sets evolves as more training samples become available. Random Forest’s MCC is around 0.75 for the first approach and improves to around 0.78, with validation reaching 0.73. Logistic Regression starts around 0.70 and stabilizes, while its validation MCC increases to 0.69. SVM starts around 0.75 for training and moves to about 0.78, with validation up to 0.72. KNN’s training MCC increases slightly from 0.68 to 0.73, while the validation MCC improves from 0.62 to 0.68.
+
+
+In Figure~\ref{fig:fold_learning_curve}, displays the \gls{MCC} cross validation changes across training and validation sets. The training \gls{MCC} and validation \gls{MCC}  converge in Logistic Regression and \gls{SVM} which validates the model's ability to generalize unseen data. In contrast, the training \gls{MCC} remains at 1.00 during 600 training examples in Random Forest and \gls{KNN} .
 
 \subsection{Performance Evaluation}
 
-\comment{Legends}{In the following graphs, the legends are totally unnecessary. Please make the X axis writing bigger and do not forget to describe what each short form means in the caption of the figure. Like RF (Random Forest, LR (Logistic regression))}
+This section evaluates the performance of four machine learning models. Performance assessment relies on the \gls{MCC}. \gls{MCC} bar plots, precision recall curves and confusion matrices interpret the model’s ability to generalize test data.
+
 \subsubsection{MCC Bar Plots}
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{images/comparison_graph_with_error_bars_split_test_target.png}
-\caption{\small MCC Bar Plot for Protein Sequence-Based Embeddings}
-\label{fig:mcc_fold_sequence}
-\end{figure}
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{images/comparison_graph_with_error_bars_target_folds_test_split.png}
-\caption{\small MCC Bar Plot for Protein Fold-Based Embeddings}
-\label{fig:mcc_fold}
+	\centering
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/mcc_target_split.png}
+		\caption{}
+		\label{fig:mcc_split_target}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{images/mcc_target_folds.png}
+		\caption{}
+		\label{fig:mcc_fold_target}
+	\end{subfigure}
+	\caption{\small \gls{MCC} is a metric that takes place between –1 and +1. +1 means the predictions perfectly match the true classes. 0 means the model is guessing randomly.(a) \gls{MCC} Bar Plot for Protein Sequence-Based Embeddings (b) \gls{MCC} Bar Plot for Protein Fold-Based Embeddings.}
+	\label{fig:mcc_comparison_target}
 \end{figure}
 
-In Figure~\ref{fig:mcc_fold_sequence} and In Figure~\ref{fig:mcc_fold} display the final MCC values for each model under sequence-based and fold-based embeddings. For the sequence-based embeddings, Random Forest achieves approximately 0.77, Logistic Regression around 0.73, SVM around 0.74, and KNN about 0.71. For the fold-based embeddings, Random Forest MMC is 0.72, Logistic Regression at 0.70, SVM at 0.71, and KNN at 0.68. 
+Figure~\ref{fig:mcc_split_target} displays the final \gls{MCC} values for \textbf{sequence-based embeddings} using a \textit{standard split}.
+Random Forest and \gls{SVM}  achieve an \gls{MCC} of approximately 0.6, Logistic Regression reaches around 0.5, and \gls{KNN} scores about 0.7 which suggests \gls{KNN} has a better performance than other models. As the test data size increases under a \textit{redundancy reduction split} (see Figure~\ref{fig:mcc_plot_target_import} in the Appendix), Random Forest and KNN improve to an \gls{MCC} of approximately 0.8, while Logistic Regression and SVM maintain a similar \gls{MCC} as before. The performance improvement of \gls{KNN} and Random Forest may be due to the increase in data size.
 
-\subsubsection{ROC Curves}
+Figure~\ref{fig:mcc_fold_target} displays the final \gls{MCC} values for \textbf{fold-based embeddings} using a \textit{standard split}. Random Forest, Logistic Regression, and \gls{SVM} each reach an \gls{MCC} of about 0.6, while \gls{KNN} achieves a lower \gls{MCC} of around 0.5. The decrease of \gls{KNN}'s performance when compared to sequence based embeddings may be linked to the limitation of information gathered from fold based embeddings.
+
+\subsubsection{Precision-Recall Curves}
+
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{images/2x2_roc_curves_split_test_target.png}
-\caption{\small ROC curve Plot for Protein Sequence-Based Embeddings}
-\label{fig:roc_curve_sequence}
+\centering\includegraphics[width=0.99\textwidth]{images/precisionrecalltargetsplit.png}
+\caption{\small Precision-Recall curve for protein sequence based embeddings. In each plot, the x-axis represents Recall, and the y-axis represents Precision. The black dotted line shows a the chance baseline, which means the points above the diagonal line performs better than random guessing. The blue line depicts the Average Precision (AP). \gls{AP} measures the area under the precision-recall curve. The area under the curve is a metric for model performance.}
+\label{fig:pr_curve_sequence}
 \end{figure}
 
-The ROC curves provide an overview of how each classifier separates the two exotoxin classes at various thresholds. With sequence-based embeddings in Figure~\ref{fig:roc_curve_sequence} Random Forest has an approximate AUC of 0.91, Logistic Regression about 0.88, SVM around 0.90, and KNN is 0.87.
+Figure~\ref{fig:pr_curve_sequence} shows the precision-recall curves for Random Forest, Logistic Regression, \gls{SVM}, \gls{KNN} - using \textbf{sequence based embeddings} with \textit{standard split}. Random Forest has an \gls{AP} value of 0.96 and \gls{SVM} and Logistic Regression both have a value of 0.95, which shows the models have high performance. On the other hand, \gls{KNN} has an \gls{AP} value of 0.92 with a slight decreasing pattern as recall increases. Plus, all four models performed better than guessing in terms of binary classification based on the chance baseline. As the test data number increases with \textit{redundancy reduction split}, Figure~\ref{fig:precision_recall_target_import} show the \gls{AP} curves among Random Forest, Logistic Regression and \gls{SVM} stays in a similar pattern. 
+
+Figure~\ref{fig:pr_curve_fold}, shows the precision-recall curves for Random Forest, Logistic Regression, \gls{SVM}, \gls{KNN} - using \textbf{fold based embeddings} with \textit{standard split}. \gls{SVM} has an \gls{AP} value of 0.94 and Random Forest and Logistic Regression both have a value of 0.93, which shows the models have high performance. On the other hand, \gls{KNN} has an \gls{AP} value of 0.87 with a slight decreasing pattern as recall increases. Plus, all four models performed better than guessing in terms of binary classification based on the chance baseline. 
+
+\subsubsection{Confusion Matrices}
+\begin{figure}[H]
+	\centering\includegraphics[width=0.8\textwidth]{images/confusionmatrixtargetsplit.png}
+	\caption{\small This confusion matrix displays binary classification protein sequence based embeddings. For each graph, there four cells that represents exotoxin target category: Vertebrates, Non-Vertebrates. Each cell represents percentage of categories that have a certain true label and were predicted to be a certain class. The diagonal cells shows the correct predictions whereas off-diagonal cells (Type I, II errors) are incorrect predictions. Additionally, the cell shading darkens as the percentage values increase.}
+	\label{fig:confusion_matrix_sequence}
+\end{figure}
+
+Figure~\ref{fig:confusion_matrix_sequence}, shows the confusion matrix for Random Forest, Logistic Regression, \gls{SVM}, \gls{KNN} - using \textbf{sequence based embeddings} with \textit{standard split}. 
+
+For \textit{vertebrates category}, Random Forest 96.10\% is able to identify labels correctly, while 3.90\% mislabeled.
+Logistic Regression model predicts 73.38\% correctly while 26.62\% is mislabeled.
+\Gls{SVM} model predicts 75.32\% correctly while 24.68\% is mislabeled.
+\Gls{KNN}  model predicts 94.16\% correctly while 5.84\% is mislabeled.
+The results of the confusion matrices across all models indicate that the correct prediction of the vertebrate category is above average.
+
+For \textit{non-vertebrates category}, Random Forest  52.54\% is able to identify labels correctly, while 47.46\% mislabeled.
+Logistic Regression model predicts 81.36\% correctly while 26.62\% is mislabeled.
+\Gls{SVM} model predicts 81.36\% correctly while 18.64\% is mislabeled.
+\Gls{KNN} model predicts 55.93\% correctly while 44.07\% is mislabeled.
+Overall, \gls{SVM} and Logistic Regression demonstrate the highest accuracy in correctly predicting then non-vertebrate category.
+
+In Figure~\ref{fig:confusion_matrix_target_import} in Appendix with \textit{redundancy reduction split}, redundancy reduction split improves the performance of Random Forest and \gls{KNN} since it reduces misclassification percentage among vertebrate classification. This could indicate the possitive effect of increase in data size on model performance.
+
+\begin{figure}[H]
+	\centering\includegraphics[width=0.8\textwidth]{images/confusionmatrixtargetfolds.png}
+	\caption{\small This confusion matrix displays binary classification protein fold based embeddings. For each graph, there four cells that represents exotoxin target category: Vertebrates, Non-Vertebrates. Each cell represents percentage of categories that have a certain true label and were predicted to be a certain class. The diagonal cells shows the correct predictions whereas off-diagonal cells (Type I, II errors) are incorrect predictions. Additionally, the cell shading darkens as the percentage values increase.}
+	\label{fig:confusion_matrix_fold}
+\end{figure}
+
+Figure~\ref{fig:confusion_matrix_fold}, shows the confusion matrix for Random Forest, Logistic Regression, \gls{SVM}, \gls{KNN} - using \textbf{fold based embeddings} with \textit{standard split}.
+
+For \textit{vertebrates category}, Random Forest 95.00\% is able to identify labels correctly, while 5.00\% mislabeled.
+Logistic Regression model predicts 78.33\% correctly while 21.67\% is mislabeled.
+\Gls{SVM} model predicts 80.00\% correctly while 20.00\% is mislabeled.
+\Gls{KNN} model predicts 90.00\% correctly while 10.00\% is mislabeled.
+The results of the confusion matrices across all models indicate that the correct prediction of the vertebrate category is above average.
+
+For \textit{non-vertebrates category}, Random Forest  54.55\% is able to identify labels correctly, while 45.45\% mislabeled.
+Logistic Regression model predicts 83.64\% correctly while 16.36\% is mislabeled.
+\Gls{SVM} model predicts 80.00\% correctly while 20.00\% is mislabeled.
+\Gls{KNN} model predicts 58.18\% correctly while 41.82\% is mislabeled.
+Overall, \gls{SVM} and Logistic Regression demonstrate the highest accuracy in correctly predicting then non-vertebrate category.
