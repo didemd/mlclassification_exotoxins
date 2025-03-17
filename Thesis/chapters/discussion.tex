@@ -1,0 +1,68 @@
+This chapter interprets and discusses the findings of ExoType and ExoTarget as presented in the previous chapter. First, we explain dataset characteristics, including data size, class imbalance, and novel data splitting approaches, in terms of their effect on model performance and why specific steps are taken. Finally, we discuss a critical evaluation of the model selection for ExoType and ExoTarget.
+
+\section{Dataset Characteristics}
+This section explains the influence of data characteristics and focuses on key aspects, data size, and data imbalance.
+
+\subsection{Dataset Size}
+Dataset size is an important aspect in terms of the amount of information we can gather from it because it influences the generalizability of the machine learning model. The greater the data size, the more it is able to foresee unseen data. 
+Another approach to minimize data balance is an alternative data splitting approach called \textit{redundancy reduction split}. This idea became convenient when \textit{standard split} was used, and the test data was quite limited. We wanted to experiment with whether machine learning would improve its performance if its test data count increases. Comparing the two approaches reveals several key differences. In the standard split, the training set consisted of 848 samples with relatively fewer samples for the minority classes, whereas the redundancy reduction approach yielded a training set with slightly higher counts for these classes, yet the overall distribution remained heavily skewed toward Type III. 
+These observations suggest that although redundancy reduction splitting improves minority class representation, the persistent Type III bias remains a key factor influencing model training and performance.
+
+When cross-validation \gls{MCC} value between standard split and redundancy reduction split compared, it is visible that the data count increase did not influence the training \gls{MCC}, and they almost remained constant between standard split and redundancy reduction split. On the other hand, in the analysis of learning curves, redundancy reduction split's test data improve KNN's overfitting behaviour to convergence among training and validation curves as shown in Table~\ref{tab:mcc_comparison_type}  and Figure~\ref{fig:split_test_learning_curves}.
+
+\subsubsection{Limitations of Redundancy Reduction Split Method}
+The redundancy reduction data splitting method was developed with the inspiration of expanding the size of the dataset to be used to train machine learning models more effectively. With this data splitting, the training dataset size remains the same while the test set increases from 213 to 1319, as is visible in Table~\ref{tab:data_distribution_type}. While this could create an opportunity to test our trained model, it is also important to emphasize that Redundancy Reduction split's test set consists of redundant sequences that were eliminated during redundancy reduction step to eliminate unique sequences with a similarity threshold of 30\%. Even though the test set includes redundant sequences that could increase the risk of overfitting, this approach provides a perspective of how our machine learning would perform if we had more data.
+
+
+\subsection{Data Imbalance}
+Class distribution is an important aspect when fulfilling a machine learning classification task.
+If there are underrepresented and overrepresented data, it might create bias in the model's decisions. Among our dataset, Type III is overrepresented, while Type I and Type IV are underrepresented, as shown in Figure~\ref{fig:dataset_distribution} and Table~\ref{tab:data_distribution_type}.
+
+To address this imbalance, we implemented \textbf{Hierarchical Predictor}. The objective of building a Hierarchical Predictor was to mitigate the imbalances that influence the model's predictive results. That is why the Hierarchical Predictor consists of two layers(\gls{SVM} and Random Forest). In the first layer, the \gls{SVM} model predicts between three groups that are similar in data point counts(Type I and IV, Type II and III, and Unknown)  group and then the groups with two types were evaluated between each other. 
+
+This second-stage approach has several advantages.
+The first advantage is that the classifiers of the second stage are trained on data sets that are either perfectly balanced (Type I vs. Type IV) or significantly less imbalanced (Type II vs. Type III) than the original data set.   
+The second advantage is that each second-stage classifier can specialize in distinguishing between closely related toxin types, potentially leading to improved accuracy.
+Since Type II is the second dominant class in the dataset, it is less affected by the dominance of the Type III class.
+Also, the model has more opportunity to learn the specific features of the Type II class.
+This hierarchical approach is designed to reduce the impact of class imbalance on overall model performance and improve the ability to accurately classify minority toxin types, thereby reducing the potential for overfitting to the majority class.
+
+This novel predictor approach was implemented to minimize bias due to data imbalance among type groups. As it is visible \gls{MCC} plots in Figure~\ref{fig:mcc_comparison}, Hierarchical Predictor Random Forest and \gls{SVM} received an \gls{MCC} value of 0.42 and 0.62. Our novel Hierarchical Predictor \gls{SVM} outperforms traditional predictors like Random Forest and Logistic Regression and has equal \gls{MCC} values as \gls{SVM} model. This result can be considered a success in terms of specializing in imbalanced structure.
+
+These trends underscore the challenge posed by class imbalance and potential redundancy in the data, as well as the need for more extensive feature engineering or alternative approaches to further boost model generalization.
+
+
+
+\section{Model Performance Analysis}
+In this section, we discuss the model selection process in detail for predicting ExoType and ExoTarget in terms of sequence-based embeddings. The performance comparison assesses across machine learning models: Random Forest, Logistic Regression, Support Vector Machine, and K-Nearest Neighbors.
+To find the optimal model for differentiating bacterial exotoxin types (ExoType) and for differentiating bacterial exotoxin targets (ExoTarget), we examined confusion matrices, precision-recall curves, and \gls{MCC} metrics. 
+Each metric contributes to the analysis from a different perspective. 
+
+\subsection{ExoType}
+In the light of precision-recall curves analysis, Random Forest and Support Vector outperformed Logistic Regression and \gls{KNN} for exotoxin type classification. Specifically, Random Forest displayed high average precision values for all types, which indicates the model succeeds in minimizing false positives.
+In multi-class confusion matrix analysis, Logistic Regression, \gls{SVM}, \gls{KNN} had a diagonal pattern with high percentage prediction among all type groups while Random Forest predicts Type III for all Type I and  83.33\% of Unknown. The overrepresentation of Type III might cause Random Forest to make biased predictions, leading to overfitting. 
+In terms of \gls{MCC} values based on test data, the top performers can be discussed as \gls{KNN} and \gls{SVM}, having 0.65 and 0.62, which are very promising numbers. Since we are working with a small dataset, there is always a risk of overfitting, and this risk increases when \gls{MCC} value gets too close to 1.
+In a nutshell, \gls{SVM} has a cutting-edge performance in terms of minimizing false positives, labelling type groups correctly, and a high \gls{MCC} score. Therefore, \gls{SVM} can be considered the best performing model.
+
+\subsection{ExoTarget}
+For the target group, precision-recall curves had high values in all models, which indicates their success in minimizing false positives.
+In binary confusion matrix analysis, it is visible that the classification among vertebrate-targeting toxins had high classification accuracy, especially in Random Forest and \gls{SVM}. In contrast, almost all models had a challenge in correctly classifying non-vertebrates with misclassification percentages between 18-52.54\%. This misclassification is due to a significant imbalance among the target group, which is due to non-vertebrate samples being one-third of vertebrates.
+Therefore, regarding \gls{MCC} values based on test data, there seems to be no significant difference across models. Plus, the error bars within \gls{MCC} plot overlap with each other. This highlights that there is no significant difference in models' performance.
+
+
+\section{Machine Learning Models vs. BLAST}
+
+\Gls{BLAST} predictor, sequence similarity-based model, outperformed all embedding-based machine learning models in Figure~\ref{fig:mcc_sequence_type} with values. \gls{SVM}, \gls{KNN}, Hierarchical \gls{SVM} shows \gls{MCC} scores that are close to \gls{BLAST} baseline. This insight proves that the valuable biological information embeddings capture is consistent based on what is available from primary sequence similarity alone to differentiate among exotoxin types.
+This shows the effectiveness of using protein language models for feature extraction in bacterial exotoxin research.
+
+In the learning curve plots, it can be assumed that Random Forest and \gls{KNN} overfitted while \gls{SVM} and Logistic Regression generalized better. Overall, the error bars of all models overlap; the differences between the model performances are therefore not significant.  This indicates that using sequence-based embeddings to predict the toxin types is not an improvement over using \gls{BLAST} to match toxins to their closest toxin types. For this approach, \gls{BLAST} significantly outperformed the fold embeddings. 
+This suggests that the fold-based approach is less effective for exotoxin type prediction compared to the sequence-based embedding approach or the existing \gls{BLAST}. However, fold-based embeddings still provide valuable structural information.
+
+\subsection{Quantitative Metrics}
+
+During machine learning analysis, evaluation metrics such as accuracy, F1-score, \gls{MCC}, and recall were interpreted.
+After a critical evaluation of these metrics, some of them are prioritized when dealing with imbalanced data.
+As mentioned before, our bacterial exotoxin dataset has an overrepresentation of Type IIIs and Vertebrates in their own classification. Therefore, when metrics like F1-score and accuracy are used in an imbalanced dataset, they might give overrepresented groups high scores \cite{chicco2020advantages}. Our results also suggest that the models tended to predict the majority of class frequently, leading to these misconceptions as shown in Appendix Table~\ref{tab:appendix_metrics_type} and Table~\ref{tab:appendix_metrics_type}.
+Their limitations on imbalanced data sets happen because they can be heavily influenced by the performance on the majority class, which can mask poor performance on minority classes. Even if there are really poor results on minortiy classes, they will not have significant influence on the overall performance.
+
+On the other hand, \gls{MCC} metrics stand out to be used in binary and classification due to multiple reasons. The first one is that \gls{MCC} takes into all four confusion matrix components:  true positives, true negatives, false positives, and false negatives. This helps us to maintain a non-biased evaluation that does not give majority groups abundance over others. Since the precision-recall curve uses a confusion matrix for its calculations, it is also convenient to use them with imbalance data analysis.
