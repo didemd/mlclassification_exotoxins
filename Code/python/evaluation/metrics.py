@@ -145,7 +145,7 @@ def generate_table(metrics_with_errors):
     for key, value in metrics_with_errors.items():
         if isinstance(value, (list, tuple)) and len(value) == 2:
             metric_value, error_value = value
-            table_data.append(f"{error_value:.3f} ± {metric_value:.3f}")
+            table_data.append(f"{metric_value:.3f} ± {error_value:.3f}")
         else:
             logging.error(f"Invalid structure for metric '{key}': {value}")
             table_data.append("N/A")
@@ -199,3 +199,80 @@ def determine_positive_label(true_labels, label_type, preferred_positive='Verteb
     unique_labels = np.unique(true_labels)
     pos_label = preferred_positive if preferred_positive in unique_labels else unique_labels[0]
     return pos_label
+
+from sklearn.preprocessing import LabelEncoder
+from numpy.random import choice, seed
+from numpy import mean, std
+from sklearn.metrics import matthews_corrcoef
+import logging
+
+def calculate_per_class_mcc(true_labels, predicted_labels, label_encoder=None, n_boot=1000):
+    """
+    Calculate per-class MCC (with bootstrapping) for a multi-class setting.
+    
+    Returns:
+        dict: {class_name: (mean_mcc, mcc_se), ... }
+    """
+    import numpy as np
+
+    true_labels = np.array(true_labels)
+    predicted_labels = np.array(predicted_labels)
+
+    # If labels are strings, convert them to numeric
+    labels_are_numeric = (
+        np.issubdtype(true_labels.dtype, np.integer) and 
+        np.issubdtype(predicted_labels.dtype, np.integer)
+    )
+    if label_encoder is not None and not labels_are_numeric:
+        try:
+            true_labels = label_encoder.transform(true_labels)
+            predicted_labels = label_encoder.transform(predicted_labels)
+        except ValueError as ve:
+            logging.error(f"LabelEncoder failed to transform labels: {ve}")
+            return {}
+    elif label_encoder is None and not labels_are_numeric:
+        le = LabelEncoder()
+        true_labels = le.fit_transform(true_labels)
+        predicted_labels = le.transform(predicted_labels)
+        label_encoder = le
+    
+    unique_numeric_labels = np.unique(true_labels)
+    if label_encoder is not None:
+        class_names = label_encoder.inverse_transform(unique_numeric_labels)
+    else:
+        class_names = unique_numeric_labels
+    
+    per_class_mcc = {}
+    
+    # Reuse your existing bootstrap_metric
+    from evaluation.metrics import bootstrap_metric
+
+    for numeric_label, class_name in zip(unique_numeric_labels, class_names):
+        # Binarize
+        y_true_bin = (true_labels == numeric_label).astype(int)
+        y_pred_bin = (predicted_labels == numeric_label).astype(int)
+        # Bootstrapped MCC
+        mcc_val, mcc_se = bootstrap_metric(matthews_corrcoef, y_true_bin, y_pred_bin, n_boot)
+        per_class_mcc[str(class_name)] = (mcc_val, mcc_se)
+
+    return per_class_mcc
+
+from tabulate import tabulate
+
+def generate_per_class_mcc_table(per_class_mcc_dict):
+    """
+    Returns a pretty-printed table (string) of class-wise MCC ± SE.
+    """
+    table_data = []
+    for cls_name, (mcc_val, mcc_se) in per_class_mcc_dict.items():
+        table_data.append([cls_name, f"{mcc_val:.3f} ± {mcc_se:.3f}"])
+    return tabulate(table_data, headers=["Class", "MCC ± SE"], tablefmt="grid")
+
+def save_per_class_mcc_to_csv(per_class_mcc_dict, file_name="per_class_mcc.csv"):
+    import pandas as pd
+    rows = []
+    for cls_name, (mcc_val, se_mcc) in per_class_mcc_dict.items():
+        rows.append({"Class": cls_name, "MCC": mcc_val, "SE": se_mcc})
+    df = pd.DataFrame(rows)
+    df.to_csv(file_name, index=False)
+    print(f"Saved per-class MCC to {file_name}")

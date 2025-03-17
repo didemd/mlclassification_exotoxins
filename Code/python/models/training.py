@@ -87,6 +87,11 @@ def create_pipeline(model, n_components=50):
         (model.__class__.__name__.lower(), model)
     ])
 
+import time
+import logging
+import numpy as np
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.metrics import make_scorer, matthews_corrcoef
 
 def perform_grid_search(pipeline, param_grid, X_train, y_train):
     """
@@ -111,14 +116,18 @@ def perform_grid_search(pipeline, param_grid, X_train, y_train):
         cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
         scoring=mcc_scorer,
         n_jobs=-1,
-        verbose=1
+        verbose=1,
+        return_train_score=True
     )
     grid_search.fit(X_train, y_train)
     end_time = time.time()
 
+    best_mcc_mean = grid_search.best_score_
+    best_mcc_std = grid_search.cv_results_['std_test_score'][grid_search.best_index_]  # Standard deviation
+
     logging.info(f"Grid search completed in {end_time - start_time:.2f} seconds")
     logging.info(f"Best parameters: {grid_search.best_params_}")
-    logging.info(f"Best cross-validation MCC: {grid_search.best_score_:.2f}")
+    logging.info(f"Best cross-validation MCC: {best_mcc_mean:.2f} ± {best_mcc_std:.2f}")
 
     return grid_search.best_estimator_, grid_search, param_grid
 

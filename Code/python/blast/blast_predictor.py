@@ -138,7 +138,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('blast_predictor.log')
+        logging.FileHandler('Logs/blast_predictor.log')
     ]
 )
 

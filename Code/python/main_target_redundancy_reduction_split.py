@@ -2,6 +2,8 @@ import logging
 import os
 import numpy as np
 import pandas as pd
+import pickle
+
 
 from config.config import (
     TRAINING_EMBEDDINGS_PATH,
@@ -10,7 +12,9 @@ from config.config import (
     TEST_LABELS_PATH,
     ALL_LABELS,
     PLOT_SAVE_DIR,
-    N_COMPONENTS
+    STATS_SAVE_DIR,
+    N_COMPONENTS,
+    MODEL_SAVE_DIR
 )
 from data_processing.data_loader import (
     load_embeddings,
@@ -51,7 +55,7 @@ from blast.blast_predictor import (
     compute_confusion_matrix_blast
 )
 
-def main():
+def main_target_redundancy_reduction_split():
     # Configure logging if not already configured
     if not logging.getLogger().hasHandlers():
         logging.basicConfig(
@@ -198,45 +202,45 @@ def main():
         rf_metrics = calculate_evaluation_metrics(y_test_main, y_pred_rf, label_encoder=label_encoder_main)
         table_rf = generate_table(rf_metrics)
         print("\nRandom Forest (flat) Metrics:\n", table_rf)
-        save_metrics_to_csv(rf_metrics, os.path.join(PLOT_SAVE_DIR, "RandomForest_flat_metrics.csv"))
-        save_table_to_file(table_rf, os.path.join(PLOT_SAVE_DIR, "RandomForest_flat_metrics_table.txt"))
+        save_metrics_to_csv(rf_metrics, os.path.join(STATS_SAVE_DIR, "RandomForest_flat_metrics.csv"))
+        save_table_to_file(table_rf, os.path.join(STATS_SAVE_DIR, "RandomForest_flat_metrics_table.txt"))
 
         rf_class_metrics = generate_class_metrics_table(y_test_main, y_pred_rf, ALL_LABELS)
         print("\nRandom Forest (Flat) Per-Class Metrics Table:\n", rf_class_metrics)
-        rf_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "RandomForest_flat_per_class_metrics.csv"), index=False)
+        rf_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "RandomForest_flat_per_class_metrics.csv"), index=False)
 
         # Logistic Regression Metrics
         lr_metrics = calculate_evaluation_metrics(y_test_main, y_pred_lr, label_encoder=label_encoder_main)
         table_lr = generate_table(lr_metrics)
         print("\nLogistic Regression (flat) Metrics:\n", table_lr)
-        save_metrics_to_csv(lr_metrics, os.path.join(PLOT_SAVE_DIR, "LogisticRegression_flat_metrics.csv"))
-        save_table_to_file(table_lr, os.path.join(PLOT_SAVE_DIR, "LogisticRegression_flat_metrics_table.txt"))
+        save_metrics_to_csv(lr_metrics, os.path.join(STATS_SAVE_DIR, "LogisticRegression_flat_metrics.csv"))
+        save_table_to_file(table_lr, os.path.join(STATS_SAVE_DIR, "LogisticRegression_flat_metrics_table.txt"))
 
         lr_class_metrics = generate_class_metrics_table(y_test_main, y_pred_lr, ALL_LABELS)
         print("\nLogistic Regression (Flat) Per-Class Metrics Table:\n", lr_class_metrics)
-        lr_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "LogisticRegression_flat_per_class_metrics.csv"), index=False)
+        lr_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "LogisticRegression_flat_per_class_metrics.csv"), index=False)
 
         # SVM Metrics
         svm_metrics = calculate_evaluation_metrics(y_test_main, y_pred_svm, label_encoder=label_encoder_main)
         table_svm = generate_table(svm_metrics)
         print("\nSVM (flat) Metrics:\n", table_svm)
-        save_metrics_to_csv(svm_metrics, os.path.join(PLOT_SAVE_DIR, "SVM_flat_metrics.csv"))
-        save_table_to_file(table_svm, os.path.join(PLOT_SAVE_DIR, "SVM_flat_metrics_table.txt"))
+        save_metrics_to_csv(svm_metrics, os.path.join(STATS_SAVE_DIR, "SVM_flat_metrics.csv"))
+        save_table_to_file(table_svm, os.path.join(STATS_SAVE_DIR, "SVM_flat_metrics_table.txt"))
 
         svm_class_metrics = generate_class_metrics_table(y_test_main, y_pred_svm, ALL_LABELS)
         print("\nSVM (Flat) Per-Class Metrics Table:\n", svm_class_metrics)
-        svm_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "SVM_flat_per_class_metrics.csv"), index=False)
+        svm_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "SVM_flat_per_class_metrics.csv"), index=False)
 
         # KNN Metrics
         knn_metrics = calculate_evaluation_metrics(y_test_main, y_pred_knn, label_encoder=label_encoder_main)
         table_knn = generate_table(knn_metrics)
         print("\nKNN (flat) Metrics:\n", table_knn)
-        save_metrics_to_csv(knn_metrics, os.path.join(PLOT_SAVE_DIR, "KNN_flat_metrics.csv"))
-        save_table_to_file(table_knn, os.path.join(PLOT_SAVE_DIR, "KNN_flat_metrics_table.txt"))
+        save_metrics_to_csv(knn_metrics, os.path.join(STATS_SAVE_DIR, "KNN_flat_metrics.csv"))
+        save_table_to_file(table_knn, os.path.join(STATS_SAVE_DIR, "KNN_flat_metrics_table.txt"))
 
         knn_class_metrics = generate_class_metrics_table(y_test_main, y_pred_knn, ALL_LABELS)
         print("\nKNN (Flat) Per-Class Metrics Table:\n", knn_class_metrics)
-        knn_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "KNN_flat_per_class_metrics.csv"), index=False)
+        knn_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "KNN_flat_per_class_metrics.csv"), index=False)
 
     except Exception as e:
         logging.error(f"An error occurred during evaluation: {e}")
@@ -363,7 +367,31 @@ def main():
         logging.error(f"Computing confusion matrices failed: {e}")
         return
 
-    logging.info("Done with main_target pipeline!")
+    # Save trained models to MODEL_SAVE_DIR
+    logging.info("Saving trained models...")
+    if not os.path.exists(MODEL_SAVE_DIR):
+        os.makedirs(MODEL_SAVE_DIR)
+        logging.info(f"Created predictor save directory at {MODEL_SAVE_DIR}")
+    
+    try:        
+        # Save models with descriptive names
+        with open(os.path.join(MODEL_SAVE_DIR, "random_forest_model.pkl"), 'wb') as f:
+            pickle.dump(rf_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "logistic_regression_model.pkl"), 'wb') as f:
+            pickle.dump(lr_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "svm_model.pkl"), 'wb') as f:
+            pickle.dump(svm_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "knn_model.pkl"), 'wb') as f:
+            pickle.dump(knn_model, f)
+        
+        logging.info(f"All models successfully saved to {MODEL_SAVE_DIR}")
+    except Exception as e:
+        logging.error(f"Failed to save models: {e}")
+
+    logging.info("Done with main_target_redundancy_reduction_split pipeline!")
 
 if __name__ == "__main__":
-    main()
+    main_target_redundancy_reduction_split()

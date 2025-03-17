@@ -1,9 +1,10 @@
-# my_project/main_type.py
+# main_type_redundancy_reduction_split.py
 
 import logging
 import os
 import numpy as np
 import pandas as pd
+import pickle
 
 from config.config import (
     TRAINING_EMBEDDINGS_PATH,
@@ -14,6 +15,7 @@ from config.config import (
     PLOT_SAVE_DIR,
     N_COMPONENTS,
     BLAST_RESULTS_PATH,
+    STATS_SAVE_DIR,
     STATS_DIR,
     MODEL_SAVE_DIR,
     PREDICTOR_PATH
@@ -74,7 +76,7 @@ from sklearn.linear_model import LogisticRegression
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def main_type():
+def main_type_redundancy_reduction_split():
     """
     Main pipeline for 'Type' prediction, including hierarchical classifiers, 
     BLAST integration, confusion matrices, MCC comparisons, etc.
@@ -229,12 +231,12 @@ def main_type():
     )
     table_hier_rf = generate_table(hier_rf_metrics)
     print("\nHierarchical RF Metrics Table:\n", table_hier_rf)
-    save_metrics_to_csv(hier_rf_metrics, file_name=os.path.join(STATS_DIR, "Hierarchical_RF_metrics.csv"))
-    save_table_to_file(table_hier_rf, file_name=os.path.join(STATS_DIR, "Hierarchical_RF_metrics_table.txt"))
+    save_metrics_to_csv(hier_rf_metrics, file_name=os.path.join(STATS_SAVE_DIR, "Hierarchical_RF_metrics.csv"))
+    save_table_to_file(table_hier_rf, file_name=os.path.join(STATS_SAVE_DIR, "Hierarchical_RF_metrics_table.txt"))
 
     hier_rf_class_metrics = generate_class_metrics_table(y_test_main, y_pred_rf_hier_encoded, all_labels)
     print("\n Hier RF (Flat) Per-Class Metrics Table:\n", hier_rf_class_metrics)
-    hier_rf_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "Hier_RF_flat_per_class_metrics.csv"), index=False)
+    hier_rf_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "Hier_RF_flat_per_class_metrics.csv"), index=False)
 
     # -- Hierarchical SVM
     hier_svm_metrics = calculate_evaluation_metrics(
@@ -244,12 +246,12 @@ def main_type():
     )    
     table_hier_svm = generate_table(hier_svm_metrics)
     print("\nHierarchical SVM Metrics Table:\n", table_hier_svm)
-    save_metrics_to_csv(hier_svm_metrics, file_name=os.path.join(STATS_DIR, "Hierarchical_SVM_metrics.csv"))
-    save_table_to_file(table_hier_svm, file_name=os.path.join(STATS_DIR, "Hierarchical_SVM_metrics_table.txt"))
+    save_metrics_to_csv(hier_svm_metrics, file_name=os.path.join(STATS_SAVE_DIR, "Hierarchical_SVM_metrics.csv"))
+    save_table_to_file(table_hier_svm, file_name=os.path.join(STATS_SAVE_DIR, "Hierarchical_SVM_metrics_table.txt"))
 
     hier_svm_class_metrics = generate_class_metrics_table(y_test_main, y_pred_svm_hier_encoded, all_labels)
     print("\n Hier SVM (Flat) Per-Class Metrics Table:\n", hier_svm_class_metrics)
-    hier_svm_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "Hier_SVM_flat_per_class_metrics.csv"), index=False)
+    hier_svm_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "Hier_SVM_flat_per_class_metrics.csv"), index=False)
 
     # Logging unique predictions for debugging
     unique_pred_rf_hier = np.unique(y_pred_rf_hier)
@@ -261,45 +263,45 @@ def main_type():
     rf_metrics = calculate_evaluation_metrics(y_test_main, y_pred_rf, label_encoder=label_encoder_main)
     table_rf = generate_table(rf_metrics)
     print("\nRandom Forest (flat) Metrics Table:\n", table_rf)
-    save_metrics_to_csv(rf_metrics, file_name=os.path.join(STATS_DIR, "RandomForest_flat_metrics.csv"))
-    save_table_to_file(table_rf, file_name=os.path.join(STATS_DIR, "RandomForest_flat_metrics_table.txt"))
+    save_metrics_to_csv(rf_metrics, file_name=os.path.join(STATS_SAVE_DIR, "RandomForest_flat_metrics.csv"))
+    save_table_to_file(table_rf, file_name=os.path.join(STATS_SAVE_DIR, "RandomForest_flat_metrics_table.txt"))
 
     rf_class_metrics = generate_class_metrics_table(y_test_main, y_pred_rf, all_labels)
     print("\nRandom Forest (Flat) Per-Class Metrics Table:\n", rf_class_metrics)
-    rf_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "RandomForest_flat_per_class_metrics.csv"), index=False)
+    rf_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "RandomForest_flat_per_class_metrics.csv"), index=False)
 
     # -- Logistic Regression
     lr_metrics = calculate_evaluation_metrics(y_test_main, y_pred_lr, label_encoder=label_encoder_main)
     table_lr = generate_table(lr_metrics)
     print("\nLogistic Regression Metrics Table:\n", table_lr)
-    save_metrics_to_csv(lr_metrics, file_name=os.path.join(STATS_DIR, "LogisticRegression_metrics.csv"))
-    save_table_to_file(table_lr, file_name=os.path.join(STATS_DIR, "LogisticRegression_metrics_table.txt"))
+    save_metrics_to_csv(lr_metrics, file_name=os.path.join(STATS_SAVE_DIR, "LogisticRegression_metrics.csv"))
+    save_table_to_file(table_lr, file_name=os.path.join(STATS_SAVE_DIR, "LogisticRegression_metrics_table.txt"))
 
     lr_class_metrics = generate_class_metrics_table(y_test_main, y_pred_lr, all_labels)
     print("\nLogistic Regression (Flat) Per-Class Metrics Table:\n", lr_class_metrics)
-    lr_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "LogisticRegression_flat_per_class_metrics.csv"), index=False)
+    lr_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "LogisticRegression_flat_per_class_metrics.csv"), index=False)
 
     # -- SVM
     svm_metrics = calculate_evaluation_metrics(y_test_main, y_pred_svm, label_encoder=label_encoder_main)
     table_svm = generate_table(svm_metrics)
     print("\nSVM Metrics Table:\n", table_svm)
-    save_metrics_to_csv(svm_metrics, file_name=os.path.join(STATS_DIR, "SVM_metrics.csv"))
-    save_table_to_file(table_svm, file_name=os.path.join(STATS_DIR, "SVM_metrics_table.txt"))
+    save_metrics_to_csv(svm_metrics, file_name=os.path.join(STATS_SAVE_DIR, "SVM_metrics.csv"))
+    save_table_to_file(table_svm, file_name=os.path.join(STATS_SAVE_DIR, "SVM_metrics_table.txt"))
 
     svm_class_metrics = generate_class_metrics_table(y_test_main, y_pred_svm, all_labels)
     print("\n SVM (Flat) Per-Class Metrics Table:\n", svm_class_metrics)
-    svm_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "SVM_flat_per_class_metrics.csv"), index=False)
+    svm_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "SVM_flat_per_class_metrics.csv"), index=False)
 
     # -- KNN
     knn_metrics = calculate_evaluation_metrics(y_test_main, y_pred_knn, label_encoder=label_encoder_main)
     table_knn = generate_table(knn_metrics)
     print("\nKNN Metrics Table:\n", table_knn)
-    save_metrics_to_csv(knn_metrics, file_name=os.path.join(STATS_DIR, "KNN_metrics.csv"))
-    save_table_to_file(table_knn, file_name=os.path.join(STATS_DIR, "KNN_metrics_table.txt"))
+    save_metrics_to_csv(knn_metrics, file_name=os.path.join(STATS_SAVE_DIR, "KNN_metrics.csv"))
+    save_table_to_file(table_knn, file_name=os.path.join(STATS_SAVE_DIR, "KNN_metrics_table.txt"))
 
     knn_class_metrics = generate_class_metrics_table(y_test_main, y_pred_knn, all_labels)
     print("\n SVM (Flat) Per-Class Metrics Table:\n", knn_class_metrics)
-    knn_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "KNN_flat_per_class_metrics.csv"), index=False)
+    knn_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "KNN_flat_per_class_metrics.csv"), index=False)
     # ----------------------------------------------------------------------
     # 10. BLAST Integration & Evaluation
     # ----------------------------------------------------------------------
@@ -347,7 +349,7 @@ def main_type():
     blast_label_encoder.fit(y_train_blast)
 
     # Step 7: Train the BLAST Model (Separate)
-    model_path_blast = os.path.join(model_save_dir, 'random_forest_blast.pkl')
+    model_path_blast = os.path.join(MODEL_SAVE_DIR, 'random_forest_blast.pkl')
     model_blast = train_model(X_train_blast, y_train_blast, model_path=model_path_blast)
 
     # Step 8: Evaluate the BLAST Model
@@ -370,8 +372,8 @@ def main_type():
 
     table_blast = generate_table(blast_metrics)
     print("\nBLAST Exotoxin Type Metrics Table:\n", table_blast)
-    save_metrics_to_csv(blast_metrics, os.path.join(STATS_DIR, "BLAST_Exotoxin_metrics.csv"))
-    save_table_to_file(table_blast, os.path.join(STATS_DIR, "BLAST_Exotoxin_metrics_table.txt"))
+    save_metrics_to_csv(blast_metrics, os.path.join(STATS_SAVE_DIR, "BLAST_Exotoxin_metrics.csv"))
+    save_table_to_file(table_blast, os.path.join(STATS_SAVE_DIR, "BLAST_Exotoxin_metrics_table.txt"))
 
     # ----------------------------------------------------------------------
     # 11. Confusion Matrices
@@ -460,14 +462,14 @@ def main_type():
     cm_knn = compute_confusion_matrix(y_test_main, y_pred_knn, all_labels)
 
     confusion_matrices = [cm_rf, cm_lr, cm_svm, cm_knn]
-    fig_lc, axes_lc = plot_2x2_learning_curves(
+    plot_2x2_learning_curves(
             all_model_data,
             model_names_for_curves,
             save_path=os.path.join(PLOT_SAVE_DIR, "2x2_learning_curves.png")
         )
 
         # 3) 2x2 Precision-Recall curves
-    fig_pr, axes_pr = plot_2x2_precision_recall_curves(
+    plot_2x2_precision_recall_curves(
         [rf_model, lr_model, svm_model, knn_model],
         model_names_for_curves,
         X_test_main,
@@ -477,7 +479,7 @@ def main_type():
     )
 
     # 2) 2x2 ROC curves
-    fig_roc, axes_roc = plot_2x2_roc_curves(
+    plot_2x2_roc_curves(
         [rf_model, lr_model, svm_model, knn_model],
         model_names_for_curves,
         X_test_main,
@@ -488,7 +490,7 @@ def main_type():
 
     model_names = ["RandomForest", "LogisticRegression", "SVM", "KNN"]
     # Plotting Confusion Matrices
-    fig_cm, axes_cm = plot_2x2_confusion_matrices(
+    plot_2x2_confusion_matrices(
         confusion_matrices=confusion_matrices,
         model_names=model_names,
         all_labels=all_labels,
@@ -496,59 +498,33 @@ def main_type():
         save_path=os.path.join(PLOT_SAVE_DIR, "2x2_confusion_matrices.png")
     )
 
+        # Save trained models to MODEL_SAVE_DIR
+    logging.info("Saving trained models...")
+    if not os.path.exists(MODEL_SAVE_DIR):
+        os.makedirs(MODEL_SAVE_DIR)
+        logging.info(f"Created predictor save directory at {MODEL_SAVE_DIR}")
     
-
-
+    try:        
+        # Save models with descriptive names
+        with open(os.path.join(MODEL_SAVE_DIR, "random_forest_model.pkl"), 'wb') as f:
+            pickle.dump(rf_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "logistic_regression_model.pkl"), 'wb') as f:
+            pickle.dump(lr_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "svm_model.pkl"), 'wb') as f:
+            pickle.dump(svm_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "knn_model.pkl"), 'wb') as f:
+            pickle.dump(knn_model, f)
+        
+        logging.info(f"All models successfully saved to {MODEL_SAVE_DIR}")
+    except Exception as e:
+        logging.error(f"Failed to save models: {e}")
 
     
-logging.info("Done with main_type pipeline!")
+    logging.info("Done with main_type_redundancy_reduction_split pipeline!")
 
 
 if __name__ == "__main__":
-    main_type()
-    """
-    compute_multiclass_roc_curves(
-        models=models_for_curves,
-        model_names=model_names_for_curves,
-        X_test=X_test_main,
-        y_test=y_test_main,
-        labels=label_encoder_main.classes_,
-        dataset_name="test_main",
-        predictor_type="flat",
-    )
-
-    compute_multiclass_precision_recall_curves(
-        models=models_for_curves,
-        model_names=model_names_for_curves,
-        X_test=X_test_main,
-        y_test=y_test_main,
-        labels=label_encoder_main.classes_,
-        dataset_name="test_main",
-        predictor_type="flat",
-    )
-
-
-    compute_confusion_matrix(
-        lr_model, X_test, y_test_encoded, all_labels,
-        dataset_name="test", predictor_type="flat", model_name="LogisticRegression",
-        label_encoder=label_encoder
-    )
-
-    compute_confusion_matrix(
-        svm_model, X_test, y_test_encoded, all_labels,
-        dataset_name="test", predictor_type="flat", model_name="SVM",
-        label_encoder=label_encoder
-    )
-
-    compute_confusion_matrix(
-        knn_model, X_test, y_test_encoded, all_labels,
-        dataset_name="test", predictor_type="flat", model_name="KNN",
-        label_encoder=label_encoder
-    )
-    logging.info("Computing learning curves...")
-    compute_learning_curve(rf_model, X_train_main, y_train_main, "train_main", "flat", "RandomForest")
-    compute_learning_curve(lr_model, X_train_main, y_train_main, "train_main", "flat", "LogisticRegression")
-    compute_learning_curve(svm_model, X_train_main, y_train_main, "train_main", "flat", "SVM")
-    compute_learning_curve(knn_model, X_train_main, y_train_main, "train_main", "flat", "KNN")
-
-"""
+    main_type_redundancy_reduction_split()

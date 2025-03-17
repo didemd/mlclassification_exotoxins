@@ -1,18 +1,21 @@
-# main_target_split.py
+# main_target_standard_split.py
 
 import logging
 import os
 import numpy as np
 import pandas as pd
+import pickle
 from sklearn.model_selection import train_test_split
 
 from config.config import (
     TRAINING_EMBEDDINGS_PATH,
-    TEST_EMBEDDINGS_PATH,       # Added for BLAST integration
+    TEST_EMBEDDINGS_PATH,
     TRAINING_LABELS_PATH,
-    TEST_LABELS_PATH,           # Added for BLAST integration
+    TEST_LABELS_PATH,
     ALL_LABELS,
     PLOT_SAVE_DIR,
+    STATS_SAVE_DIR,
+    MODEL_SAVE_DIR,
     N_COMPONENTS
 )
 from data_processing.data_loader import (
@@ -79,10 +82,7 @@ def extract_core_id(identifier):
         logging.debug(f"No delimiter found. Using identifier '{core_id}' as core ID.")
         return core_id
 
-def main():
-    # Initialize blast_metrics
-    blast_metrics = None
-
+def main_target_standard_split():
     # Configure logging if not already configured
     if not logging.getLogger().hasHandlers():
         logging.basicConfig(
@@ -109,13 +109,13 @@ def main():
         return
 
     logging.info("Loading Training Labels...")
-    training_labels_df = load_labels(TRAINING_LABELS_PATH)
+    training_labels_df = load_labels(TRAINING_LABELS_PATH, selected_column='target')
     if training_labels_df is None:
         logging.error("Failed to load training labels.")
         return
 
     logging.info("Merging Training Embeddings and Labels...")
-    merged_train_df = merge_embeddings_labels(training_embeddings_df, training_labels_df)
+    merged_train_df = merge_embeddings_labels(training_embeddings_df, training_labels_df, selected_column='target')
     if merged_train_df is None or merged_train_df.empty:
         logging.error("Failed to merge or no data after merging.")
         return
@@ -161,89 +161,6 @@ def main():
         return
 
     # ----------------------------------------------------------------------
-    # 4. BLAST Predictor Integration & Evaluation
-    # ----------------------------------------------------------------------
-    logging.info("Starting BLAST predictor integration...")
-    logging.info("Loading BLAST Hits...")
-    blast_hits_df = load_blast_hits(blast_results_path='./data/blast_results.tsv')
-    if blast_hits_df.empty:
-        logging.error("BLAST hits data is empty or failed to load.")
-    else:
-        logging.info("Loading BLAST Labels...")
-        type_map, target_map = load_blast_labels(labels_file_path='./data/ToxinTypes_labelTarget_3.csv')
-        if not type_map and not target_map:
-            logging.error("Failed to load BLAST label mappings.")
-        else:
-            logging.info("Running BLAST Predictor...")
-            blast_predictions_df = run_blast_predictor(blast_hits_df, type_map, target_map)
-            logging.info(f"Number of BLAST predictions: {blast_predictions_df.shape[0]}")
-
-            # Extract core IDs
-            blast_predictions_df['core_qseqid'] = blast_predictions_df['qseqid'].apply(extract_core_id)
-            test_df_main['core_ID'] = test_df_main['ID'].apply(extract_core_id)
-
-            # Debugging: Verify Identifier Alignment
-            logging.info(f"Unique core IDs in test_df_main: {test_df_main['core_ID'].nunique()}")
-            logging.info(f"Unique core_qseqids in blast_predictions_df: {blast_predictions_df['core_qseqid'].nunique()}")
-
-            # Check overlapping IDs
-            overlapping_ids = set(test_df_main['core_ID']).intersection(set(blast_predictions_df['core_qseqid']))
-            logging.info(f"Number of overlapping core IDs: {len(overlapping_ids)}")
-
-            if len(overlapping_ids) == 0:
-                logging.warning("No overlapping core IDs found between test data and BLAST predictions. Assigning 'Unknown' to all BLAST predictions.")
-                # Assign 'Unknown' to all BLAST predictions
-                test_df_main['predicted_exotoxin_type'] = 'Unknown'
-                test_df_main['predicted_target'] = 'Unknown'
-            else:
-                logging.info(f"Found {len(overlapping_ids)} overlapping core IDs. Proceeding with merge.")
-
-                # Proceed with merge using core IDs
-                merged_test_with_blast = pd.merge(
-                    test_df_main,
-                    blast_predictions_df[['core_qseqid', 'predicted_exotoxin_type', 'predicted_target']],
-                    left_on='core_ID',
-                    right_on='core_qseqid',
-                    how='left'
-                ).copy()
-
-                # Debugging: Verify the merge
-                logging.info(f"Merged Test with BLAST (first 5 rows):\n{merged_test_with_blast.head()}")
-
-                # Handle missing BLAST predictions
-                merged_test_with_blast['predicted_exotoxin_type'].fillna('Unknown', inplace=True)
-                merged_test_with_blast['predicted_target'].fillna('Unknown', inplace=True)
-
-                # Replacement mappings if necessary
-                replacement_map = {
-                    "Non-vertebrate": "Non-Vertebrate",
-                    "vertebrate": "Vertebrate",
-                    "non-vertebrate": "Non-Vertebrate",
-                }
-                merged_test_with_blast['predicted_target'] = merged_test_with_blast['predicted_target'].replace(replacement_map)
-
-                # If "Unknown" is not in label_encoder_main, add it
-                if 'Unknown' not in label_encoder_main.classes_:
-                    label_encoder_main.classes_ = np.append(label_encoder_main.classes_, 'Unknown')
-                    logging.info("Added 'Unknown' to label_encoder_main classes.")
-
-                try:
-                    y_pred_blast = merged_test_with_blast['predicted_target'].values
-                    y_pred_blast_encoded = label_encoder_main.transform(y_pred_blast)
-                    logging.info("BLAST predictions successfully encoded using the existing label_encoder_main.")
-
-                    # Calculate metrics for BLAST
-                    blast_metrics = calculate_evaluation_metrics(y_test_main, y_pred_blast_encoded, label_encoder=label_encoder_main)
-                    if blast_metrics:
-                        logging.info("BLAST metrics successfully calculated.")
-                    else:
-                        logging.warning("BLAST metrics calculation returned no results.")
-
-                except ValueError as ve:
-                    logging.error(f"Error encoding BLAST predictions: {ve}")
-                    y_pred_blast_encoded = np.full_like(y_test_main, fill_value=-1)  # Handle appropriately
-
-    # ----------------------------------------------------------------------
     # 5. Train Models on Main Dataset
     # ----------------------------------------------------------------------
     logging.info("Training Random Forest Classifier...")
@@ -276,82 +193,70 @@ def main():
         rf_metrics = calculate_evaluation_metrics(y_test_main, y_pred_rf, label_encoder=label_encoder_main)
         table_rf = generate_table(rf_metrics)
         print("\nRandom Forest (flat) Metrics:\n", table_rf)
-        save_metrics_to_csv(rf_metrics, os.path.join(PLOT_SAVE_DIR, "RandomForest_flat_metrics.csv"))
-        save_table_to_file(table_rf, os.path.join(PLOT_SAVE_DIR, "RandomForest_flat_metrics_table.txt"))
+        save_metrics_to_csv(rf_metrics, os.path.join(STATS_SAVE_DIR, "RandomForest_flat_metrics.csv"))
+        save_table_to_file(table_rf, os.path.join(STATS_SAVE_DIR, "RandomForest_flat_metrics_table.txt"))
 
         rf_class_metrics = generate_class_metrics_table(y_test_main, y_pred_rf, ALL_LABELS)
         print("\nRandom Forest (Flat) Per-Class Metrics Table:\n", rf_class_metrics)
-        rf_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "RandomForest_flat_per_class_metrics.csv"), index=False)
+        rf_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "RandomForest_flat_per_class_metrics.csv"), index=False)
 
         # Logistic Regression Metrics
         lr_metrics = calculate_evaluation_metrics(y_test_main, y_pred_lr, label_encoder=label_encoder_main)
         table_lr = generate_table(lr_metrics)
         print("\nLogistic Regression (flat) Metrics:\n", table_lr)
-        save_metrics_to_csv(lr_metrics, os.path.join(PLOT_SAVE_DIR, "LogisticRegression_flat_metrics.csv"))
-        save_table_to_file(table_lr, os.path.join(PLOT_SAVE_DIR, "LogisticRegression_flat_metrics_table.txt"))
+        save_metrics_to_csv(lr_metrics, os.path.join(STATS_SAVE_DIR, "LogisticRegression_flat_metrics.csv"))
+        save_table_to_file(table_lr, os.path.join(STATS_SAVE_DIR, "LogisticRegression_flat_metrics_table.txt"))
 
         lr_class_metrics = generate_class_metrics_table(y_test_main, y_pred_lr, ALL_LABELS)
         print("\nLogistic Regression (Flat) Per-Class Metrics Table:\n", lr_class_metrics)
-        lr_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "LogisticRegression_flat_per_class_metrics.csv"), index=False)
+        lr_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "LogisticRegression_flat_per_class_metrics.csv"), index=False)
 
         # SVM Metrics
         svm_metrics = calculate_evaluation_metrics(y_test_main, y_pred_svm, label_encoder=label_encoder_main)
         table_svm = generate_table(svm_metrics)
         print("\nSVM (flat) Metrics:\n", table_svm)
-        save_metrics_to_csv(svm_metrics, os.path.join(PLOT_SAVE_DIR, "SVM_flat_metrics.csv"))
-        save_table_to_file(table_svm, os.path.join(PLOT_SAVE_DIR, "SVM_flat_metrics_table.txt"))
+        save_metrics_to_csv(svm_metrics, os.path.join(STATS_SAVE_DIR, "SVM_flat_metrics.csv"))
+        save_table_to_file(table_svm, os.path.join(STATS_SAVE_DIR, "SVM_flat_metrics_table.txt"))
 
         svm_class_metrics = generate_class_metrics_table(y_test_main, y_pred_svm, ALL_LABELS)
         print("\nSVM (Flat) Per-Class Metrics Table:\n", svm_class_metrics)
-        svm_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "SVM_flat_per_class_metrics.csv"), index=False)
+        svm_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "SVM_flat_per_class_metrics.csv"), index=False)
 
         # KNN Metrics
         knn_metrics = calculate_evaluation_metrics(y_test_main, y_pred_knn, label_encoder=label_encoder_main)
         table_knn = generate_table(knn_metrics)
         print("\nKNN (flat) Metrics:\n", table_knn)
-        save_metrics_to_csv(knn_metrics, os.path.join(PLOT_SAVE_DIR, "KNN_flat_metrics.csv"))
-        save_table_to_file(table_knn, os.path.join(PLOT_SAVE_DIR, "KNN_flat_metrics_table.txt"))
+        save_metrics_to_csv(knn_metrics, os.path.join(STATS_SAVE_DIR, "KNN_flat_metrics.csv"))
+        save_table_to_file(table_knn, os.path.join(STATS_SAVE_DIR, "KNN_flat_metrics_table.txt"))
 
         knn_class_metrics = generate_class_metrics_table(y_test_main, y_pred_knn, ALL_LABELS)
         print("\nKNN (Flat) Per-Class Metrics Table:\n", knn_class_metrics)
-        knn_class_metrics.to_csv(os.path.join(PLOT_SAVE_DIR, "KNN_flat_per_class_metrics.csv"), index=False)
+        knn_class_metrics.to_csv(os.path.join(STATS_SAVE_DIR, "KNN_flat_per_class_metrics.csv"), index=False)
 
     except Exception as e:
         logging.error(f"An error occurred during evaluation: {e}")
         return
-    # If BLAST metrics were computed, keep them for the bar plot
-    if blast_metrics is not None:
-        logging.info("BLAST metrics are available and will be included.")
-    else:
-        logging.warning("BLAST metrics are not available and will be excluded.")
 
-    # Initialize metrics_dict with flat classifiers
-    metrics_dict = {
-        "RF": rf_metrics,
-        "LR": lr_metrics,
-        "SVM": svm_metrics,
-        "KNN": knn_metrics,
-        # If you have hierarchical models, you'd add them here as well
-        # "Hierarchical_RF": hier_rf_metrics,  # if you had hierarchical
-        # "Hierarchical_SVM": hier_svm_metrics,
-    }
+    # # Initialize metrics_dict with flat classifiers
+    # metrics_dict = {
+    #     "RF": rf_metrics,
+    #     "LR": lr_metrics,
+    #     "SVM": svm_metrics,
+    #     "KNN": knn_metrics,
+    #     # If you have hierarchical models, you'd add them here as well
+    #     # "Hierarchical_RF": hier_rf_metrics,  # if you had hierarchical
+    #     # "Hierarchical_SVM": hier_svm_metrics,
+    # }
 
-    # Conditionally add BLAST metrics if available
-    if blast_metrics is not None:
-        metrics_dict["BLAST"] = blast_metrics
-        logging.info("BLAST metrics successfully added to metrics_dict.")
-    else:
-        logging.warning("BLAST metrics are not available and will be excluded from metrics_dict.")
-
-    # Generate and Save Tables
-    for model_name, metrics in metrics_dict.items():
-        if metrics is None:
-            logging.warning(f"No metrics available for {model_name}. Skipping table generation.")
-            continue
-        table = generate_table(metrics)
-        print(f"\n{model_name} Metrics Table:\n{table}")
-        save_metrics_to_csv(metrics, file_name=f"{model_name}_metrics.csv")
-        save_table_to_file(table, file_name=f"{model_name}_metrics_table.txt")
+    # # Generate and Save Tables
+    # for model_name, metrics in metrics_dict.items():
+    #     if metrics is None:
+    #         logging.warning(f"No metrics available for {model_name}. Skipping table generation.")
+    #         continue
+    #     table = generate_table(metrics)
+    #     print(f"\n{model_name} Metrics Table:\n{table}")
+    #     save_metrics_to_csv(metrics, file_name=f"{model_name}_metrics.csv")
+    #     save_table_to_file(table, file_name=f"{model_name}_metrics_table.txt")
 
     # ----------------------------------------------------------------------
     #  # ----------------------------------------------------------------------
@@ -416,10 +321,11 @@ def main():
 
         model_names_for_curves = ["RandomForest", "LogisticRegression", "SVM", "KNN"]
 
-        fig_lc, axes_lc = plot_2x2_learning_curves(
+
+        plot_2x2_learning_curves(
             all_model_data,
             model_names_for_curves,
-            save_path=os.path.join(PLOT_SAVE_DIR, "2x2_learning_curves.png")
+            save_path="Figures/learning_curve"
         )
     except Exception as e:
         logging.error(f"Computing learning curves failed: {e}")
@@ -474,8 +380,33 @@ def main():
     except Exception as e:
         logging.error(f"Computing confusion matrices failed: {e}")
         return
+    
+     # Save trained models to MODEL_SAVE_DIR
+    logging.info("Saving trained models...")
+    if not os.path.exists(MODEL_SAVE_DIR):
+        os.makedirs(MODEL_SAVE_DIR)
+        logging.info(f"Created predictor save directory at {MODEL_SAVE_DIR}")
+    
+    try:        
+        # Save models with descriptive names
+        with open(os.path.join(MODEL_SAVE_DIR, "random_forest_model.pkl"), 'wb') as f:
+            pickle.dump(rf_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "logistic_regression_model.pkl"), 'wb') as f:
+            pickle.dump(lr_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "svm_model.pkl"), 'wb') as f:
+            pickle.dump(svm_model, f)
+        
+        with open(os.path.join(MODEL_SAVE_DIR, "knn_model.pkl"), 'wb') as f:
+            pickle.dump(knn_model, f)
+        
+        logging.info(f"All models successfully saved to {MODEL_SAVE_DIR}")
+    except Exception as e:
+        logging.error(f"Failed to save models: {e}")
 
-    logging.info("Done with main_target pipeline!")
+
+    logging.info("Done with main_target_standard_split pipeline!")
 
 if __name__ == "__main__":
-    main()
+    main_target_standard_split()

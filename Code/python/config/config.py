@@ -10,12 +10,12 @@ import numpy as np
 # --------------------- Configure Logging and Warnings ---------------------
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Set random seed for reproducibility
 np.random.seed(42)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Define directory for saving plots
 #PLOT_SAVE_DIR = os.getenv('PLOT_SAVE_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "Figures")))
@@ -23,20 +23,19 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 PLOT_SAVE_DIR = os.getenv('PLOT_SAVE_DIR', "Figures")
 PLOT_SAVE_DIR_TYPE = os.getenv('PLOT_SAVE_DIR', "Figures")
+STATS_SAVE_DIR = os.getenv('STATS_SAVE_DIR', "Stats")
 
 os.makedirs(PLOT_SAVE_DIR, exist_ok=True)
 os.makedirs(PLOT_SAVE_DIR_TYPE, exist_ok=True)
+os.makedirs(STATS_SAVE_DIR, exist_ok=True)
 
-# Paths (adjust as needed)
+# Paths
 TRAINING_EMBEDDINGS_PATH = os.getenv('TRAINING_EMBEDDINGS_PATH', "./Data/derived/per_residue_embeddings_training.h5")
 TEST_EMBEDDINGS_PATH     = os.getenv('TEST_EMBEDDINGS_PATH', "./Data/derived/per_residue_embeddings_test.h5")
 TRAINING_LABELS_PATH     = os.getenv('TRAINING_LABELS_PATH', "./Data/raw/ToxinTypes_labelTarget_3.csv")
 TEST_LABELS_PATH         = os.getenv('TEST_LABELS_PATH', "./Data/raw/ToxinTypes_labelTarget_3.csv")
 #TRAINING_EMBEDDINGS_PATH_FOLDS = os.getenv('TRAINING_EMBEDDINGS_PATH_FOLDS', "./data/folds_with_labels_updated.h5")
 TRAINING_EMBEDDINGS_PATH_FOLDS = os.getenv('TRAINING_EMBEDDINGS_PATH_FOLDS', "./Data/derived/folds_with_labels.h5")
-
-
-
 BLAST_RESULTS_PATH = os.getenv('BLAST_RESULTS_PATH', "./Data/derived/blast_results.tsv")
 MODEL_SAVE_DIR = os.getenv('MODEL_SAVE_DIR', "Predictors")
 PREDICTOR_PATH = os.getenv('PREDICTOR_PATH', "Predictors")

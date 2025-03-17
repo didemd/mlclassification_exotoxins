@@ -9,6 +9,14 @@ from config.config import PLOT_SAVE_DIR
 import numpy as np
 import pandas as pd
 
+plt.rcParams.update({
+    'axes.labelsize': 10,
+    'axes.titlesize': 10,
+    'legend.fontsize': 10,
+    'xtick.labelsize': 10,
+    'ytick.labelsize': 10
+})
+
 def apply_common_grid(ax, which='both', linestyle='--', linewidth=0.7, color='gray'):
     """
     Apply a common grid style to the given Axes object.
@@ -33,9 +41,7 @@ def apply_common_grid(ax, which='both', linestyle='--', linewidth=0.7, color='gr
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_comparative_bar_graph(
-    combined_mcc_df, bar_colors=None, save_path=None
-):
+def plot_comparative_bar_graph(combined_mcc_df, bar_colors=None, save_path=None):
     """
     Plot a bar chart of MCC ± MCC_SE for each row in combined_mcc_df.
     
@@ -46,9 +52,7 @@ def plot_comparative_bar_graph(
         combined_mcc_df (DataFrame): The input DataFrame.
         bar_colors (list): A list of colors for each bar. If None, default colors are used.
         save_path (str): Path to save the plot. If None, the plot is not saved.
-        title (str): Title of the bar graph.
     """
-
     # Convert DataFrame columns to arrays
     labels = combined_mcc_df["Predictor"].astype(str).values
     mcc_vals = combined_mcc_df["MCC"].values
@@ -84,22 +88,23 @@ def plot_comparative_bar_graph(
 
     # Customize x-axis labels (rename them)
     ax.set_xticks(x)
-    ax.set_xticklabels([custom_labels.get(label, label) for label in labels], ha="center", fontsize=10)
+    ax.set_xticklabels([custom_labels.get(label, label) for label in labels], ha="center")
 
-    # Set Y-axis label and limits
-    ax.set_ylabel("MCC Score", fontsize=12)
+    # Set axis labels and limits
+    ax.set_ylabel("MCC Score")
+    ax.set_xlabel("ML models")
     ax.set_ylim([0, 1.0])
 
-    # Add a legend outside the plot (to the right)
-    ax.legend(
-        bars,
-        [custom_labels.get(label, label) for label in labels],
-        loc="center left",
-        bbox_to_anchor=(1, 0.5),
-        title="Predictors",
-        fontsize=10,
-        frameon=True
-    )
+    # Annotate each bar with numerical values (MCC ± MCC_SE)
+    for i, bar in enumerate(bars):
+        height = bar.get_height()
+        err = mcc_errs[i]
+        ax.text(
+            bar.get_x() + bar.get_width() / 2, 
+            height + err + 0.02, 
+            f"{err:.2f}",
+            ha="center", 
+        )
 
     # Apply grid lines for readability
     ax.grid(axis="y", linestyle="--", alpha=0.6)
@@ -132,7 +137,6 @@ def plot_comparative_bar_graph_target(
         combined_mcc_df (DataFrame): The input DataFrame.
         bar_colors (list): A list of colors for each bar. If None, default colors are used.
         save_path (str): Path to save the plot. If None, the plot is not saved.
-        title (str): Title of the bar graph.
     """
 
     # Convert DataFrame columns to arrays
@@ -167,22 +171,23 @@ def plot_comparative_bar_graph_target(
 
     # Customize x-axis labels (rename them)
     ax.set_xticks(x)
-    ax.set_xticklabels([custom_labels.get(label, label) for label in labels], ha="center", fontsize=10)
+    ax.set_xticklabels([custom_labels.get(label, label) for label in labels], ha="center")
 
     # Set Y-axis label and limits
-    ax.set_ylabel("MCC Score", fontsize=12)
+    ax.set_ylabel("MCC Score")
     ax.set_ylim([0, 1.0])
 
-    # Add a legend outside the plot (to the right)
-    ax.legend(
-        bars,
-        [custom_labels.get(label, label) for label in labels],
-        loc="center left",
-        bbox_to_anchor=(1, 0.5),
-        title="Predictors",
-        fontsize=10,
-        frameon=True
-    )
+    # Removed legend; now annotate each bar with its error value.
+    for i, bar in enumerate(bars):
+        height = bar.get_height()
+        err = mcc_errs[i]
+        ax.text(
+            bar.get_x() + bar.get_width() / 2, 
+            height + err + 0.02, 
+            f"{err:.2f}",
+            ha="center", 
+            va="bottom"
+        )
 
     # Apply grid lines for readability
     ax.grid(axis="y", linestyle="--", alpha=0.6)
@@ -195,13 +200,6 @@ def plot_comparative_bar_graph_target(
         print(f"Bar plot saved to {save_path}")
 
     plt.show()
-
-def save_plot(fig, plot_filename):
-    plot_path = os.path.join(PLOT_SAVE_DIR, plot_filename)
-    fig.savefig(plot_path, dpi=300, bbox_inches='tight')
-    logging.info(f"Plot saved as {plot_path}")
-    plt.close(fig)
-
 
 def apply_common_grid(ax, which='both', linestyle='--', linewidth=0.7, color='gray'):
     """
@@ -466,7 +464,7 @@ def plot_2x2_learning_curves(all_model_data, model_names, save_path=None):
     -------
     fig, axes : the Matplotlib Figure and Axes array.
     """
-    fig, axes = plt.subplots(2, 2, figsize=(14, 12))
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
     # Flatten axes array for easy iteration => [ax0, ax1, ax2, ax3]
     ax_list = axes.ravel()
@@ -521,8 +519,12 @@ def plot_2x2_roc_curves(models, model_names, X_test, y_test, label_encoder=None,
     import numpy as np
     from sklearn.preprocessing import label_binarize
     from sklearn.metrics import roc_curve, auc
+    import logging
 
-    fig, axes = plt.subplots(2, 2, figsize=(14, 12))
+    # Define the custom mapping for class labels.
+    type_labels = {0: "Type I", 1: "Type II", 2: "Type III", 3: "Type IV", 4: "Unknown"}
+
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
     axes = axes.flatten()
 
     # Identify unique classes for multiclass handling
@@ -568,14 +570,14 @@ def plot_2x2_roc_curves(models, model_names, X_test, y_test, label_encoder=None,
             for j in range(n_classes):
                 fpr_dict[j], tpr_dict[j], _ = roc_curve(y_test_bin[:, j], y_score[:, j])
                 roc_auc_dict[j] = auc(fpr_dict[j], tpr_dict[j])
+                # Map the class label to the custom type label if possible
+                try:
+                    cls_int = int(classes[j])
+                except ValueError:
+                    cls_int = None
+                label_str = type_labels.get(cls_int, f"Class {classes[j]}")
                 ax.plot(fpr_dict[j], tpr_dict[j], lw=1,
-                        label=f"Class {classes[j]} (AUC={roc_auc_dict[j]:0.2f})")
-
-            # Compute micro-average ROC curve and ROC area
-            fpr_micro, tpr_micro, _ = roc_curve(y_test_bin.ravel(), y_score.ravel())
-            roc_auc_micro = auc(fpr_micro, tpr_micro)
-            ax.plot(fpr_micro, tpr_micro, color='deeppink', linestyle=':', linewidth=4,
-                    label=f"Micro-average (AUC={roc_auc_micro:.2f})")
+                        label=f"{label_str} (AUC={roc_auc_dict[j]:0.2f})")
 
             ax.set_title(f'ROC Curve - {model_name}')
             ax.set_xlabel('False Positive Rate')
@@ -590,7 +592,6 @@ def plot_2x2_roc_curves(models, model_names, X_test, y_test, label_encoder=None,
             logging.debug(f"FPR for classes: {fpr_dict}")
             logging.debug(f"TPR for classes: {tpr_dict}")
             logging.debug(f"AUC for classes: {roc_auc_dict}")
-            logging.debug(f"Micro-average AUC: {roc_auc_micro}")
 
         else:
             # Binary classification
@@ -627,6 +628,11 @@ def plot_2x2_roc_curves(models, model_names, X_test, y_test, label_encoder=None,
     plt.show()  # Ensure the plot is displayed
     return fig, axes
 
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import precision_recall_curve, average_precision_score
+import logging
 
 def plot_2x2_precision_recall_curves(models, model_names, X_test, y_test, label_encoder=None, save_path=None):
     """
@@ -644,27 +650,18 @@ def plot_2x2_precision_recall_curves(models, model_names, X_test, y_test, label_
     Returns:
         fig, axes
     """
-    fig, axes = plt.subplots(2, 2, figsize=(14, 12))
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
     axes = axes.flatten()
 
     # Identify unique classes for multiclass handling
     if label_encoder is not None and len(label_encoder.classes_) > 2:
-        classes = label_encoder.classes_
+        classes = np.unique(y_test)
         n_classes = len(classes)
-        y_test_bin = _binarize_labels(y_test, n_classes)
-    elif label_encoder is not None and len(label_encoder.classes_) == 2:
-        # Binary classification with label encoder
-        classes = label_encoder.classes_
-        n_classes = len(classes)
-        y_test_bin = None  # Not needed for binary classification
+        y_test_bin = label_binarize(y_test, classes=classes)
     else:
         classes = np.unique(y_test)
         n_classes = len(classes)
         y_test_bin = None  # Not needed for binary classification
-
-    if label_encoder is None and n_classes > 2:
-        logging.error("Label encoder is required for multiclass precision-recall curves.")
-        raise ValueError("Label encoder is required for multiclass precision-recall curves.")
 
     for i, (model, model_name) in enumerate(zip(models, model_names)):
         ax = axes[i]
@@ -678,29 +675,20 @@ def plot_2x2_precision_recall_curves(models, model_names, X_test, y_test, label_
         if n_classes > 2:
             if y_test_bin is None:
                 logging.error("y_test_bin is None for multiclass PR curve.")
+                ax.set_title(f"PR Curve - {model_name}\nBinarization Failed")
+                ax.axis('off')
                 continue
+
             # Multiclass: One-vs-Rest strategy
             y_score = model.predict_proba(X_test)
-            precision = dict()
-            recall = dict()
-            average_precision = dict()
+            precision_dict = {}
+            recall_dict = {}
+            average_precision_dict = {}
 
             for j in range(n_classes):
-                precision[j], recall[j], _ = precision_recall_curve(y_test_bin[:, j], y_score[:, j])
-                average_precision[j] = average_precision_score(y_test_bin[:, j], y_score[:, j])
-
-            # Compute micro-average PR curve and AP
-            precision["micro"], recall["micro"], _ = precision_recall_curve(y_test_bin.ravel(), y_score.ravel())
-            average_precision["micro"] = average_precision_score(y_test_bin, y_score, average="micro")
-
-            # Plot per-class PR curves
-            for j in range(n_classes):
-                ax.plot(recall[j], precision[j], lw=1, label=f"Class {classes[j]} (AP={average_precision[j]:0.2f})")
-
-            # Plot micro-average PR curve
-            ax.plot(recall["micro"], precision["micro"],
-                    label=f"Micro-average (AP={average_precision['micro']:0.2f})",
-                    color='deeppink', linestyle=':', linewidth=4)
+                precision_dict[j], recall_dict[j], _ = precision_recall_curve(y_test_bin[:, j], y_score[:, j])
+                average_precision_dict[j] = average_precision_score(y_test_bin[:, j], y_score[:, j])
+                ax.plot(recall_dict[j], precision_dict[j], lw=1, label=f"Class {classes[j]} (AP={average_precision_dict[j]:0.2f})")
 
             ax.set_title(f'Precision-Recall Curve - {model_name}')
             ax.set_xlabel('Recall')
@@ -708,7 +696,7 @@ def plot_2x2_precision_recall_curves(models, model_names, X_test, y_test, label_
             ax.legend(loc='lower left', fontsize='small')
             ax.set_xlim([0.0, 1.0])
             ax.set_ylim([0.0, 1.05])
-            apply_common_grid(ax)
+            ax.grid(which="both", linestyle="--", linewidth=0.7, color='gray')
 
         else:
             # Binary classification
@@ -716,17 +704,18 @@ def plot_2x2_precision_recall_curves(models, model_names, X_test, y_test, label_
             precision_val, recall_val, _ = precision_recall_curve(y_test, y_score)
             average_precision_val = average_precision_score(y_test, y_score)
 
-            ax.plot(recall_val, precision_val, label=f'AP={average_precision_val:.2f}')
+            ax.plot(recall_val, precision_val, lw=2, label=f'AP={average_precision_val:.2f}')
+            ax.plot([0, 1], [1, 0], 'k--', label='Chance')
             ax.set_title(f'Precision-Recall Curve - {model_name}')
             ax.set_xlabel('Recall')
             ax.set_ylabel('Precision')
             ax.legend(loc='lower left')
             ax.set_xlim([0.0, 1.0])
             ax.set_ylim([0.0, 1.05])
-            apply_common_grid(ax)
+            ax.grid(which="both", linestyle="--", linewidth=0.7, color='gray')
 
     # Handle any unused subplots (if number of models < 4)
-    for j in range(len(models), 4):
+    for j in range(i + 1, 4):
         axes[j].axis('off')
 
     plt.tight_layout()
@@ -735,6 +724,7 @@ def plot_2x2_precision_recall_curves(models, model_names, X_test, y_test, label_
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         logging.info(f"2x2 Precision-Recall Curves figure saved to {save_path}")
 
+    plt.show()
     return fig, axes
 
 from sklearn.metrics import confusion_matrix
@@ -754,13 +744,50 @@ def compute_confusion_matrix(y_true, y_pred, all_labels):
     cm = confusion_matrix(y_true, y_pred, labels=range(len(all_labels)))
     return cm
 
-def plot_2x2_confusion_matrices(confusion_matrices, model_names, all_labels, save_path=None, normalize=False, cmap='Blues'):
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import pandas as pd
+import logging
 
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import pandas as pd
+import logging
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import pandas as pd
+import logging
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import pandas as pd
+import logging
+
+def plot_2x2_confusion_matrices(confusion_matrices, model_names, all_labels, save_path=None, normalize=True, cmap='Blues'):
+    """
+    Plots four confusion matrices in a 2x2 layout with improved sizing, horizontal labels, and percentage values.
+    
+    Parameters:
+        confusion_matrices (list): List of four confusion matrices (numpy arrays or pandas DataFrames).
+        model_names (list): List of four model names.
+        all_labels (list): List of class labels.
+        save_path (str or None): Path to save the figure.
+        normalize (bool): Whether to normalize the confusion matrices.
+        cmap (str): Colormap for heatmap.
+    
+    Returns:
+        fig, axes
+    """
     if len(confusion_matrices) != 4 or len(model_names) != 4:
         logging.error("Exactly four confusion matrices and four model names are required for a 2x2 plot.")
         raise ValueError("Provide exactly four confusion matrices and four corresponding model names.")
-
-    fig, axes = plt.subplots(2, 2, figsize=(20, 16))
+    
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))  # Reduced figure size
     axes = axes.flatten()
 
     for i, (cm, model_name) in enumerate(zip(confusion_matrices, model_names)):
@@ -769,7 +796,7 @@ def plot_2x2_confusion_matrices(confusion_matrices, model_names, all_labels, sav
         # If cm is a DataFrame, ensure the order of labels
         if isinstance(cm, pd.DataFrame):
             cm = cm.reindex(index=all_labels, columns=all_labels)
-            cm = cm.fillna(0)
+            cm = cm.fillna(0).values
         else:
             # Assume cm is a NumPy array; ensure it's in the correct order
             cm = np.array(cm)
@@ -777,21 +804,20 @@ def plot_2x2_confusion_matrices(confusion_matrices, model_names, all_labels, sav
                 logging.error(f"Confusion matrix shape {cm.shape} does not match number of labels {len(all_labels)}.")
                 raise ValueError(f"Confusion matrix shape {cm.shape} does not match number of labels {len(all_labels)}.")
         
-        if normalize:
-            cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-            sns.heatmap(cm_normalized, annot=True, fmt='.2f', cmap=cmap, ax=ax, cbar=False,
-                        xticklabels=all_labels, yticklabels=all_labels)
-            ax.set_title(f'{model_name} (Normalized)', fontsize=16, fontweight='bold')
-        else:
-            sns.heatmap(cm, annot=True, fmt='d', cmap=cmap, ax=ax, cbar=False,
-                        xticklabels=all_labels, yticklabels=all_labels)
-            ax.set_title(f'{model_name}', fontsize=16, fontweight='bold')
+        # Normalize to percentage
+        cm_normalized = cm.astype('float') / cm.sum(axis=1, keepdims=True) * 100
+        cm_normalized = np.nan_to_num(cm_normalized)  # Handle division by zero
+        annotations = np.array([[f'{val:.2f}%' for val in row] for row in cm_normalized])
+        
+        sns.heatmap(cm_normalized, annot=annotations, fmt='', cmap=cmap, ax=ax, cbar=False,
+                    xticklabels=all_labels, yticklabels=all_labels, annot_kws={"size": 8}, square=True)
+        ax.set_title(f'{model_name}', fontsize=10, fontweight='bold')
 
-        ax.set_xlabel('Predicted Label', fontsize=14)
-        ax.set_ylabel('True Label', fontsize=14)
-        ax.tick_params(axis='x', rotation=45)
-        ax.tick_params(axis='y', rotation=0)
-        apply_common_grid(ax, which="both", linestyle="--", linewidth=0.5, color='gray')
+        ax.set_xlabel('Predicted Label', fontsize=8)
+        ax.set_ylabel('True Label', fontsize=8)
+        ax.tick_params(axis='x', rotation=0, labelsize=8)  # Set horizontal labels
+        ax.tick_params(axis='y', rotation=0, labelsize=8)
+        ax.grid(False)  # Removed excessive grid styling
 
     # Hide any unused subplots if more than four
     for j in range(4, len(axes)):
@@ -805,6 +831,7 @@ def plot_2x2_confusion_matrices(confusion_matrices, model_names, all_labels, sav
 
     plt.show()
     return fig, axes
+
 
 def generate_class_metrics_table(y_true, y_pred, all_labels):
     """
@@ -864,5 +891,4 @@ def generate_class_metrics_table(y_true, y_pred, all_labels):
     metrics_table = pd.DataFrame(metrics)
     
     return metrics_table
-
 

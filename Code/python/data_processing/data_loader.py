@@ -78,7 +78,7 @@ def _preprocess_id_column(embeddings_df):
     logging.info("Preprocessed 'ID' column to retain only the ID number.")
     return embeddings_df
 
-def load_labels(csv_file_path, selected_column: str = 'target'):
+def load_labels(csv_file_path, selected_column: str = 'type'):
     """
     Load labels from a CSV file and return a DataFrame with 'ID' and selected_column columns.
 
@@ -93,14 +93,14 @@ def load_labels(csv_file_path, selected_column: str = 'target'):
         labels_df['ID'] = labels_df['ID'].str.replace('.', '_')
         logging.info(f"Loaded {len(labels_df)} labels from {csv_file_path}.")
         logging.info(f"{labels_df[['ID', selected_column]]}")
-        print(labels_df['target'].dtype)
-        print(labels_df['target'].unique())
+        print(labels_df['type'].dtype)
+        print(labels_df['type'].unique())
         return labels_df[['ID', selected_column]]
     except Exception as e:
         logging.error(f"Error loading labels from {csv_file_path}: {e}")
         return None
 
-def merge_embeddings_labels(embeddings_df, labels_df, selected_column: str = 'target'):
+def merge_embeddings_labels(embeddings_df, labels_df, selected_column: str = 'type'):
     """
     Merge embeddings and labels DataFrames on 'ID' and remove duplicates.
 
