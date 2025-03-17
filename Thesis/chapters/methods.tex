@@ -1,8 +1,8 @@
 
-This study applies machine learning techniques to classify bacterial exotoxins based on their functional types and biological targets.
-The methodology follows a structured pipeline that involves data collection, preprocessing, feature extraction, and model training.
+\replace{This study applies}{In this study, I apply} machine learning techniques to classify bacterial exotoxins based on their functional types and biological targets.
+The methodology follows a structured pipeline that involves data collection, pre-processing, feature extraction, and model training.
 
-First, primary sequences was collected and analyzed using descriptive statistics to understand key sequence characteristics. Next, the dataset was preprocessed using redundancy reduction techniques to generate a non-redundant set of sequences.
+First, primary sequences \replace{was}{were} collected and analyzed using descriptive statistics to understand key sequence characteristics. Next, the dataset was preprocessed using redundancy reduction techniques to generate a non-redundant set of sequences.
 Next, protein language models were used to generate numerical embeddings that capture meaningful sequence representations.
 
 Then, dimensionality reduction using Principal Component Analysis is applied to the embeddings. The processed embeddings are then used to train machine learning models, including conventional classifiers and hierarchical predictors. The machine learning models are evaluated using performance metrics for binary and multiclass classification tasks. 
@@ -21,11 +21,11 @@ Figure~\ref{fig:methods_workflow} visualizes the key steps in building a machine
 Bacterial toxins protein sequences were collected from public sequence databases, such as UniProt and NCBI, as decribed previously by Krueger et al \cite{kruger2024toxin}. The dataset was curated and labeled by selecting proteins from bacterial pathogens based on their host specificity by PD. Dr. Luisa F. Jimenez-Soto.
 Proteins from bacterial pathogens affecting insects, plants, and other bacteria were categorized as non-vertebrate targets, whereas proteins from bacterial pathogens affecting vertebrates—including fish, amphibians, birds, reptiles, and mammals—were classified as vertebrate targets. 
 
-Similarly, bacterial exotoxins were categorized based on their mode of action on how they exert their effect on the host. Bacterial exotoxins were classified into different functional types, including membrane-transducing toxins, pore-forming toxins, intracellular toxins, and toxins that degrade the extracellular matrix.
+Similarly, bacterial exotoxins were categorized based on their mode of action on how they exert their effect on the host. Bacterial exotoxins were classified into different functional types, including membrane-transducing toxins \add{(Type I)}, pore-forming toxins \add{(Type II)}, intracellular toxins\add{(Type III)}, and toxins that degrade the extracellular matrix \add{(Type IV)}.
 
-\subsection{Dataset Structure and Preprocessing}
-The curated dataset was structured in a CSV file, which contains bacterial species, their exotoxin types, and their specific targets. This labeled data was used to annotate the input files to build a predictive model for classifying bacterial exotoxins.
-
+\subsection{Dataset Structure and Pre-processing}
+The curated dataset was structured in a \replace{CSV}{\textit{csv}} file, which contains bacterial species, their exotoxin types, and their specific targets. This labeled data was used to annotate the input files to build a predictive model for classifying bacterial exotoxins.
+\comment{}{usually for file types, only lowercase are used. That is why I changed the CSV to csv. Check the literature before, but I have seen them only in lowercase}
 The FASTA file stores each exotoxin ID alongside its corresponding protein sequence. To integrate these datasets, the CSV and FASTA files were merged using their IDs. The resulting fully labeled dataset includes bacterial exotoxin sequences along with their respective types and targets. This data preprocessing step is implemented in the \texttt{data-preprocessing.py} script using Python 3.13.1.
 
 Then, a Python script was employed to eliminate sequences annotated as 'partial' or 'fragment' in their FASTA headers, thereby reducing incomplete sequences.
@@ -33,14 +33,14 @@ Then, a Python script was employed to eliminate sequences annotated as 'partial'
 \subsection{Dataset Composition}
 The final dataset contains 2,473 sequences. Type III toxins have 2,148 entries, including both Type III and Type III Control. Type II toxins have 169 entries, including Type II and Type II PFT bacteria. Type I toxins have 42 entries, while Type IV toxins have 28 entries. An additional 104 entries are categorized as Unknown, as they do not belong to any of the four existing classes.
 
-The target category consist of vertebrate-targeting exotoxins and non-vertebrate-targeting bacterial exotoxins, with 1,863 and 629 data points, respectively.
+The target category consist of vertebrate-targeting exotoxins and non-vertebrate-targeting bacterial exotoxins, with 1,863 and 629 \replace{data points}{sequences}, respectively.
 
 \section{Descriptive Statistical Analysis of Sequences}
 \label{section:descriptive_statistical_analysis}
 
 Understanding the statistical properties of protein sequences is essential for analyzing their biological characteristics and identifying potential biases in the dataset. Descriptive statistical analysis provides insights into fundamental sequence properties, such as length distributions and hydrophobicity.
 
-This analysis was conducted using custom Python scripts, incorporating key libraries such as Biopython 1.85 for sequence handling, NumPy 2.2.2 for numerical computations, and Matplotlib 3.10.0 for visualization. 
+This analysis was conducted using custom Python scripts, incorporating key libraries such as Biopython \replace{1.85 }{(version 1.85) }for sequence handling, NumPy \replace{2.2.2}{(version 2.2.2)} for numerical computations, and Matplotlib \replace{3.10.0}{version 3.10.0} for visualization. 
 
 \subsection{Mean Sequence Length}
 \label{subsection:mean_sequence_length}
@@ -81,7 +81,7 @@ These characteristics can help identify statistical outliers and reveal potentia
 \section{Redundancy Reduction}
 \label{section:redundancy_reduction}
 
-Machine learning models trained on redundant sequences may become biased toward overrepresented patterns, reducing their generalizability. To mitigate this, redundancy reduction was applied to the dataset using MMseqs2\cite{steinegger2017mmseqs2}.
+Machine learning models trained on redundant sequences may become biased toward overrepresented patterns, reducing their generalizability. To mitigate this, redundancy reduction was applied to the dataset using MMseqs2 \cite{steinegger2017mmseqs2}.
 
 The redundancy reduction process involved the following steps:
 
@@ -103,7 +103,7 @@ This redundancy reduction step is implemented in the \texttt{redundancy-reductio
 \section{Prediction of 3D Protein Folds}
 \label{section:protein_folds}
 
-After applying redundancy reduction to the protein sequences, their three-dimensional (3D) structures were predicted using AlphaFold2. The structural confidence of these predicted protein folds is quantified using the per-residue \textit{predicted Local Distance Difference Test} (\textit{pLDDT}) score. The pLDDT scores were used for exploratory purposes and no threshold was set based on pLDDT scores.
+After applying redundancy reduction to the protein sequences, their three-dimensional (3D) structures were predicted using AlphaFold2 \add{\textbf{reference?}}. The structural confidence of these predicted protein folds is quantified using the per-residue \textit{predicted Local Distance Difference Test} (\textit{pLDDT}) score. The pLDDT scores were used for exploratory purposes and no threshold was set based on pLDDT scores.
 
 \subsection{Extraction of Confidence Scores from AlphaFold2 Predictions}
 
@@ -136,16 +136,16 @@ A stratified random split was performed using the train\_test\_split function fr
 \section{Embedding Generation}
 \label{section:embedding_generation}
 
-In this study, protein embeddings were generated from both protein sequences and protein folds, utilizing protein language models: ProtT5 and ProstT5.
+\remove{In this study, }\add{P}rotein embeddings were generated from both protein sequences and protein folds, utilizing protein language models: ProtT5 and ProstT5.
 
-For protein sequence based protein embedding generation, I employed the ProtT5 language model to generate embeddings for each protein sequence which encodes protein sequence features\cite{elnaggar2021prottrans}. A Google Colab script called embed\_ProtT5.ipynb was used during embedding generation. This script was used in November 2024.
+For protein sequence based protein embedding generation, I employed the ProtT5 language model to generate embeddings for each protein sequence which encodes protein sequence features \cite{elnaggar2021prottrans}. A Google Colab script called embed\_ProtT5.ipynb was used during embedding generation. This script was used in November 2024.
 
 To incorporate structural information, embeddings were also generated using the ProstT5 language model from protein folds, which is trained to encode 3D structural features of proteins \cite{heinzinger2023prostt5}. A Google Colab script called ProstT5.ipynb was used during embedding generation.  This script was used in December 2024.
 
 \section{Dimensionality Reduction}
 \label{section:dimensionality_reduction}
 
-To reduce the complexity of embedding vectors while preserving essential information, Principal Component Analysis (PCA) was employed. PCA transforms the high-dimensional embeddings into a lower-dimensional space by keeping maximum variance. \cite{greenacre2022pca}
+To reduce the complexity of embedding vectors while preserving essential information, Principal Component Analysis (PCA) was employed. PCA transforms the high-dimensional embeddings into a lower-dimensional space by keeping maximum variance \cite{greenacre2022pca}.
 
 This dimensionality reduction step is implemented in the \texttt{dimensionality-reduction.py} script.
 
@@ -158,7 +158,7 @@ To ensure robust model validation, 5-fold cross-validation was applied, and Matt
 \label{subsection:model_selection}
 
 Several machine learning algorithms were selected for the classification tasks. The models used in this study include:
-
+\comment{Citations}{Dear Didem, the citations below are not working. Please check their existence in the bib file}
 \begin{itemize}
 	\item Random Forest  \cite{Breiman2001}
 	\item Logistic Regression  \cite{Cox1958}
@@ -166,7 +166,7 @@ Several machine learning algorithms were selected for the classification tasks. 
 	\item K-Nearest Neighbors (KNN)  \cite{Guo2003}
 \end{itemize}
 
-All machine learning models are saved in the \texttt{predictors} directory as pickle files.
+All machine learning models are saved in the \texttt{predictors} directory as \comment{pickle files}{Can you add the extension associated with this type of files here, please?}.
 
 \subsection{Additional Approach: Hierarchical Predictor} 
 \label{subsection:hierarchical_model}
@@ -176,8 +176,8 @@ To address class imbalances and improve classification accuracy, a hierarchical 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=1.1\textwidth]{images/hierarical_model_drawio.png}
-	\caption{\caption{The hierarchical predictor architecture for exotoxin classification. The model employs a two-step approach to address class imbalance and improve classification accuracy. In the first stage, a high-level classifier groups exotoxins into broader type families based on their prevalence in the dataset. In the second stage, a specialized classifier is applied within each group to refine the classification and distinguish specific exotoxin types that share similar features.}
-	}
+	\caption{The hierarchical predictor architecture for exotoxin classification. The model employs a two-step approach to address class imbalance and improve classification accuracy. In the first stage, a high-level classifier groups exotoxins into broader type families based on their prevalence in the dataset. In \replace{the}{a} second stage, a specialized classifier is applied within each group to refine the classification and distinguish specific exotoxin types that share similar features.}
+	
 	\label{fig:hier_logic}
 \end{figure}
 
@@ -192,4 +192,4 @@ To verify that the machine learning models capture meaningful biological pattern
 
 For this study, protein sequences were randomly shuffled while preserving their amino acid composition. These scrambled sequences were then processed through the same embedding pipeline using ProtT5 and ProstT5 to generate protein embeddings.
 
-Please refer to the link for the project's code and the structure of the project's data management plan: \url{https://github.com/didemd/mlclassification_exotoxins}.
+\replace{P}{For detailed information, p}lease refer to the link for the project's code and the structure of the project's data management plan: \url{https://github.com/didemd/mlclassification_exotoxins}.
