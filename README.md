@@ -1,10 +1,48 @@
 # mlclassification_exotoxins
 Master Thesis Project on Machine Learning Classification Based on Types and Targets
 
+In my master thesis, I explored advanced machine learning methods to classify bacterial exotoxins according to two critical predictors:
+
+    Exotoxin Type: Identifying the category of exotoxins (e.g., Type I, II, III, IV, or Unknown types), using sequence-based features, embeddings, and computationally extracted descriptors.
+
+    Exotoxin Target: Classifying exotoxins based on their biological targets, vertebrates and non-vertebrates, which is vital for therapeutic and diagnostic purposes.
+
+I have developed Python scripts utilizing machine learning algorithms like Random Forest, Logistic Regression, SVM, KNN, and hierarchical approaches to investigate their predictive performances. The scripts process input data, create feature embeddings, train machine learning models, evaluate their performance using standard metrics (accuracy, MCC, ROC curves, precision-recall curves), and analyze the results comprehensively.
+
+# Scripts available in the pipeline
+
+Data Splitting Methods Used:
+
+Method 1: Redundancy Reduction Split
+
+- After redundancy reduction with a sequence identity threshold of 30%, sequences exhibiting more than 30% similarity to any other sequence are excluded from the training set and instead assigned to the test set. This ensures the training set contains unique, non-redundant sequences, minimizing biases due to redundant sequences and enhancing model generalizability, while still utilizing the entire dataset for evaluation.
+
+Method 2: Standard Split
+
+- It involves performing a stratified random split on the non-redundant dataset. Using Scikit-Learn’s train_test_split function (version 1.6.1) with a fixed random state of 42 for reproducibility, the dataset is partitioned into 80% training and 20% test sets.
 
 ## Running the Code
 
+## Git installation
+- Install Git (if you don't have it)
+
+    Windows/Mac/Linux: Visit https://git-scm.com/downloads, download the installer for your operating system, and follow the installation instructions.
+
+    Verify installation by opening your terminal (command prompt) and type:
+        git --version
+
 To execute the main scripts located in `Code/python/`, use the provided `run.sh` bash script.
+
+## Clone repository
+- Clone the Repository
+
+    Go to the GitHub repository page (replace <your-repo-url> with the actual URL).
+
+    Copy the HTTPS URL provided (it should look like https://github.com/username/mlclassification_exotoxins.git).
+
+    Open your terminal and navigate to the directory where you want the project stored, then type:
+
+        git clone https://github.com/username/mlclassification_exotoxins.git
 
 ### 1. Setup
 First, give the script execution permissions:
@@ -17,9 +55,9 @@ chmod +x run.sh
 ./run.sh
 ```
 
-You will be prompted to select a script to execute (Right now main_type.py and main_target.py working):
+You will be prompted to select a script to execute:
 
-    - Choose a specific script (e.g., main_target.py) or
+    - Choose a specific script (main_target.py, main_target_folds_split.py, main_target_split.py, main_type_folds_split.py, main_type_split.py, main_type.py) 
     - Select "All" to run all main scripts sequentially.
 
 ### 3. Virtual Environmnet

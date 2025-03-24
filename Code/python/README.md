@@ -8,7 +8,61 @@ Directory Name: Code/python
 Creation Date: 2023-03-15
 Author: Didem Dost
 
-Disclaimer: For the master's thesis about "Machine Learning Classification: Differentiating Bacterial Exotoxins based on Exotoxin Types and Targets"
+# Script description
+
+Script Descriptions:
+Target Classification (Binary Predictor)
+
+    main_target_fold_standard_split.py
+
+        Input: Fold-based embeddings.
+
+        Predictor Type: Binary classification (Target-based).
+
+        Splitting Approach: Standard random data splitting (80/20 split).
+
+    main_target_redundancy_reduction_split.py
+
+        Input: Sequence-based embeddings.
+
+        Predictor Type: Binary classification (Target-based).
+
+        Splitting Approach: Redundancy reduction-based splitting.
+
+    main_target_standard_split.py
+
+        Input: Sequence-based embeddings.
+
+        Predictor Type: Binary classification (Target-based).
+
+        Splitting Approach: Standard random data splitting (80/20 split).
+
+Type Classification (Multiclass Predictor)
+
+    main_type_fold_standard_split.py
+
+        Input: Fold-based embeddings (cross-validation folds).
+
+        Predictor Type: Multiclass classification (Type-based).
+
+        Splitting Approach: Standard random data splitting (80/20 split).
+
+    main_type_redundancy_reduction_split.py
+
+        Input: Sequence-based embeddings.
+
+        Predictor Type: Multiclass classification (Type-based).
+
+        Splitting Approach: Redundancy reduction-based splitting.
+
+    main_type_standard_split.py
+
+        Input: Sequence-based embeddings.
+
+        Predictor Type: Multiclass classification (Type-based).
+
+        Splitting Approach: Standard random data splitting (80/20 split).
+
 
 ## Objective
 
