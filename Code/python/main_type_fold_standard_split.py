@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pickle
 
-from config.config import PLOT_SAVE_DIR, TRAINING_EMBEDDINGS_PATH_FOLDS, STATS_SAVE_DIR, MODEL_SAVE_DIR
+from config.config import PLOT_SAVE_DIR, TRAINING_EMBEDDINGS_PATH_FOLDS, STATS_SAVE_DIR, MODEL_SAVE_DIR, TRAINING_LABELS_PATH, BLAST_RESULTS_PATH
 
 from data_processing.data_loader import load_embeddings, load_labels, merge_embeddings_labels
 from data_processing.data_preprocessing_type import preprocess_data
@@ -102,9 +102,10 @@ def main_type_fold_standard_split():
     BLAST integration, confusion matrices, MCC comparisons, etc.
     """
     # ----------------------------------------------------------------------
-    training_labels_path = './Data/raw/ToxinTypes_labelTarget_3.csv'
-    blast_results_path = './Data/derived/blast_results.tsv'
-    model_save_dir = './Code/python/plots'
+
+    training_labels_path = TRAINING_LABELS_PATH
+    blast_results_path = BLAST_RESULTS_PATH
+
 
     # ----------------------------------------------------------------------
     # 3. Load and merge training data

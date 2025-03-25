@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pickle
 
-from config.config import PLOT_SAVE_DIR, STATS_SAVE_DIR, MODEL_SAVE_DIR  # or other paths as needed
+from config.config import PLOT_SAVE_DIR, STATS_SAVE_DIR, MODEL_SAVE_DIR, TRAINING_EMBEDDINGS_PATH, TEST_EMBEDDINGS_PATH, TRAINING_LABELS_PATH, TEST_LABELS_PATH, BLAST_RESULTS_PATH
 from data_processing.data_loader import load_embeddings, load_labels, merge_embeddings_labels
 from data_processing.data_preprocessing_type import preprocess_data
 from models.training import (
@@ -107,12 +107,12 @@ def main_type_standard_split():
     # 2. Paths
     # ----------------------------------------------------------------------
     
-    training_embeddings_path = './Data/derived/per_residue_embeddings_training.h5'
-    test_embeddings_path     = './Data/derived/per_residue_embeddings_test.h5'
-    training_labels_path     = './Data/raw/ToxinTypes_labelTarget_3.csv'
-    test_labels_path         = './Data/raw/ToxinTypes_labelTarget_3.csv'
-    blast_results_path       = './Data/derived/blast_results.tsv'
-    model_save_dir           = './Code/python/plots'
+    training_embeddings_path = TRAINING_EMBEDDINGS_PATH
+    test_embeddings_path     = TEST_EMBEDDINGS_PATH
+    training_labels_path     = TRAINING_LABELS_PATH
+    test_labels_path         = TEST_LABELS_PATH
+    blast_results_path       = BLAST_RESULTS_PATH
+
 
     # ----------------------------------------------------------------------
     # 3. Load and merge training data
