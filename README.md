@@ -21,29 +21,6 @@ Method 2: Standard Split
 
 - It involves performing a stratified random split on the non-redundant dataset. Using Scikit-Learn’s train_test_split function (version 1.6.1) with a fixed random state of 42 for reproducibility, the dataset is partitioned into 80% training and 20% test sets.
 
-## Running the Code
-
-## Git installation
-- Install Git (if you don't have it)
-
-    Windows/Mac/Linux: Visit https://git-scm.com/downloads, download the installer for your operating system, and follow the installation instructions.
-
-    Verify installation by opening your terminal (command prompt) and type:
-        git --version
-
-To execute the main scripts located in `Code/python/`, use the provided `run.sh` bash script.
-
-## Clone repository
-- Clone the Repository
-
-    Go to the GitHub repository page (replace <your-repo-url> with the actual URL).
-
-    Copy the HTTPS URL provided (it should look like https://github.com/username/mlclassification_exotoxins.git).
-
-    Open your terminal and navigate to the directory where you want the project stored, then type:
-
-        git clone https://github.com/username/mlclassification_exotoxins.git
-
 ### 1. Setup
 First, give the script execution permissions:
 ```bash
